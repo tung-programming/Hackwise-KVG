@@ -3,8 +3,8 @@
 import React from 'react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Hexagon, Menu, X, ArrowRight, Target, Brain, Trophy } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Hexagon, Menu, X, ArrowRight } from 'lucide-react'
 
 
 const particles = [
@@ -53,8 +53,20 @@ export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [email, setEmail] = useState('')
+  const [activeFeature, setActiveFeature] = useState(0)
+  const [autoKey, setAutoKey] = useState(0)
 
   useEffect(() => { setMounted(true) }, [])
+
+  // Auto-advance features; resets whenever user clicks (autoKey changes)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveFeature(prev => (prev + 1) % 4)
+    }, DURATION * 1000)
+    return () => clearInterval(interval)
+  }, [autoKey])
+
+  const DURATION = 2.5 // seconds per feature
   if (!mounted) return null
 
   return (
@@ -131,68 +143,74 @@ export default function LandingPage() {
           )}
         </nav>
 
-        {/* ── Side clouds LEFT — 2 puffs, well separated, varied inset ── */}
-        <div className="absolute left-0 top-0 bottom-0 hidden xl:block pointer-events-none z-0" style={{ width: '320px' }}>
-          {/* Puff A — upper, pulled well in */}
-          <motion.div
-            className="absolute"
-            style={{ top: '9%', left: '-4px' }}
-            animate={{ x: [0, 12, 0] }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 0 }}
-          >
-            <div style={{ filter: 'blur(16px)', opacity: 0.42 }}>
-              <Cloud style={{ width: 350, height: 'auto', color: '#ffffff' }} />
+        {/* ── Side clouds LEFT — 3 puffs ── */}
+        <div className="absolute left-0 top-0 bottom-0 hidden xl:block pointer-events-none z-0" style={{ width: '340px' }}>
+          {/* Puff A — upper */}
+          <motion.div className="absolute" style={{ top: '8%', left: '-6px' }}
+            animate={{ x: [0, 14, 0] }} transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 0 }}>
+            <div style={{ filter: 'blur(14px)', opacity: 0.48 }}>
+              <Cloud style={{ width: 360, height: 'auto', color: '#ffffff' }} />
             </div>
-            <div className="absolute inset-0" style={{ filter: 'blur(4px)', opacity: 0.70, transform: 'translateX(12px) translateY(5px)' }}>
-              <Cloud style={{ width: 280, height: 'auto', color: '#ffffff' }} />
+            <div className="absolute inset-0" style={{ filter: 'blur(3px)', opacity: 0.78, transform: 'translateX(14px) translateY(4px)' }}>
+              <Cloud style={{ width: 290, height: 'auto', color: '#ffffff' }} />
             </div>
           </motion.div>
 
-          {/* Puff B — lower third, mostly hidden behind edge */}
-          <motion.div
-            className="absolute"
-            style={{ top: '64%', left: '-38px' }}
-            animate={{ x: [0, 9, 0] }}
-            transition={{ duration: 12.5, repeat: Infinity, ease: 'easeInOut', delay: 3.2 }}
-          >
-            <div style={{ filter: 'blur(18px)', opacity: 0.40 }}>
+          {/* Puff B — mid, drifts in from left */}
+          <motion.div className="absolute" style={{ top: '43%', left: '-52px' }}
+            animate={{ x: [0, 18, 0] }} transition={{ duration: 14, repeat: Infinity, ease: 'easeInOut', delay: 2.1 }}>
+            <div style={{ filter: 'blur(20px)', opacity: 0.34 }}>
+              <Cloud style={{ width: 420, height: 'auto', color: '#e8f0f8' }} />
+            </div>
+            <div className="absolute inset-0" style={{ filter: 'blur(5px)', opacity: 0.55, transform: 'translateX(16px) translateY(6px)' }}>
+              <Cloud style={{ width: 340, height: 'auto', color: '#e8f0f8' }} />
+            </div>
+          </motion.div>
+
+          {/* Puff C — lower warm */}
+          <motion.div className="absolute" style={{ top: '66%', left: '-34px' }}
+            animate={{ x: [0, 10, 0] }} transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut', delay: 4.8 }}>
+            <div style={{ filter: 'blur(18px)', opacity: 0.38 }}>
               <Cloud style={{ width: 380, height: 'auto', color: '#f5e8d8' }} />
             </div>
-            <div className="absolute inset-0" style={{ filter: 'blur(4.5px)', opacity: 0.65, transform: 'translateX(8px) translateY(6px)' }}>
-              <Cloud style={{ width: 310, height: 'auto', color: '#f5e8d8' }} />
+            <div className="absolute inset-0" style={{ filter: 'blur(4px)', opacity: 0.62, transform: 'translateX(10px) translateY(5px)' }}>
+              <Cloud style={{ width: 305, height: 'auto', color: '#f5e8d8' }} />
             </div>
           </motion.div>
         </div>
 
-        {/* ── Side clouds RIGHT — 2 puffs, offset differently to avoid symmetry ── */}
-        <div className="absolute right-0 top-0 bottom-0 hidden xl:block pointer-events-none z-0" style={{ width: '320px' }}>
-          {/* Puff C — middle height, mostly behind edge */}
-          <motion.div
-            className="absolute"
-            style={{ top: '32%', right: '-42px' }}
-            animate={{ x: [0, -11, 0] }}
-            transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
-          >
-            <div style={{ filter: 'blur(16px)', opacity: 0.44 }}>
-              <Cloud style={{ width: 370, height: 'auto', color: '#ffffff' }} />
+        {/* ── Side clouds RIGHT — 3 puffs ── */}
+        <div className="absolute right-0 top-0 bottom-0 hidden xl:block pointer-events-none z-0" style={{ width: '340px' }}>
+          {/* Puff D — upper, partially off-edge */}
+          <motion.div className="absolute" style={{ top: '15%', right: '-50px' }}
+            animate={{ x: [0, -16, 0] }} transition={{ duration: 11.5, repeat: Infinity, ease: 'easeInOut', delay: 1.0 }}>
+            <div style={{ filter: 'blur(15px)', opacity: 0.46 }}>
+              <Cloud style={{ width: 400, height: 'auto', color: '#ffffff' }} />
             </div>
-            <div className="absolute inset-0" style={{ filter: 'blur(4px)', opacity: 0.68, transform: 'translateX(-10px) translateY(5px)' }}>
-              <Cloud style={{ width: 300, height: 'auto', color: '#ffffff' }} />
+            <div className="absolute inset-0" style={{ filter: 'blur(4px)', opacity: 0.70, transform: 'translateX(-12px) translateY(4px)' }}>
+              <Cloud style={{ width: 320, height: 'auto', color: '#ffffff' }} />
             </div>
           </motion.div>
 
-          {/* Puff D — near bottom, pulled well in, warm tone */}
-          <motion.div
-            className="absolute"
-            style={{ top: '74%', right: '-8px' }}
-            animate={{ x: [0, -8, 0] }}
-            transition={{ duration: 9.5, repeat: Infinity, ease: 'easeInOut', delay: 4.5 }}
-          >
-            <div style={{ filter: 'blur(15px)', opacity: 0.46 }}>
-              <Cloud style={{ width: 340, height: 'auto', color: '#f0ddc8' }} />
+          {/* Puff E — mid, drifts right */}
+          <motion.div className="absolute" style={{ top: '38%', right: '-20px' }}
+            animate={{ x: [0, -12, 0] }} transition={{ duration: 13, repeat: Infinity, ease: 'easeInOut', delay: 5.5 }}>
+            <div style={{ filter: 'blur(17px)', opacity: 0.36 }}>
+              <Cloud style={{ width: 350, height: 'auto', color: '#ddeef8' }} />
             </div>
-            <div className="absolute inset-0" style={{ filter: 'blur(3.5px)', opacity: 0.72, transform: 'translateX(-7px) translateY(4px)' }}>
-              <Cloud style={{ width: 270, height: 'auto', color: '#f0ddc8' }} />
+            <div className="absolute inset-0" style={{ filter: 'blur(4px)', opacity: 0.58, transform: 'translateX(-10px) translateY(5px)' }}>
+              <Cloud style={{ width: 275, height: 'auto', color: '#ddeef8' }} />
+            </div>
+          </motion.div>
+
+          {/* Puff F — lower warm, near bottom-right */}
+          <motion.div className="absolute" style={{ top: '72%', right: '-10px' }}
+            animate={{ x: [0, -9, 0] }} transition={{ duration: 9.5, repeat: Infinity, ease: 'easeInOut', delay: 3.3 }}>
+            <div style={{ filter: 'blur(14px)', opacity: 0.50 }}>
+              <Cloud style={{ width: 345, height: 'auto', color: '#f0ddc8' }} />
+            </div>
+            <div className="absolute inset-0" style={{ filter: 'blur(3px)', opacity: 0.76, transform: 'translateX(-8px) translateY(4px)' }}>
+              <Cloud style={{ width: 272, height: 'auto', color: '#f0ddc8' }} />
             </div>
           </motion.div>
         </div>
@@ -238,9 +256,9 @@ export default function LandingPage() {
               variants={fadeUp}
               className="text-5xl sm:text-6xl lg:text-[5.2rem] font-extrabold text-[#172b44] leading-[1.05] tracking-tight"
             >
-              All the Knowledge
+              Learn What
               <br />
-              <span className="text-[#f97316]">Under the Sun</span>
+              <span className="text-[#f97316]">You Love.</span>
             </motion.h1>
 
             {/* Sub */}
@@ -248,8 +266,7 @@ export default function LandingPage() {
               variants={fadeUp}
               className="text-lg sm:text-xl text-[#3d5f80] max-w-2xl mx-auto leading-relaxed"
             >
-              CourseHive connects personalized AI learning with real-world project building.
-              Master any field, track your growth, and land your dream role.
+              CourseHive analyzes your browsing history to discover what you&apos;re curious about — then builds you a personalized learning roadmap with courses, projects, and real progress tracking. Powered by AI, driven by you.
             </motion.p>
 
             {/* Email + CTA — eClaster inline style */}
@@ -263,7 +280,7 @@ export default function LandingPage() {
               />
               <Link href="/onboarding/field">
                 <button className="inline-flex items-center justify-center gap-2 bg-[#f97316] hover:bg-[#ea6c0a] text-white text-sm font-semibold px-6 py-4 rounded-full shadow-lg shadow-orange-300/50 transition-all hover:-translate-y-0.5 hover:shadow-xl whitespace-nowrap w-full sm:w-auto">
-                  Get started <ArrowRight className="w-4 h-4" />
+                  Get Started — It&apos;s Free <ArrowRight className="w-4 h-4" />
                 </button>
               </Link>
             </motion.div>
@@ -277,11 +294,11 @@ export default function LandingPage() {
             {/* ── Bento preview cards — eClaster style ── */}
             <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-left">
 
-              {/* Card 1: AI Roadmaps */}
+              {/* Card 1: Upload Your History */}
               <div className="bg-white/72 backdrop-blur-md rounded-3xl p-6 border border-white/60 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <h4 className="font-bold text-[#172b44] text-base mb-2">AI Roadmaps</h4>
-                <p className="text-xs text-[#3d5f80] leading-relaxed mb-5">Structured paths guiding you step by step — beginner to expert — tailored by AI to your goals.</p>
-                {/* Mini roadmap node chain */}
+                <h4 className="font-bold text-[#172b44] text-base mb-2">Upload Your History</h4>
+                <p className="text-xs text-[#3d5f80] leading-relaxed mb-5">Share your browsing history and let AI discover your hidden interests and curiosities automatically.</p>
+                {/* Mini step chain */}
                 <div className="flex items-center gap-1.5 mb-4">
                   {['#f97316','#2563eb','#7c3aed','#059669'].map((c, i) => (
                     <div key={i} className="flex items-center gap-1.5">
@@ -293,59 +310,59 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <div className="flex gap-2 flex-wrap">
-                  {['Beginner','Advanced','Expert'].map((tag) => (
+                  {['Chrome','Firefox','Safari'].map((tag) => (
                     <span key={tag} className="text-[10px] font-semibold bg-[#172b44]/10 text-[#172b44] px-2.5 py-1 rounded-full">{tag}</span>
                   ))}
                 </div>
               </div>
 
-              {/* Card 2: Leaderboard — dark card */}
+              {/* Card 2: Follow Your Roadmap — dark card */}
               <div className="bg-[#172b44] rounded-3xl p-6 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[10px] font-bold text-[#f97316] bg-[#f97316]/20 px-2.5 py-1 rounded-full tracking-wide">LIVE</span>
+                  <span className="text-[10px] font-bold text-[#f97316] bg-[#f97316]/20 px-2.5 py-1 rounded-full tracking-wide">AI</span>
                 </div>
-                <h4 className="font-bold text-white text-base mb-4">Leaderboard</h4>
+                <h4 className="font-bold text-white text-base mb-4">Follow Your Roadmap</h4>
                 <div className="space-y-3">
                   {[
-                    { rank: 1, name: 'Sophia L.', xp: '2,840 XP', color: '#f59e0b' },
-                    { rank: 2, name: 'Marcus K.', xp: '2,310 XP', color: '#94a3b8' },
-                    { rank: 3, name: 'Riya J.',   xp: '1,980 XP', color: '#cd7c2a' },
+                    { step: 'Interests Detected', status: 'done', color: '#f59e0b' },
+                    { step: 'Roadmap Generated', status: 'done', color: '#94a3b8' },
+                    { step: 'Courses Assigned',  status: 'active', color: '#f97316' },
                   ].map((u) => (
-                    <div key={u.rank} className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-xs font-extrabold w-4" style={{ color: u.color }}>#{u.rank}</span>
-                        <span className="text-white text-xs font-medium">{u.name}</span>
-                      </div>
-                      <span className="text-[10px] text-blue-300 font-semibold">{u.xp}</span>
+                    <div key={u.step} className="flex items-center justify-between">
+                      <span className="text-white text-xs font-medium">{u.step}</span>
+                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                        style={{ background: u.status === 'done' ? 'rgba(5,150,105,0.2)' : 'rgba(249,115,22,0.2)', color: u.status === 'done' ? '#34d399' : '#f97316' }}>
+                        {u.status === 'done' ? '✓' : '→'}
+                      </span>
                     </div>
                   ))}
                 </div>
                 <div className="mt-4 pt-3 border-t border-white/10 flex justify-end">
-                  <span className="text-[10px] text-white/50 flex items-center gap-1">View all <ArrowRight className="w-3 h-3" /></span>
+                  <span className="text-[10px] text-white/50 flex items-center gap-1">View roadmap <ArrowRight className="w-3 h-3" /></span>
                 </div>
               </div>
 
-              {/* Card 3: Resume ATS */}
+              {/* Card 3: Build & Earn XP */}
               <div className="rounded-3xl p-6 border border-white/60 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                 style={{ background: 'linear-gradient(135deg,#eef4ff 0%,#f3eeff 100%)' }}>
                 <div className="mb-3">
-                  <span className="text-[10px] font-bold text-[#2563eb] bg-[#2563eb]/15 px-2.5 py-1 rounded-full">Resume ATS</span>
+                  <span className="text-[10px] font-bold text-[#2563eb] bg-[#2563eb]/15 px-2.5 py-1 rounded-full">XP &amp; Projects</span>
                 </div>
-                <h4 className="font-bold text-[#172b44] text-base mb-2">Score your resume</h4>
-                <p className="text-xs text-[#3d5f80] leading-relaxed mb-5">AI-powered ATS analysis tells you exactly how to improve your resume for any role.</p>
-                {/* Circular score gauge */}
+                <h4 className="font-bold text-[#172b44] text-base mb-2">Build &amp; Earn XP</h4>
+                <p className="text-xs text-[#3d5f80] leading-relaxed mb-5">Complete real projects, earn XP, climb the leaderboard, and validate your skills with a portfolio.</p>
+                {/* XP gauge */}
                 <div className="flex items-center gap-4">
                   <div className="relative w-14 h-14 shrink-0">
                     <svg viewBox="0 0 48 48" className="w-14 h-14 -rotate-90">
                       <circle cx="24" cy="24" r="20" fill="none" stroke="#e0e7ff" strokeWidth="5" />
                       <circle cx="24" cy="24" r="20" fill="none" stroke="#7c3aed" strokeWidth="5"
-                        strokeDasharray={`${Math.PI * 40 * 0.87} ${Math.PI * 40}`} strokeLinecap="round" />
+                        strokeDasharray={`${Math.PI * 40 * 0.72} ${Math.PI * 40}`} strokeLinecap="round" />
                     </svg>
-                    <span className="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-[#7c3aed]">87</span>
+                    <span className="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-[#7c3aed]">72%</span>
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-[#172b44]">ATS Score</div>
-                    <div className="text-xs text-[#3d5f80]">Top 13% of resumes</div>
+                    <div className="text-sm font-bold text-[#172b44]">2,840 XP</div>
+                    <div className="text-xs text-[#3d5f80]">Level 12 · Advanced</div>
                   </div>
                 </div>
               </div>
@@ -354,13 +371,455 @@ export default function LandingPage() {
           </motion.div>
         </div>
 
-        {/* Cloud bank at bottom — 5 clouds, randomized */}
-        <div className="absolute bottom-0 left-0 right-0 h-64 pointer-events-none overflow-hidden">
-          <Cloud style={{ position:'absolute', width:440, height:'auto', bottom:-28, left:'-4%',  color:'#efe3d0', opacity:0.88 }} />
-          <Cloud style={{ position:'absolute', width:500, height:'auto', bottom: 12, left:'18%',  color:'#f5e8d8', opacity:0.72 }} />
-          <Cloud style={{ position:'absolute', width:460, height:'auto', bottom:-18, left:'40%',  color:'#ecdcc8', opacity:0.95 }} />
-          <Cloud style={{ position:'absolute', width:520, height:'auto', bottom:  8, left:'59%',  color:'#f3e9da', opacity:0.68 }} />
-          <Cloud style={{ position:'absolute', width:400, height:'auto', bottom:-22, right:'-3%', color:'#ecdcc8', opacity:0.82 }} />
+        {/* Cloud bank at bottom — 7 layered clouds, fuller coverage */}
+        <div className="absolute bottom-0 left-0 right-0 h-72 pointer-events-none overflow-hidden">
+          {/* Back row — slightly higher, more transparent */}
+          <Cloud style={{ position:'absolute', width:380, height:'auto', bottom: 40, left:'-2%',  color:'#e8dfd4', opacity:0.55 }} />
+          <Cloud style={{ position:'absolute', width:440, height:'auto', bottom: 32, left:'22%',  color:'#eee5d8', opacity:0.50 }} />
+          <Cloud style={{ position:'absolute', width:400, height:'auto', bottom: 36, left:'52%',  color:'#e8dfd4', opacity:0.52 }} />
+          <Cloud style={{ position:'absolute', width:360, height:'auto', bottom: 28, right: '0%', color:'#ede4d9', opacity:0.48 }} />
+          {/* Front row — lower, more opaque, fills the edge */}
+          <Cloud style={{ position:'absolute', width:500, height:'auto', bottom:-20, left:'-5%',  color:'#f0e6d8', opacity:0.96 }} />
+          <Cloud style={{ position:'absolute', width:480, height:'auto', bottom: -8, left:'26%',  color:'#f5ece0', opacity:0.90 }} />
+          <Cloud style={{ position:'absolute', width:520, height:'auto', bottom:-16, left:'50%',  color:'#ecddd0', opacity:0.98 }} />
+          <Cloud style={{ position:'absolute', width:460, height:'auto', bottom: -4, right:'-2%', color:'#f2e8db', opacity:0.88 }} />
+          
+          {/* Gradient to blend the clouds perfectly into the next section */}
+          <div className="absolute bottom-0 left-0 right-0 h-32" style={{ background: 'linear-gradient(to bottom, transparent, #ddeef8)' }} />
+        </div>
+      </section>
+
+
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      {/*  FEATURES — interactive selector, sky palette            */}
+      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+      <section id="features" className="relative py-32 px-6 overflow-hidden" style={{ background: 'linear-gradient(180deg,#ddeef8 0%,#cce4f5 25%,#d8ecf0 55%,#e8e0d0 100%)' }}>
+
+        {/* Floating particles — same as hero */}
+        {particles.map((p, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full bg-white/50 pointer-events-none"
+            style={{ width: p.size, height: p.size, left: `${p.x}%`, top: `${p.y}%` }}
+            animate={{ opacity: [0.2, 0.6, 0.2], y: [0, -10, 0] }}
+            transition={{ duration: p.dur, repeat: Infinity, delay: p.delay, ease: 'easeInOut' }}
+          />
+        ))}
+
+        {/* Soft light orbs */}
+        <div className="absolute top-20 left-1/4 w-96 h-96 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.45) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+        <div className="absolute bottom-32 right-1/4 w-80 h-80 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(249,200,120,0.35) 0%, transparent 70%)', filter: 'blur(40px)' }} />
+
+        <div className="relative z-10 max-w-6xl mx-auto">
+
+          {/* ── Section header ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-20"
+          >
+            <div className="flex items-center justify-center gap-4 mb-5">
+              <div className="h-px w-10 bg-[#172b44]/20" />
+              <span className="text-[11px] font-bold tracking-[0.22em] uppercase text-[#f97316]">Why CourseHive</span>
+              <div className="h-px w-10 bg-[#172b44]/20" />
+            </div>
+            <h2 className="text-5xl sm:text-6xl lg:text-[4.6rem] font-extrabold text-[#172b44] leading-[1.04] tracking-tight mb-5">
+              Learn smarter,{' '}
+              <span className="text-[#f97316]">not harder.</span>
+            </h2>
+            <p className="text-[#3d5f80] text-lg max-w-xl mx-auto leading-relaxed">
+              Four systems engineered around how curious people actually grow.
+            </p>
+          </motion.div>
+
+          {/* ── Interactive selector layout ── */}
+          <div className="grid lg:grid-cols-[5fr_7fr] gap-10 lg:items-stretch" style={{ minHeight: '540px' }}>
+
+            {/* Left: Roadmap flow — full height flex */}
+            <motion.div
+              initial={{ opacity: 0, x: -24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.65 }}
+              className="flex flex-col h-full"
+            >
+              {([
+                {
+                  num: '01', title: 'Personalized Interests',
+                  label: 'Discovery',
+                  desc: 'Upload your browsing history. AI maps what genuinely excites you and builds your unique learning identity.',
+                  accent: '#7c3aed',
+                },
+                {
+                  num: '02', title: 'AI-Powered Roadmaps',
+                  label: 'Planning',
+                  desc: 'A structured learning sequence generated for your exact goals — from zero to job-ready, every step defined.',
+                  accent: '#f97316',
+                },
+                {
+                  num: '03', title: 'Project Validation',
+                  label: 'Building',
+                  desc: 'Build real projects tied to your roadmap and get them verified. A live portfolio that proves what you know.',
+                  accent: '#059669',
+                },
+                {
+                  num: '04', title: 'Leaderboard & Streaks',
+                  label: 'Competing',
+                  desc: 'Earn XP, maintain streaks, climb weekly leaderboards. Learning becomes a habit you actually enjoy.',
+                  accent: '#d97706',
+                },
+              ] as const).map((f, i) => {
+                const isActive = activeFeature === i
+                const isDone   = i < activeFeature
+
+                return (
+                  <div key={i} className="flex gap-4 flex-1 min-h-0">
+
+                    {/* Node + connector column */}
+                    <div className="flex flex-col items-center shrink-0">
+                      <button
+                        onClick={() => { setActiveFeature(i); setAutoKey(k => k + 1) }}
+                        className="relative w-12 h-12 rounded-full flex items-center justify-center z-10 transition-all duration-300 cursor-pointer shrink-0"
+                        style={{
+                          background: isActive ? f.accent : isDone ? 'rgba(5,150,105,0.12)' : 'rgba(255,255,255,0.75)',
+                          border: `2px solid ${isActive ? f.accent : isDone ? 'rgba(5,150,105,0.5)' : 'rgba(23,43,68,0.14)'}`,
+                          boxShadow: isActive ? `0 0 0 7px ${f.accent}1a, 0 4px 16px ${f.accent}30` : 'none',
+                        }}
+                      >
+                        {isActive && (
+                          <motion.span
+                            className="absolute inset-0 rounded-full"
+                            style={{ border: `2px solid ${f.accent}` }}
+                            animate={{ scale: [1, 1.6, 1.6], opacity: [0.6, 0, 0] }}
+                            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut' }}
+                          />
+                        )}
+                        {isDone ? (
+                          <svg className="w-4 h-4" style={{ color: '#059669' }} fill="none" viewBox="0 0 16 16" stroke="currentColor" strokeWidth={2.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l3.5 3.5L13 4.5" />
+                          </svg>
+                        ) : (
+                          <span className="text-xs font-black tracking-tight" style={{ color: isActive ? '#fff' : 'rgba(23,43,68,0.3)' }}>
+                            {f.num}
+                          </span>
+                        )}
+                      </button>
+
+                      {i < 3 && (
+                        <div className="w-px flex-1 my-1.5 rounded-full transition-all duration-500"
+                          style={{
+                            background: isDone
+                              ? 'rgba(5,150,105,0.5)'
+                              : isActive
+                              ? `linear-gradient(to bottom, ${f.accent}90, rgba(23,43,68,0.1))`
+                              : 'rgba(23,43,68,0.1)',
+                          }}
+                        />
+                      )}
+                    </div>
+
+                    {/* Step content */}
+                    <button
+                      onClick={() => { setActiveFeature(i); setAutoKey(k => k + 1) }}
+                      className="flex-1 text-left pb-2 pt-1.5 min-w-0"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-[9px] font-bold tracking-[0.18em] uppercase transition-colors duration-300"
+                          style={{ color: isActive ? f.accent : isDone ? 'rgba(5,150,105,0.7)' : 'rgba(23,43,68,0.28)' }}>
+                          {f.label}
+                        </span>
+                      </div>
+
+                      <p className="font-semibold text-[17px] leading-snug tracking-tight transition-colors duration-300"
+                        style={{ color: isActive ? '#172b44' : isDone ? 'rgba(23,43,68,0.6)' : 'rgba(23,43,68,0.32)' }}>
+                        {f.title}
+                      </p>
+
+                      <AnimatePresence>
+                        {isActive && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.25 }}
+                            className="overflow-hidden"
+                          >
+                            <p className="text-[13px] text-[#3d5f80] mt-2 leading-relaxed">{f.desc}</p>
+                            <div className="mt-3 h-px rounded-full overflow-hidden" style={{ background: 'rgba(23,43,68,0.1)' }}>
+                              <motion.div
+                                key={`timer-${autoKey}-${i}`}
+                                className="h-full rounded-full origin-left"
+                                style={{ background: f.accent }}
+                                initial={{ scaleX: 0 }}
+                                animate={{ scaleX: 1 }}
+                                transition={{ duration: DURATION, ease: 'linear' }}
+                              />
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </button>
+
+                  </div>
+                )
+              })}
+            </motion.div>
+
+            {/* Right: Animated feature card */}
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.65, delay: 0.1 }}
+              className="relative h-full"
+            >
+              {/* Ambient glow behind card */}
+              <div className="absolute inset-0 rounded-3xl blur-2xl scale-95 pointer-events-none transition-all duration-700"
+                style={{ background: [
+                  'rgba(124,58,237,0.12)',
+                  'rgba(249,115,22,0.12)',
+                  'rgba(5,150,105,0.10)',
+                  'rgba(217,119,6,0.10)',
+                ][activeFeature] }} />
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeFeature}
+                  initial={{ opacity: 0, y: 18, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -18, scale: 0.96 }}
+                  transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                  className="relative h-full rounded-3xl overflow-hidden border border-white/70 shadow-2xl shadow-[#172b44]/10"
+                  style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(24px)' }}
+                >
+                  {/* Coloured top strip */}
+                  <div className="h-1 w-full" style={{ background: [
+                    'linear-gradient(90deg,#7c3aed,#a78bfa)',
+                    'linear-gradient(90deg,#f97316,#fbbf24)',
+                    'linear-gradient(90deg,#059669,#34d399)',
+                    'linear-gradient(90deg,#d97706,#f59e0b)',
+                  ][activeFeature] }} />
+
+                  <div className="p-7">
+
+                    {/* ── Mockup 0: Interests ── */}
+                    {activeFeature === 0 && (
+                      <div className="space-y-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#7c3aed]/70">AI Analysis Complete</span>
+                            <h3 className="text-xl font-bold text-[#172b44] mt-0.5 tracking-tight">Your Interest Profile</h3>
+                          </div>
+                          <span className="text-[10px] font-bold text-[#7c3aed] bg-[#7c3aed]/10 px-3 py-1.5 rounded-full shrink-0 border border-[#7c3aed]/15">
+                            3 months · 4,200 sites
+                          </span>
+                        </div>
+
+                        <div className="space-y-4">
+                          {[
+                            { topic: 'Machine Learning',  pct: 84, color: '#7c3aed', sources: 'YouTube · arXiv · GitHub' },
+                            { topic: 'Web Development',   pct: 67, color: '#2563eb', sources: 'MDN · Dev.to · Stack Overflow' },
+                            { topic: 'System Design',     pct: 45, color: '#059669', sources: 'Medium · HN · Blogs' },
+                            { topic: 'Data Engineering',  pct: 31, color: '#d97706', sources: 'Docs · Courses · Reddit' },
+                          ].map((item, idx) => (
+                            <div key={item.topic}>
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-semibold text-[#172b44]">{item.topic}</span>
+                                <span className="text-xs font-bold tabular-nums" style={{ color: item.color }}>{item.pct}%</span>
+                              </div>
+                              <div className="h-2 rounded-full overflow-hidden mb-1.5" style={{ background: 'rgba(23,43,68,0.07)' }}>
+                                <motion.div className="h-full rounded-full"
+                                  style={{ background: `linear-gradient(90deg, ${item.color}, ${item.color}99)` }}
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${item.pct}%` }}
+                                  transition={{ duration: 0.8, delay: idx * 0.1, ease: 'easeOut' }} />
+                              </div>
+                              <p className="text-[10px] text-[#3d5f80]/55 font-medium">{item.sources}</p>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center gap-2.5 pt-3 border-t border-[#172b44]/8">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#7c3aed] animate-pulse shrink-0" />
+                          <span className="text-xs text-[#3d5f80] font-medium">Generating your personalised roadmap…</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── Mockup 1: Roadmap ── */}
+                    {activeFeature === 1 && (
+                      <div className="space-y-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#f97316]/70">Your Path</span>
+                            <h3 className="text-xl font-bold text-[#172b44] mt-0.5 tracking-tight">ML Roadmap</h3>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <div className="text-3xl font-black text-[#f97316] leading-none tabular-nums">68%</div>
+                            <div className="text-[10px] text-[#3d5f80]/60 font-medium mt-0.5">complete</div>
+                          </div>
+                        </div>
+
+                        <div className="h-2 rounded-full overflow-hidden" style={{ background: 'rgba(23,43,68,0.07)' }}>
+                          <motion.div className="h-full rounded-full"
+                            style={{ background: 'linear-gradient(90deg,#f97316,#fbbf24)' }}
+                            initial={{ width: 0 }} animate={{ width: '68%' }}
+                            transition={{ duration: 0.9, ease: 'easeOut' }} />
+                        </div>
+
+                        <div className="space-y-1.5">
+                          {[
+                            { phase: 'Python Foundations', weeks: '2 wks', status: 'done'   },
+                            { phase: 'Data & Statistics',  weeks: '3 wks', status: 'done'   },
+                            { phase: 'ML Algorithms',      weeks: '4 wks', status: 'active' },
+                            { phase: 'Neural Networks',    weeks: '5 wks', status: 'locked' },
+                            { phase: 'Capstone Project',   weeks: '3 wks', status: 'locked' },
+                          ].map((s, idx) => (
+                            <div key={idx} className="flex items-center gap-3 px-3 py-2.5 rounded-xl"
+                              style={{ background: s.status === 'active' ? 'rgba(249,115,22,0.07)' : 'rgba(23,43,68,0.02)', border: s.status === 'active' ? '1px solid rgba(249,115,22,0.18)' : '1px solid transparent' }}>
+                              <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-[10px] font-bold"
+                                style={{
+                                  background: s.status === 'done' ? '#059669' : s.status === 'active' ? '#f97316' : 'rgba(23,43,68,0.07)',
+                                  color: s.status === 'locked' ? 'rgba(23,43,68,0.25)' : '#fff',
+                                }}>
+                                {s.status === 'done' ? '✓' : s.status === 'active' ? '▶' : idx + 1}
+                              </div>
+                              <span className="flex-1 text-sm font-medium"
+                                style={{ color: s.status === 'locked' ? 'rgba(23,43,68,0.3)' : '#172b44' }}>
+                                {s.phase}
+                              </span>
+                              <span className="text-[10px] font-semibold shrink-0"
+                                style={{ color: s.status === 'active' ? '#f97316' : 'rgba(23,43,68,0.3)' }}>
+                                {s.status === 'active' ? 'In Progress' : s.weeks}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── Mockup 2: Projects ── */}
+                    {activeFeature === 2 && (
+                      <div className="space-y-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#059669]/70">Portfolio</span>
+                            <h3 className="text-xl font-bold text-[#172b44] mt-0.5 tracking-tight">Validated Projects</h3>
+                          </div>
+                          <span className="text-[10px] font-bold text-[#059669] bg-[#059669]/10 px-3 py-1.5 rounded-full shrink-0 border border-[#059669]/15">
+                            2 of 4 Verified ✓
+                          </span>
+                        </div>
+
+                        <div className="space-y-2.5">
+                          {[
+                            { name: 'Sentiment Classifier', stack: ['Python', 'scikit-learn', 'Flask'], status: 'verified', score: 94 },
+                            { name: 'Portfolio Dashboard',  stack: ['React', 'Tailwind', 'Recharts'],  status: 'verified', score: 88 },
+                            { name: 'Recommendation API',   stack: ['FastAPI', 'Redis', 'Docker'],     status: 'review',   score: null },
+                          ].map(p => (
+                            <div key={p.name} className="flex items-center gap-3.5 p-4 rounded-2xl border"
+                              style={{
+                                borderColor: p.status === 'verified' ? 'rgba(5,150,105,0.2)' : 'rgba(23,43,68,0.09)',
+                                background:  p.status === 'verified' ? 'rgba(5,150,105,0.05)' : 'rgba(23,43,68,0.025)',
+                              }}>
+                              <div className="w-10 h-10 rounded-xl shrink-0 flex items-center justify-center font-bold text-base"
+                                style={{
+                                  background: p.status === 'verified' ? 'rgba(5,150,105,0.14)' : 'rgba(23,43,68,0.07)',
+                                  color: p.status === 'verified' ? '#059669' : '#94a3b8',
+                                }}>
+                                {p.status === 'verified' ? '✓' : '⏳'}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-semibold text-[#172b44] truncate">{p.name}</p>
+                                <div className="flex gap-1 mt-1.5 flex-wrap">
+                                  {p.stack.map(t => (
+                                    <span key={t} className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
+                                      style={{ background: 'rgba(23,43,68,0.07)', color: '#3d5f80' }}>{t}</span>
+                                  ))}
+                                </div>
+                              </div>
+                              {p.score !== null
+                                ? <span className="text-lg font-black shrink-0 tabular-nums" style={{ color: '#059669' }}>{p.score}</span>
+                                : <span className="text-[10px] font-semibold text-[#d97706] bg-[#d97706]/10 px-2 py-1 rounded-full shrink-0">Review</span>
+                              }
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex items-center justify-between pt-3 border-t border-[#172b44]/8">
+                          <span className="text-xs text-[#3d5f80] font-medium">Share your portfolio</span>
+                          <span className="text-[10px] font-bold text-[#2563eb] bg-[#2563eb]/10 px-3 py-1.5 rounded-full border border-[#2563eb]/15 cursor-pointer">Copy Link</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── Mockup 3: Leaderboard ── */}
+                    {activeFeature === 3 && (
+                      <div className="space-y-5">
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#d97706]/70">This Week</span>
+                            <h3 className="text-xl font-bold text-[#172b44] mt-0.5 tracking-tight">Global Leaderboard</h3>
+                          </div>
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full shrink-0 border border-[#f97316]/20"
+                            style={{ background: 'rgba(249,115,22,0.08)' }}>
+                            <span>🔥</span>
+                            <span className="text-sm font-black text-[#f97316] tabular-nums">47</span>
+                            <span className="text-[10px] text-[#f97316]/60 font-medium">day streak</span>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          {[
+                            { rank: 1, name: 'Sophia L.', xp: 4200, max: 4200, medal: '🥇', you: false },
+                            { rank: 2, name: 'Marcus K.', xp: 3840, max: 4200, medal: '🥈', you: false },
+                            { rank: 3, name: 'You 🔥',    xp: 3200, max: 4200, medal: '🥉', you: true  },
+                            { rank: 4, name: 'Riya J.',   xp: 2990, max: 4200, medal: '',   you: false },
+                            { rank: 5, name: 'James O.',  xp: 2640, max: 4200, medal: '',   you: false },
+                          ].map(u => (
+                            <div key={u.rank} className="px-3 py-2.5 rounded-xl"
+                              style={{
+                                background: u.you ? 'rgba(249,115,22,0.07)' : 'rgba(23,43,68,0.025)',
+                                border: u.you ? '1px solid rgba(249,115,22,0.18)' : '1px solid transparent',
+                              }}>
+                              <div className="flex items-center gap-3 mb-1.5">
+                                <span className="text-sm w-5 shrink-0 text-center">{u.medal || `#${u.rank}`}</span>
+                                <span className="text-sm flex-1 font-medium"
+                                  style={{ color: u.you ? '#f97316' : '#172b44', fontWeight: u.you ? 700 : 500 }}>
+                                  {u.name}
+                                </span>
+                                <span className="text-xs font-bold tabular-nums shrink-0"
+                                  style={{ color: u.you ? '#f97316' : '#3d5f80' }}>
+                                  {u.xp.toLocaleString()} XP
+                                </span>
+                              </div>
+                              <div className="h-1.5 rounded-full overflow-hidden ml-8" style={{ background: 'rgba(23,43,68,0.07)' }}>
+                                <motion.div className="h-full rounded-full"
+                                  style={{ background: u.you ? 'linear-gradient(90deg,#f97316,#fbbf24)' : 'linear-gradient(90deg,#93c5fd,#818cf8)' }}
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${(u.xp / u.max) * 100}%` }}
+                                  transition={{ duration: 0.7, delay: u.rank * 0.07, ease: 'easeOut' }} />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="text-center pt-1 border-t border-[#172b44]/8">
+                          <span className="text-xs text-[#3d5f80]/60 font-medium">160 XP to reach rank #2 — keep going!</span>
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </motion.div>
+
+          </div>
         </div>
       </section>
 
@@ -429,25 +888,25 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-4 mb-4">
             {[
               {
-                quote: "The AI roadmaps saved me months of guesswork. I knew exactly what to learn and in what order. Landed my first dev role in 5 months.",
+                quote: "I uploaded my browser history and CourseHive instantly knew I was obsessed with machine learning videos. The roadmap it generated was exactly what I needed — I stopped jumping between random tutorials.",
                 name: 'Marcus K.',
-                role: 'Frontend Developer',
-                field: 'Web Development',
+                role: 'ML Engineer',
+                field: 'Machine Learning',
                 init: 'MK',
                 from: '#34d399', to: '#059669',
                 stars: 5,
               },
               {
-                quote: "I've tried every learning platform out there. CourseHive is the only one where I actually finished what I started — the gamification is genius.",
+                quote: "The XP system and leaderboard made me actually look forward to studying. I went from zero to 3,200 XP in a month and built two real projects I could put on my resume.",
                 name: 'Priya S.',
-                role: 'Product Manager',
-                field: 'Product & Strategy',
+                role: 'Full Stack Developer',
+                field: 'Web Development',
                 init: 'PS',
                 from: '#818cf8', to: '#6366f1',
                 stars: 5,
               },
               {
-                quote: "Resume ATS scoring helped me rewrite my CV and double my interview callbacks. Worth it for that feature alone.",
+                quote: "I had no idea what to learn next. CourseHive detected I was interested in data from my browsing history and built me a structured roadmap. Landed a data analyst role in 4 months.",
                 name: 'James O.',
                 role: 'Data Analyst',
                 field: 'Data & Analytics',
@@ -535,7 +994,7 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <p className="text-white/85 text-lg sm:text-xl leading-relaxed font-light">
-                  "The AI-generated roadmaps are incredibly well-structured. I went from knowing nothing about ML to landing a new role in just 4 months. CourseHive understood my pace and kept me motivated every single step of the way."
+                  "I never thought browsing YouTube and Reddit would actually help my career. CourseHive read my history and built me a roadmap for product design. I finished every single course, earned 4,200 XP, and finally have projects I&apos;m proud to show."
                 </p>
                 <div className="flex items-center gap-4 pt-1">
                   <div className="w-11 h-11 rounded-full shrink-0 flex items-center justify-center text-white text-xs font-bold"
@@ -544,7 +1003,7 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <div className="text-white font-semibold">Sophia L.</div>
-                    <div className="text-white/45 text-sm">Software Engineer · Upskilled in Machine Learning</div>
+                    <div className="text-white/45 text-sm">Product Designer · Built 3 validated projects on CourseHive</div>
                   </div>
                 </div>
               </div>
@@ -552,7 +1011,7 @@ export default function LandingPage() {
               {/* CTA side */}
               <div className="shrink-0 flex flex-col items-center sm:items-end gap-4 sm:pl-8 sm:border-l sm:border-white/8">
                 <p className="text-white/50 text-sm text-center sm:text-right max-w-40 leading-relaxed">
-                  Join 50,000+ learners transforming their careers
+                  Join learners who turned curiosity into real skills
                 </p>
                 <Link href="/onboarding/field">
                   <button className="inline-flex items-center gap-2 bg-[#f97316] hover:bg-[#ea6c0a] text-white text-sm font-semibold px-6 py-3.5 rounded-full shadow-lg shadow-orange-900/40 transition-all hover:-translate-y-0.5 whitespace-nowrap">
@@ -722,309 +1181,6 @@ export default function LandingPage() {
       </section>
 
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {/*  FEATURES — premium bento grid                          */}
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      <section id="features" className="py-36 px-6" style={{ background: '#f0f2f8' }}>
-        <div className="max-w-6xl mx-auto">
-
-          {/* Header */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-14"
-          >
-            <div className="flex items-center justify-center gap-4 mb-5">
-              <div className="h-px w-10 bg-[#172b44]/20" />
-              <span className="text-[11px] font-bold tracking-[0.22em] uppercase text-[#f97316]">Why CourseHive</span>
-              <div className="h-px w-10 bg-[#172b44]/20" />
-            </div>
-            <h2 className="text-5xl sm:text-6xl font-extrabold text-[#172b44] leading-tight tracking-tight">
-              Built different,
-              <br /><span className="font-light italic">for real results</span>
-            </h2>
-            <p className="text-[#3d5f80] text-lg mt-5 max-w-xl mx-auto">
-              Every feature is designed around one goal — getting you from where you are to where you want to be.
-            </p>
-          </motion.div>
-
-          {/* ── Bento grid ── */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-            {/* ═══ CARD A — AI Roadmap (col-span-2) ═══ */}
-            <motion.div
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.65 }}
-              className="md:col-span-2 bg-white rounded-2xl p-8 border border-[#e2e6f2] shadow-sm overflow-hidden relative"
-            >
-              {/* Subtle purple glow top-right */}
-              <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.07) 0%, transparent 70%)' }} />
-
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <span className="text-[10px] font-bold tracking-widest uppercase text-[#7c3aed] bg-[#f3f0ff] px-3 py-1 rounded-full">AI Roadmap</span>
-                  <h3 className="text-xl font-bold text-[#172b44] mt-3 mb-1">Your personalized path to mastery</h3>
-                  <p className="text-sm text-[#3d5f80]">AI builds your exact learning sequence — no guesswork, no wasted time.</p>
-                </div>
-                <div className="w-10 h-10 rounded-xl bg-[#f3f0ff] flex items-center justify-center shrink-0 ml-4">
-                  <Brain className="w-5 h-5 text-[#7c3aed]" />
-                </div>
-              </div>
-
-              {/* Roadmap visual */}
-              <div className="bg-[#fafbff] rounded-xl p-5 border border-[#eaecf8]">
-                <div className="text-[10px] font-semibold text-[#8896b0] uppercase tracking-wider mb-4">Machine Learning Path · 68% complete</div>
-                <div className="flex flex-col gap-3">
-                  {[
-                    { topic: 'Python Fundamentals',    status: 'done',    weeks: '2 weeks', color: '#059669' },
-                    { topic: 'Data Structures & Algo', status: 'done',    weeks: '3 weeks', color: '#059669' },
-                    { topic: 'ML Fundamentals',        status: 'current', weeks: '4 weeks', color: '#f97316' },
-                    { topic: 'Neural Networks',        status: 'upcoming',weeks: '5 weeks', color: '#94a3b8' },
-                    { topic: 'Deep Learning & LLMs',   status: 'upcoming',weeks: '6 weeks', color: '#94a3b8' },
-                  ].map((n, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      {/* Status dot */}
-                      <div className="relative shrink-0">
-                        {n.status === 'current' && (
-                          <div className="absolute inset-0 rounded-full animate-ping" style={{ background: '#f97316', opacity: 0.3 }} />
-                        )}
-                        <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center"
-                          style={{ borderColor: n.color, background: n.status === 'done' ? n.color : 'white' }}>
-                          {n.status === 'done' && (
-                            <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 10 10">
-                              <path d="M2 5l2.5 2.5L8 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            </svg>
-                          )}
-                          {n.status === 'current' && <div className="w-2 h-2 rounded-full" style={{ background: n.color }} />}
-                        </div>
-                      </div>
-                      {/* Connector line */}
-                      <div className="flex-1 flex items-center gap-3">
-                        <span className={`text-sm font-medium ${n.status === 'upcoming' ? 'text-[#94a3b8]' : 'text-[#172b44]'}`}>{n.topic}</span>
-                        <div className="flex-1 h-px" style={{ background: i < 2 ? '#e2f5ed' : '#f0f2f8' }} />
-                        <span className="text-[10px] font-medium shrink-0" style={{ color: n.color }}>{n.weeks}</span>
-                        {n.status === 'done' && <span className="text-[10px] bg-[#e2f5ed] text-[#059669] font-bold px-2 py-0.5 rounded-full shrink-0">✓ Done</span>}
-                        {n.status === 'current' && <span className="text-[10px] bg-orange-100 text-[#f97316] font-bold px-2 py-0.5 rounded-full shrink-0 animate-pulse">In progress</span>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-
-            {/* ═══ CARD B — Gamification (col-span-1, dark) ═══ */}
-            <motion.div
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.65, delay: 0.12 }}
-              className="bg-[#172b44] rounded-2xl p-8 border border-[#1e3a5c] shadow-sm overflow-hidden relative flex flex-col"
-            >
-              <div className="absolute -bottom-10 -right-10 w-44 h-44 rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)' }} />
-
-              <span className="text-[10px] font-bold tracking-widest uppercase text-[#f97316] bg-[#f97316]/15 px-3 py-1 rounded-full self-start mb-6">Gamified Progress</span>
-
-              {/* Streak */}
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-orange-500/20 flex items-center justify-center text-2xl">🔥</div>
-                <div>
-                  <div className="text-3xl font-extrabold text-white leading-none">47</div>
-                  <div className="text-xs text-white/50 mt-0.5">day streak</div>
-                </div>
-              </div>
-
-              {/* Level badge */}
-              <div className="flex items-center gap-3 mb-6 p-3 rounded-xl bg-white/5 border border-white/8">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white text-xs font-extrabold">12</div>
-                <div>
-                  <div className="text-sm font-bold text-white">Level 12</div>
-                  <div className="text-[10px] text-white/40">Advanced Learner</div>
-                </div>
-                <div className="ml-auto">
-                  <Trophy className="w-4 h-4 text-amber-400" />
-                </div>
-              </div>
-
-              {/* XP bar */}
-              <div className="mb-1 flex justify-between items-center">
-                <span className="text-xs text-white/50">XP Progress</span>
-                <span className="text-xs font-bold text-white">2,840 / 3,000</span>
-              </div>
-              <div className="w-full h-2 bg-white/10 rounded-full mb-6 overflow-hidden">
-                <motion.div
-                  className="h-full rounded-full"
-                  style={{ background: 'linear-gradient(90deg,#f97316,#fbbf24)' }}
-                  initial={{ width: 0 }}
-                  whileInView={{ width: '94%' }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1.2, delay: 0.4, ease: 'easeOut' }}
-                />
-              </div>
-
-              {/* Sticky quote */}
-              <div className="mt-auto bg-[#fdfaf0] rounded-xl p-4 shadow-lg" style={{ transform: 'rotate(-1.5deg)' }}>
-                <p className="text-xs italic text-[#4a3a20] leading-relaxed">"I check my streak every morning before coffee — it's become a ritual."</p>
-                <p className="text-[10px] text-[#8a7040] mt-2 font-medium">— Aryan M. · Web Developer</p>
-              </div>
-            </motion.div>
-
-            {/* ═══ CARD C — Leaderboard (col-span-1) ═══ */}
-            <motion.div
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.65, delay: 0.18 }}
-              className="bg-white rounded-2xl p-8 border border-[#e2e6f2] shadow-sm overflow-hidden relative"
-            >
-              <div className="absolute -top-12 -left-12 w-40 h-40 rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(37,99,235,0.07) 0%, transparent 70%)' }} />
-
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <span className="text-[10px] font-bold tracking-widest uppercase text-[#2563eb] bg-[#eff4ff] px-3 py-1 rounded-full">Leaderboard</span>
-                  <h3 className="text-lg font-bold text-[#172b44] mt-3">Top learners</h3>
-                </div>
-                <span className="text-[10px] text-[#94a3b8] bg-[#f4f6fb] px-2 py-1 rounded-full">This week</span>
-              </div>
-
-              <div className="space-y-3">
-                {[
-                  { rank: 1, name: 'Sophia L.',  xp: 2840, max: 2840, color: '#f59e0b', from: '#818cf8', to: '#6366f1' },
-                  { rank: 2, name: 'Marcus K.',  xp: 2310, max: 2840, color: '#94a3b8', from: '#34d399', to: '#059669' },
-                  { rank: 3, name: 'Riya J.',    xp: 1980, max: 2840, color: '#cd7c2a', from: '#fb923c', to: '#ea580c' },
-                  { rank: 4, name: 'Priya S.',   xp: 1640, max: 2840, color: '#cbd5e1', from: '#60a5fa', to: '#2563eb' },
-                ].map((u) => (
-                  <div key={u.rank}>
-                    <div className="flex items-center gap-3 mb-1.5">
-                      <span className="text-[11px] font-extrabold w-4 shrink-0" style={{ color: u.color }}>#{u.rank}</span>
-                      <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-white text-[9px] font-bold"
-                        style={{ background: `linear-gradient(135deg,${u.from},${u.to})` }}>
-                        {u.name.split(' ').map(n => n[0]).join('')}
-                      </div>
-                      <span className="text-xs font-semibold text-[#172b44] flex-1">{u.name}</span>
-                      <span className="text-[10px] text-[#3d5f80] font-medium shrink-0">{u.xp.toLocaleString()} XP</span>
-                    </div>
-                    <div className="ml-7 h-1.5 bg-[#f0f2f8] rounded-full overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full"
-                        style={{ background: `linear-gradient(90deg,${u.from},${u.to})` }}
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${(u.xp / u.max) * 100}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1.0, delay: 0.3 + u.rank * 0.1, ease: 'easeOut' }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-5 pt-4 border-t border-[#f0f2f8] flex items-center justify-between">
-                <span className="text-xs text-[#3d5f80]">You are <span className="font-bold text-[#172b44]">#18</span> this week</span>
-                <span className="text-[10px] text-[#2563eb] font-semibold flex items-center gap-1 cursor-pointer hover:underline">
-                  View all <ArrowRight className="w-3 h-3" />
-                </span>
-              </div>
-            </motion.div>
-
-            {/* ═══ CARD D — Resume ATS (col-span-2) ═══ */}
-            <motion.div
-              initial={{ opacity: 0, y: 32 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.65, delay: 0.24 }}
-              className="md:col-span-2 bg-white rounded-2xl p-8 border border-[#e2e6f2] shadow-sm overflow-hidden relative"
-            >
-              <div className="absolute -bottom-14 right-0 w-64 h-64 rounded-full pointer-events-none"
-                style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.06) 0%, transparent 70%)' }} />
-
-              <div className="flex items-start justify-between mb-6">
-                <div>
-                  <span className="text-[10px] font-bold tracking-widest uppercase text-[#7c3aed] bg-[#f3f0ff] px-3 py-1 rounded-full">Resume Intelligence</span>
-                  <h3 className="text-xl font-bold text-[#172b44] mt-3 mb-1">AI-powered ATS scoring</h3>
-                  <p className="text-sm text-[#3d5f80]">Know exactly how recruiters see your resume before you apply.</p>
-                </div>
-                <div className="w-10 h-10 rounded-xl bg-[#f3f0ff] flex items-center justify-center shrink-0 ml-4">
-                  <Target className="w-5 h-5 text-[#7c3aed]" />
-                </div>
-              </div>
-
-              <div className="grid sm:grid-cols-[auto_1fr] gap-8 items-start">
-                {/* Score gauge */}
-                <div className="flex flex-col items-center gap-3">
-                  <div className="relative w-28 h-28">
-                    <svg viewBox="0 0 96 96" className="w-28 h-28 -rotate-90">
-                      <circle cx="48" cy="48" r="40" fill="none" stroke="#ede9fe" strokeWidth="9" />
-                      <motion.circle cx="48" cy="48" r="40" fill="none" stroke="url(#atsGrad)" strokeWidth="9"
-                        strokeLinecap="round"
-                        initial={{ strokeDasharray: `0 ${Math.PI * 80}` }}
-                        whileInView={{ strokeDasharray: `${Math.PI * 80 * 0.87} ${Math.PI * 80}` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1.4, delay: 0.3, ease: 'easeOut' }}
-                      />
-                      <defs>
-                        <linearGradient id="atsGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                          <stop offset="0%" stopColor="#a78bfa" />
-                          <stop offset="100%" stopColor="#7c3aed" />
-                        </linearGradient>
-                      </defs>
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-3xl font-extrabold text-[#7c3aed] leading-none">87</span>
-                      <span className="text-[10px] text-[#94a3b8] mt-0.5">/ 100</span>
-                    </div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-sm font-bold text-[#172b44]">Strong Match</div>
-                    <div className="text-xs text-[#3d5f80]">Top 13% of applicants</div>
-                  </div>
-                </div>
-
-                {/* Keywords + sticky note */}
-                <div className="space-y-4">
-                  <div>
-                    <div className="text-xs font-semibold text-[#3d5f80] mb-2.5 uppercase tracking-wider">Keyword Analysis</div>
-                    <div className="flex flex-wrap gap-2">
-                      {[
-                        { word: 'Python',        match: true  }, { word: 'Machine Learning', match: true  },
-                        { word: 'TensorFlow',    match: true  }, { word: 'SQL',              match: true  },
-                        { word: 'Deep Learning', match: false }, { word: 'AWS',              match: false },
-                        { word: 'Docker',        match: true  }, { word: 'PyTorch',          match: false },
-                      ].map((k) => (
-                        <span key={k.word}
-                          className="text-[11px] font-semibold px-2.5 py-1 rounded-full border"
-                          style={k.match
-                            ? { background: '#ecfdf5', color: '#059669', borderColor: '#a7f3d0' }
-                            : { background: '#fff1f2', color: '#e11d48', borderColor: '#fecdd3' }
-                          }>
-                          {k.match ? '✓' : '+'} {k.word}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Sticky note */}
-                  <div className="bg-[#fdfaf0] rounded-xl p-4 shadow-md max-w-sm" style={{ transform: 'rotate(0.8deg)' }}>
-                    <div className="w-5 h-5 rounded-full bg-[#f97316] flex items-center justify-center mb-2">
-                      <svg className="w-2.5 h-2.5 text-white" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="3"/></svg>
-                    </div>
-                    <p className="text-xs italic text-[#4a3a20] leading-relaxed">"My interview callbacks doubled after fixing the keywords CourseHive flagged."</p>
-                    <p className="text-[10px] text-[#8a7040] mt-2 font-medium">— Neha P. · Data Scientist at Stripe</p>
-                    {/* paper curl */}
-                    <div className="absolute bottom-0 right-0 w-6 h-6" style={{ background: 'linear-gradient(225deg, transparent 50%, #e8e0c0 50%)', borderRadius: '0 0 12px 0' }} />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       {/*  CTA BANNER                                             */}
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
       <section
@@ -1078,7 +1234,7 @@ export default function LandingPage() {
             </h2>
 
             <p className="text-lg text-white/55 max-w-lg mx-auto leading-relaxed">
-              Join 50,000+ learners who are growing with CourseHive. AI-powered paths, real projects, zero guesswork.
+              Stop scrolling. Start learning. Upload your history, follow your roadmap, build real projects, and earn XP — all powered by AI.
             </p>
 
             {/* Avatar + rating strip */}
@@ -1160,7 +1316,7 @@ export default function LandingPage() {
                 <span className="font-bold text-white text-base tracking-tight">CourseHive</span>
               </div>
               <p className="text-sm text-white/40 leading-relaxed mb-6">
-                AI-powered learning platform built for ambitious people who want real results.
+                Stop scrolling. Start learning. CourseHive turns your curiosity into a personalized roadmap — powered by AI, driven by you.
               </p>
               {/* Social icons */}
               <div className="flex gap-3">
