@@ -2,6 +2,7 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 import { errorHandler } from "./middleware/error-handler";
 import { requestLogger } from "./middleware/logger";
 import { rateLimiter } from "./middleware/rate-limiter";
@@ -28,6 +29,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(requestLogger);
@@ -40,7 +42,15 @@ app.get("/api", (req, res) => {
     version: "1.0.0",
     description: "Gamified learning platform backend",
     endpoints: {
-      auth: "/api/auth - Authentication (handled by Supabase)",
+      auth: {
+        "GET /api/auth/google": "Initiate Google OAuth (query: field, type, redirect_url)",
+        "GET /api/auth/google/callback": "Google OAuth callback",
+        "GET /api/auth/github": "Initiate GitHub OAuth (query: field, type, redirect_url)",
+        "GET /api/auth/github/callback": "GitHub OAuth callback",
+        "GET /api/auth/me": "Get current user (requires Bearer token)",
+        "POST /api/auth/refresh": "Refresh access token",
+        "POST /api/auth/logout": "Logout user",
+      },
       users: "/api/users - User profiles and stats",
       onboarding: "/api/onboarding - Field and type selection",
       history: "/api/history - Browsing history upload",
