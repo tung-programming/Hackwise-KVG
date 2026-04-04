@@ -4,7 +4,8 @@ import React from 'react'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Hexagon, Menu, X, ArrowRight } from 'lucide-react'
+import { Menu, X, ArrowRight } from 'lucide-react'
+import { BrandLogo } from '@/components/brand-logo'
 
 
 const particles = [
@@ -94,12 +95,7 @@ export default function LandingPage() {
         <nav className="relative z-50 px-6 lg:px-14 py-5">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
             {/* Logo */}
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 bg-[#172b44] rounded-xl flex items-center justify-center shadow-md">
-                <Hexagon className="w-4 h-4 text-white" />
-              </div>
-              <span className="font-bold text-[#172b44] text-lg tracking-tight">CourseHive</span>
-            </Link>
+            <BrandLogo href="/" width={184} height={38} priority className="rounded-lg object-cover object-center" />
 
             {/* Desktop links */}
             <div className="hidden md:flex items-center gap-9">
@@ -1309,11 +1305,8 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-4 gap-12 mb-14">
             {/* Brand */}
             <div className="md:col-span-1">
-              <div className="flex items-center gap-2.5 mb-5">
-                <div className="w-8 h-8 bg-white/10 border border-white/15 rounded-xl flex items-center justify-center backdrop-blur-sm">
-                  <Hexagon className="w-4 h-4 text-white" />
-                </div>
-                <span className="font-bold text-white text-base tracking-tight">CourseHive</span>
+              <div className="mb-5">
+                <BrandLogo href="/" width={172} height={50} className="rounded-lg border border-white/10" />
               </div>
               <p className="text-sm text-white/40 leading-relaxed mb-6">
                 Stop scrolling. Start learning. CourseHive turns your curiosity into a personalized roadmap — powered by AI, driven by you.

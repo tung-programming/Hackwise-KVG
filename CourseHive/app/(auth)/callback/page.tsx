@@ -4,9 +4,10 @@ import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Hexagon, Loader2, CheckCircle, XCircle } from 'lucide-react'
+import { Loader2, CheckCircle, XCircle } from 'lucide-react'
 import { setTokens, getCurrentUser } from '@/lib/auth'
 import { useAppStore } from '@/lib/store'
+import { BrandLogo } from '@/components/brand-logo'
 
 function CallbackContent() {
   const router = useRouter()
@@ -101,9 +102,7 @@ function CallbackContent() {
       >
         {/* Logo */}
         <div className="flex justify-center mb-6">
-          <div className="w-14 h-14 bg-[#172b44] rounded-2xl flex items-center justify-center shadow-lg">
-            <Hexagon className="w-7 h-7 text-white" />
-          </div>
+          <BrandLogo href="/" width={188} height={56} className="rounded-lg" />
         </div>
 
         {/* Status Icon */}
@@ -175,8 +174,8 @@ export default function AuthCallbackPage() {
         }}
       >
         <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-8 sm:p-12 shadow-xl shadow-black/5 border border-white/60 text-center max-w-md w-full mx-4">
-          <div className="w-14 h-14 bg-[#172b44] rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-6">
-            <Hexagon className="w-7 h-7 text-white" />
+          <div className="flex justify-center mb-6">
+            <BrandLogo href="/" width={188} height={56} className="rounded-lg" />
           </div>
           <Loader2 className="w-12 h-12 text-[#f97316] mx-auto mb-6 animate-spin" />
           <p className="text-[#3d5f80]">Loading...</p>

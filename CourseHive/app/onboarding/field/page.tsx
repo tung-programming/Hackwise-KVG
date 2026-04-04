@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Check, Hexagon, ArrowRight, ArrowLeft, Code2, Scale, Briefcase, Stethoscope } from 'lucide-react'
+import { Check, ArrowRight, ArrowLeft, Code2, Scale, Briefcase, Stethoscope } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
+import { BrandLogo } from '@/components/brand-logo'
 
 function Cloud({ className, style }: { className?: string; style?: React.CSSProperties }) {
   return (
@@ -110,12 +111,7 @@ export default function FieldSelectionPage() {
       {/* Navbar */}
       <nav className="relative z-50 px-6 lg:px-14 py-5">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-[#172b44] rounded-xl flex items-center justify-center shadow-md">
-              <Hexagon className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold text-[#172b44] text-lg tracking-tight">CourseHive</span>
-          </Link>
+          <BrandLogo href="/" width={184} height={38} className="rounded-lg object-cover object-center" />
           
           {/* Progress indicator */}
           <div className="hidden sm:flex items-center gap-2">
