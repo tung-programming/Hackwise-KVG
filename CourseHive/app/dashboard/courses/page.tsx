@@ -1,8 +1,9 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { BookOpen, Plus, Download, MoreHorizontal, ArrowUpRight, Clock, Users, CheckCircle2 } from 'lucide-react'
+import { Plus, Download, MoreHorizontal, ArrowUpRight, Clock, Users, CheckCircle2 } from 'lucide-react'
 import { mockCourses } from '@/lib/mock-data'
 
 const PRIMARY = '#172b44'
@@ -89,11 +90,11 @@ export default function CoursesPage() {
         {filtered.map((course) => {
           const done = course.progress === 100
           return (
+            <Link key={course.id} href={`/dashboard/courses/${course.id}`} className="block">
             <motion.div
-              key={course.id}
               variants={fade}
               whileHover={{ y: -3, transition: { duration: 0.18 } }}
-              className="bg-white/70 backdrop-blur-sm border border-white/50 rounded-2xl overflow-hidden group shadow-sm hover:shadow-md transition-all"
+              className="bg-white/70 backdrop-blur-sm border border-white/50 rounded-2xl overflow-hidden group shadow-sm hover:shadow-md transition-all cursor-pointer"
             >
               {/* Thumbnail */}
               <div className="relative h-44 bg-secondary overflow-hidden">
@@ -146,6 +147,7 @@ export default function CoursesPage() {
                 </button>
               </div>
             </motion.div>
+            </Link>
           )
         })}
       </motion.div>

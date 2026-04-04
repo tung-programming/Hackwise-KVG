@@ -190,7 +190,7 @@ export default function InterestsPage() {
                             onClick={() => {
                               setRedirectingInterest(interest.name)
                               updateInterest(interest.id, 'accepted')
-                              setTimeout(() => router.push('/dashboard/courses'), 1500)
+                              setTimeout(() => router.push('/dashboard/courses/1'), 1500)
                             }}
                             className="py-1.5 flex items-center justify-center rounded-lg text-xs font-black text-emerald-700 bg-emerald-50 border border-emerald-200 transition-all hover:bg-emerald-500 hover:text-white shadow-sm"
                           >
