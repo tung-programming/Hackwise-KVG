@@ -1,6 +1,15 @@
 import { create } from 'zustand'
 import { devtools, persist } from 'zustand/middleware'
 
+const dedupeInterestsById = (interests: Interest[]) => {
+  const seen = new Set<string>()
+  return interests.filter((interest) => {
+    if (seen.has(interest.id)) return false
+    seen.add(interest.id)
+    return true
+  })
+}
+
 export interface Interest {
   id: string
   name: string
@@ -96,7 +105,9 @@ export const useAppStore = create<AppStore>()(
           set({ uploadedHistory: uploaded }),
         addInterest: (interest: Interest) =>
           set((state) => ({
-            interests: [...state.interests, interest],
+            interests: state.interests.some((i) => i.id === interest.id)
+              ? state.interests
+              : [...state.interests, interest],
           })),
         updateInterest: (id: string, status: Interest['status']) =>
           set((state) => ({
@@ -114,7 +125,26 @@ export const useAppStore = create<AppStore>()(
       }),
       {
         name: 'coursehive-store',
-        version: 1,
+        version: 2,
+        migrate: (persistedState: unknown, version: number) => {
+          if (!persistedState || typeof persistedState !== 'object') {
+            return persistedState
+          }
+
+          const state = persistedState as { interests?: Interest[] }
+          if (!Array.isArray(state.interests)) {
+            return persistedState
+          }
+
+          if (version < 2) {
+            return {
+              ...(persistedState as object),
+              interests: dedupeInterestsById(state.interests),
+            }
+          }
+
+          return persistedState
+        },
       }
     ),
     {

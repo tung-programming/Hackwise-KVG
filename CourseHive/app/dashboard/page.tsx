@@ -1,33 +1,33 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   ArrowUpRight,
-  Plus,
   Download,
-  Video,
   Users,
   TrendingUp,
   Pause,
-  Square,
+  Play,
+  RotateCcw,
   BookOpen,
   Brain,
   Code2,
   Smartphone,
   Cloud,
-  Palette,
   Sparkles,
 } from 'lucide-react'
 import { mockAnalytics } from '@/lib/mock-data'
+import { useAppStore } from '@/lib/store'
 import {
   BarChart,
   Bar,
   XAxis,
+  YAxis,
+  CartesianGrid,
   Cell,
   ResponsiveContainer,
   Tooltip,
-  PieChart,
-  Pie,
 } from 'recharts'
 
 const PRIMARY = '#172b44'
@@ -43,12 +43,6 @@ const weekActivity = [
   { day: 'T', hours: 2.5, solid: false },
   { day: 'F', hours: 4.0, solid: false },
   { day: 'S', hours: 1.0, solid: false },
-]
-
-const progressData = [
-  { name: 'Completed', value: 7, color: PRIMARY },
-  { name: 'In Progress', value: 3, color: ACCENT },
-  { name: 'Pending', value: 2, color: PRIMARY_LIGHT },
 ]
 
 const recentActivity = [
@@ -95,8 +89,63 @@ const stagger = {
 }
 
 export default function DashboardPage() {
-  const total = progressData.reduce((s, d) => s + d.value, 0)
-  const completedPct = Math.round((progressData[0].value / total) * 100)
+  const { setModalOpen } = useAppStore()
+  
+  // ─── Global Stopwatch Implementation ───
+  const [timerState, setTimerState] = useState<{ isRunning: boolean; elapsed: number; lastStarted: number | null }>({
+    isRunning: false,
+    elapsed: 0,
+    lastStarted: null,
+  })
+  const [displayTime, setDisplayTime] = useState(0)
+
+  // 1. Hydrate from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('courseHive_studyTimer')
+    if (saved) {
+      try {
+        setTimerState(JSON.parse(saved))
+      } catch (e) {}
+    }
+  }, [])
+
+  // 2. Persist state changes
+  useEffect(() => {
+    localStorage.setItem('courseHive_studyTimer', JSON.stringify(timerState))
+  }, [timerState])
+
+  // 3. Tick UI every second if running
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (timerState.isRunning && timerState.lastStarted !== null) {
+      interval = setInterval(() => {
+        const now = Date.now()
+        setDisplayTime(timerState.elapsed + (now - timerState.lastStarted!))
+      }, 1000)
+    } else {
+      setDisplayTime(timerState.elapsed)
+    }
+    return () => clearInterval(interval)
+  }, [timerState])
+
+  const handleToggleTimer = () => {
+    setTimerState(prev => {
+      if (prev.isRunning) {
+        return { isRunning: false, elapsed: prev.elapsed + (Date.now() - prev.lastStarted!), lastStarted: null }
+      }
+      return { ...prev, isRunning: true, lastStarted: Date.now() }
+    })
+  }
+
+  const handleResetTimer = () => {
+    setTimerState({ isRunning: false, elapsed: 0, lastStarted: null })
+  }
+
+  // Format ms to HH:MM:SS
+  const totalSeconds = Math.floor(displayTime / 1000)
+  const formatH = Math.floor(totalSeconds / 3600).toString().padStart(2, '0')
+  const formatM = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0')
+  const formatS = (totalSeconds % 60).toString().padStart(2, '0')
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
@@ -113,14 +162,12 @@ export default function DashboardPage() {
           <p className="text-muted-foreground text-sm">Plan, prioritize, and accomplish your learning goals.</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:shadow-lg hover:-translate-y-0.5 shadow-md"
+          <button 
+            onClick={() => setModalOpen('uploadHistory', true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:shadow-lg hover:-translate-y-0.5 shadow-md"
             style={{ background: ACCENT, boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)' }}
           >
-            <Plus className="w-4 h-4" /> Add Course
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white/70 border border-border/50 hover:bg-white transition-all backdrop-blur-sm">
-            <Download className="w-4 h-4" /> Import Data
+            <Download className="w-4 h-4" /> Import History
           </button>
         </div>
       </motion.div>
@@ -193,102 +240,102 @@ export default function DashboardPage() {
         {/* Learning Analytics — bar chart */}
         <motion.div
           variants={fade}
-          className="lg:col-span-5 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm"
+          className="lg:col-span-8 bg-white/70 backdrop-blur-sm rounded-3xl p-6 border border-white/60 shadow-md flex flex-col justify-between hover:shadow-lg transition-shadow"
         >
-          <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Learning Analytics</h2>
-          <p className="text-muted-foreground text-xs mt-0.5 mb-4">Hours spent studying this week</p>
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="font-extrabold text-xl tracking-tight text-[#172b44]">Learning Analytics</h2>
+              <p className="text-muted-foreground text-sm font-medium mt-1">Hours spent studying this week</p>
+            </div>
+            <div className="bg-orange-50 text-orange-600 px-4 py-1.5 rounded-full text-xs font-bold border border-orange-100 hidden sm:flex items-center shadow-sm">
+              <TrendingUp className="w-3.5 h-3.5 mr-1" /> +15% vs Last Week
+            </div>
+          </div>
 
           {/* SVG defs for hatch */}
           <svg width="0" height="0" className="absolute">
             <defs>
               <pattern id="hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
-                <line x1="0" y1="0" x2="0" y2="6" stroke={PRIMARY} strokeWidth="1.5" strokeOpacity="0.3" />
+                <line x1="0" y1="0" x2="0" y2="6" stroke={PRIMARY} strokeWidth="2" strokeOpacity="0.25" />
               </pattern>
             </defs>
           </svg>
 
-          <ResponsiveContainer width="100%" height={180}>
-            <BarChart data={weekActivity} barCategoryGap="28%" margin={{ top: 24, right: 4, bottom: 0, left: 0 }}>
-              <XAxis
-                dataKey="day"
-                axisLine={false}
-                tickLine={false}
-                tick={{ fontSize: 11, fill: '#3d5f80' }}
-              />
-              <Tooltip
-                cursor={false}
-                contentStyle={{
-                  background: 'rgba(255,255,255,0.95)',
-                  border: '1px solid rgba(23, 43, 68, 0.1)',
-                  borderRadius: '12px',
-                  fontSize: '12px',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-                }}
-                formatter={(v: number) => [`${v}h`, 'Study time']}
-              />
-              <Bar dataKey="hours" shape={(p: object) => <RoundedBar {...(p as Parameters<typeof RoundedBar>[0])} />} isAnimationActive>
-                {weekActivity.map((entry, i) => (
-                  <Cell
-                    key={i}
-                    fill={entry.solid ? PRIMARY : 'url(#hatch)'}
-                    stroke={entry.solid ? 'none' : PRIMARY}
-                    strokeWidth={entry.solid ? 0 : 1}
-                    strokeOpacity={0.25}
-                  />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </motion.div>
-
-        {/* Reminder / Today's Schedule */}
-        <motion.div
-          variants={fade}
-          className="lg:col-span-4 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm flex flex-col justify-between"
-        >
-          <div>
-            <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Reminders</h2>
-            <div className="mt-4 space-y-1">
-              <h3 className="text-xl font-extrabold leading-snug" style={{ color: PRIMARY }}>Deep Dive into<br />React Patterns</h3>
-              <p className="text-muted-foreground text-sm">Time: 02.00 pm – 04.00 pm</p>
-            </div>
+          <div className="w-full flex-1 min-h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={weekActivity} barCategoryGap="30%" margin={{ top: 10, right: 10, bottom: 0, left: -20 }}>
+                <CartesianGrid strokeDasharray="5 5" vertical={false} stroke="#e2e8f0" strokeOpacity={0.8} />
+                <YAxis 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fontSize: 12, fill: '#64748b', fontWeight: 600 }} 
+                  tickFormatter={(v) => `${v}h`} 
+                />
+                <XAxis
+                  dataKey="day"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fontSize: 13, fill: '#334155', fontWeight: 700 }}
+                  dy={15}
+                />
+                <Tooltip
+                  cursor={{ fill: 'rgba(23,43,68,0.03)' }}
+                  contentStyle={{
+                    background: 'rgba(255,255,255,0.95)',
+                    border: '1px solid rgba(23, 43, 68, 0.08)',
+                    borderRadius: '14px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    boxShadow: '0 12px 30px rgba(0,0,0,0.1)',
+                    padding: '12px 16px'
+                  }}
+                  formatter={(v: number) => [`${v} hours`, 'Study Time']}
+                  labelStyle={{ color: '#64748b', fontWeight: 600, marginBottom: '6px' }}
+                />
+                <Bar dataKey="hours" shape={(p: object) => <RoundedBar {...(p as Parameters<typeof RoundedBar>[0])} />} isAnimationActive>
+                  {weekActivity.map((entry, i) => (
+                    <Cell
+                      key={i}
+                      fill={entry.solid ? (entry.highlight ? ACCENT : PRIMARY) : 'url(#hatch)'}
+                      stroke={entry.solid ? 'none' : PRIMARY}
+                      strokeWidth={entry.solid ? 0 : 2}
+                      strokeOpacity={0.2}
+                    />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </div>
-          <button
-            className="mt-5 flex items-center justify-center gap-2 w-full py-3 rounded-xl text-white font-semibold text-sm transition-all hover:shadow-lg hover:-translate-y-0.5"
-            style={{ background: ACCENT, boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)' }}
-          >
-            <Video className="w-4 h-4" /> Start Session
-          </button>
         </motion.div>
 
         {/* Active Courses list */}
         <motion.div
           variants={fade}
-          className="lg:col-span-3 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm"
+          className="lg:col-span-4 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Courses</h2>
+            <h2 className="font-bold text-base text-[#172b44]">Courses</h2>
             <button
-              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:bg-orange-50"
+              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:bg-orange-50 bg-white"
               style={{ border: `1px solid ${ACCENT}`, color: ACCENT }}
             >
-              <Plus className="w-3 h-3" /> New
+              See All
             </button>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-4">
             {activeCourses.map((c) => {
               const Icon = c.icon
               return (
-                <div key={c.title} className="flex items-center gap-3 group cursor-pointer">
+                <div key={c.title} className="flex items-center gap-3 group cursor-pointer border border-transparent hover:border-slate-100 p-2 -mx-2 rounded-xl transition-colors">
                   <div
-                    className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
-                    style={{ background: c.color + '20' }}
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
+                    style={{ background: c.color + '15' }}
                   >
-                    <Icon className="w-4 h-4" style={{ color: c.color }} />
+                    <Icon className="w-5 h-5" style={{ color: c.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold truncate group-hover:text-[#172b44]">{c.title}</p>
-                    <p className="text-[10px] text-muted-foreground">{c.due}</p>
+                    <p className="text-sm font-bold truncate text-[#172b44]">{c.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{c.due}</p>
                   </div>
                 </div>
               )
@@ -303,32 +350,32 @@ export default function DashboardPage() {
         {/* Team / Learning Activity */}
         <motion.div
           variants={fade}
-          className="lg:col-span-5 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm"
+          className="lg:col-span-8 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Learning Activity</h2>
+            <h2 className="font-bold text-base text-[#172b44]">Learning Activity</h2>
             <button
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-white/80 border border-border/50 hover:bg-white transition-colors"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-white border border-border/50 hover:bg-slate-50 transition-colors text-[#172b44]"
             >
-              <Users className="w-3 h-3" /> Add Member
+              <Users className="w-3 h-3" /> Friends Activity
             </button>
           </div>
-          <div className="space-y-3">
+          <div className="grid sm:grid-cols-2 gap-4">
             {recentActivity.map((a) => (
-              <div key={a.name} className="flex items-center gap-3 group cursor-pointer">
+              <div key={a.name} className="flex items-center gap-3 group cursor-pointer p-3 rounded-xl hover:bg-white/90 border border-transparent hover:border-slate-100 transition-all">
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm transition-transform group-hover:scale-105"
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm transition-transform group-hover:scale-105"
                   style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
                 >
                   {a.avatar}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold">{a.name}</p>
-                  <p className="text-[10px] text-muted-foreground truncate">
-                    Working on <span className="font-semibold text-foreground">{a.task}</span>
+                  <p className="text-sm font-bold text-[#172b44]">{a.name}</p>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                    Working on <span className="font-bold text-[#172b44]">{a.task}</span>
                   </p>
                 </div>
-                <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full shrink-0 ${statusBadge[a.status]}`}>
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 ${statusBadge[a.status]}`}>
                   {a.status}
                 </span>
               </div>
@@ -336,77 +383,52 @@ export default function DashboardPage() {
           </div>
         </motion.div>
 
-        {/* Course Progress — donut */}
+        {/* Global Study Timer */}
         <motion.div
           variants={fade}
-          className="lg:col-span-4 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm flex flex-col items-center"
-        >
-          <div className="w-full mb-2">
-            <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Course Progress</h2>
-          </div>
-
-          <div className="relative mt-2">
-            <ResponsiveContainer width={180} height={130}>
-              <PieChart>
-                <Pie
-                  data={progressData}
-                  cx="50%"
-                  cy="90%"
-                  startAngle={180}
-                  endAngle={0}
-                  innerRadius={50}
-                  outerRadius={80}
-                  paddingAngle={2}
-                  dataKey="value"
-                  strokeWidth={0}
-                >
-                  {progressData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-            {/* Center label */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
-              <p className="text-3xl font-black leading-none" style={{ color: PRIMARY }}>{completedPct}%</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Course Done</p>
-            </div>
-          </div>
-
-          {/* Legend */}
-          <div className="flex items-center gap-4 mt-4 text-xs">
-            {progressData.map((d) => (
-              <div key={d.name} className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} />
-                <span className="text-muted-foreground">{d.name}</span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* Study Timer */}
-        <motion.div
-          variants={fade}
-          className="lg:col-span-3 rounded-2xl p-5 flex flex-col justify-between shadow-lg relative overflow-hidden"
+          className="lg:col-span-4 rounded-2xl p-6 flex flex-col justify-between shadow-lg relative overflow-hidden group"
           style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
         >
-          <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-white/10" />
-          <div className="absolute -bottom-6 -left-6 w-20 h-20 rounded-full bg-white/5" />
-          <div className="relative z-10">
-            <h2 className="font-semibold text-white/80 text-sm">Study Timer</h2>
+          <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-[#f97316]/20 blur-2xl group-hover:bg-[#f97316]/30 transition-colors" />
+          <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-white/5" />
+          
+          <div className="relative z-10 flex items-center justify-between">
+            <h2 className="font-bold text-white/90 text-base uppercase tracking-widest flex items-center gap-2">
+              <Sparkles className={`w-4 h-4 ${timerState.isRunning ? 'text-[#f97316] animate-pulse' : 'text-white/50'}`} /> Study Timer
+            </h2>
+            {timerState.isRunning && (
+              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/20 text-red-100 text-[10px] font-bold border border-red-500/30">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping" /> REC
+              </span>
+            )}
           </div>
-          <div className="my-4 text-center relative z-10">
-            <p className="text-4xl font-black text-white tracking-wider font-mono">01:24:08</p>
+
+          <div className="my-6 text-center relative z-10">
+            <p className="text-5xl font-black text-white tracking-widest font-mono drop-shadow-md">
+              {formatH}<span className="text-white/50 mx-0.5">:</span>{formatM}<span className="text-white/50 mx-0.5">:</span>{formatS}
+            </p>
+            <p className="text-white/50 text-xs font-semibold mt-2 uppercase tracking-widest">Global Session Time</p>
           </div>
-          <div className="flex items-center justify-center gap-3 relative z-10">
-            <button className="w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors">
-              <Pause className="w-5 h-5 text-white" />
+
+          <div className="flex items-center justify-center gap-4 relative z-10">
+            <button 
+              onClick={handleToggleTimer}
+              className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all shadow-xl hover:scale-105 active:scale-95 ${
+                timerState.isRunning ? 'bg-rose-500 hover:bg-rose-600' : 'bg-[#f97316] hover:bg-[#ea6c0a]'
+              }`}
+            >
+              {timerState.isRunning ? <Pause className="w-6 h-6 text-white fill-white" /> : <Play className="w-6 h-6 text-white fill-white ml-1" />}
             </button>
             <button 
-              className="w-11 h-11 rounded-full flex items-center justify-center transition-all hover:scale-105"
-              style={{ background: ACCENT }}
+              onClick={handleResetTimer}
+              disabled={displayTime === 0}
+              className={`w-14 h-14 flex items-center justify-center rounded-2xl transition-all border ${
+                displayTime === 0 
+                  ? 'bg-white/5 border-white/5 text-white/20 cursor-not-allowed' 
+                  : 'bg-white/10 hover:bg-white/20 border-white/10 hover:border-white/20 text-white'
+              }`}
             >
-              <Square className="w-4 h-4 text-white fill-white" />
+              <RotateCcw className="w-5 h-5" />
             </button>
           </div>
         </motion.div>

@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import confetti from 'canvas-confetti'
+import { useRouter } from 'next/navigation'
 import { useAppStore } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { Upload, X, CheckCircle2, Loader2, ArrowRight } from 'lucide-react'
@@ -11,6 +12,7 @@ import Link from 'next/link'
 type UploadStep = 'idle' | 'uploading' | 'processing' | 'success'
 
 export function UploadHistoryModal() {
+  const router = useRouter()
   const { modalOpen, setModalOpen, setUploadedHistory } = useAppStore()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [step, setStep] = useState<UploadStep>('idle')
@@ -65,6 +67,12 @@ export function UploadHistoryModal() {
           spread: 70,
           origin: { y: 0.6 },
         })
+
+        // Auto-redirect to interests page after showing success for 1.5 seconds
+        setTimeout(() => {
+          handleReset()
+          router.push('/dashboard/interests')
+        }, 1500)
       }, 1500)
     }, 1500)
   }

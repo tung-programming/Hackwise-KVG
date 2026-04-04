@@ -10,13 +10,14 @@ import {
   FolderOpen,
   Github,
   Link as LinkIcon,
-  Plus,
   UploadCloud,
   X,
+  Lock,
 } from 'lucide-react'
 
 import { useAppStore } from '@/lib/store'
 import { cn } from '@/lib/utils'
+import { mockCourses } from '@/lib/mock-data'
 
 type DeliverableType = 'url' | 'file'
 type ProjectStatus = 'In Progress' | 'Completed'
@@ -187,12 +188,52 @@ export default function ProjectsPage() {
 
   const inProgress = projects.filter((p) => p.status === 'In Progress')
   const completed = projects.filter((p) => p.status === 'Completed')
+  
+  // Logic: Check if all courses are 100% complete
+  const allCoursesCompleted = mockCourses.length > 0 && mockCourses.every((c) => c.progress === 100)
 
   const stats = [
     { label: 'Active Assignments', value: inProgress.length, primary: true },
     { label: 'Completed', value: completed.length, primary: false },
     { label: 'Avg Score', value: '92%', primary: false },
   ]
+
+  if (!allCoursesCompleted) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[70vh] p-6 text-center">
+        <motion.div initial="hidden" animate="show" variants={stagger} className="bg-white/70 backdrop-blur-sm border border-slate-200 shadow-xl rounded-3xl p-10 max-w-lg flex flex-col items-center relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-1.5 bg-[#f97316]" />
+          
+          <motion.div variants={fade} className="w-20 h-20 bg-slate-100/80 rounded-full flex items-center justify-center border border-slate-200 mb-6 relative">
+            <div className="absolute inset-0 bg-[#f97316]/10 rounded-full animate-pulse" />
+            <Lock className="w-8 h-8 text-[#172b44]" />
+          </motion.div>
+          
+          <motion.h2 variants={fade} className="text-3xl font-black text-[#172b44] mb-3">
+            Projects Locked
+          </motion.h2>
+          
+          <motion.p variants={fade} className="text-slate-500 font-medium mb-8 leading-relaxed">
+            You must complete all courses associated with your current interest path before you can attempt practical assignments and real-world projects.
+          </motion.p>
+          
+          <motion.div variants={fade} className="w-full bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div className="flex justify-between text-xs font-bold text-slate-500 mb-2">
+              <span>Overall Course Progress</span>
+              <span className="text-[#f97316]">{Math.round(mockCourses.reduce((acc, c) => acc + c.progress, 0) / mockCourses.length)}%</span>
+            </div>
+            <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: `${Math.round(mockCourses.reduce((acc, c) => acc + c.progress, 0) / mockCourses.length)}%` }}
+                className="h-full rounded-full bg-[#f97316]"
+              />
+            </div>
+          </motion.div>
+        </motion.div>
+      </div>
+    )
+  }
 
   return (
     <div className="relative min-h-full">
@@ -206,13 +247,6 @@ export default function ProjectsPage() {
               Complete realistic deliverables to simulate actual industry tasks in <strong className="text-foreground">{userField}</strong>.
             </p>
           </div>
-          <button
-            className="group flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:scale-105 active:scale-95"
-            style={{ background: ACCENT, boxShadow: `0 8px 20px ${ACCENT}30` }}
-          >
-            <Plus className="h-4 w-4 transition-transform group-hover:rotate-90" />
-            Claim New Task
-          </button>
         </motion.div>
 
         <motion.div variants={stagger} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
