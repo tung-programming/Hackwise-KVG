@@ -1,14 +1,15 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { Trophy, Flame, Download, ArrowUpRight, Crown, TrendingUp } from 'lucide-react'
+import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Trophy, Flame, Download, ArrowUpRight, Crown, TrendingUp, Sparkles, Medal, Zap } from 'lucide-react'
 import { mockLeaderboard } from '@/lib/mock-data'
 
 const PRIMARY = '#172b44'
 const ACCENT = '#f97316'
 
-const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } } }
-const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } }
+const fade = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } } }
+const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }
 
 type TimePeriod = 'All Time' | 'This Month' | 'This Week'
 
@@ -19,184 +20,314 @@ const fieldStyle: Record<string, { bg: string; text: string }> = {
   Law:         { bg: '#fffbeb', text: '#b45309' },
 }
 
-const podium = [
-  { medal: '🥇', ring: '#F59E0B', label: '1st', bg: '#fffbeb' },
-  { medal: '🥈', ring: '#94A3B8', label: '2nd', bg: '#f8fafc' },
-  { medal: '🥉', ring: '#CD7F32', label: '3rd', bg: '#fef9ee' },
-]
+const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').substring(0, 2)
 
 export default function LeaderboardPage() {
+  const [activeTab, setActiveTab] = useState<TimePeriod>('All Time')
+  
   const userRank = 8
   const topThree = mockLeaderboard.slice(0, 3)
   const rest = mockLeaderboard.slice(3)
+  
+  // Create a combined list and sort it
+  const allRankings = [...rest, { rank: userRank, name: 'Jordan Smith', field: 'Engineering', points: 2100, streak: 14 }]
+    .sort((a, b) => a.rank - b.rank)
 
   return (
-    <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
+    <div className="min-h-[calc(100vh-6rem)] pb-24 relative selection:bg-[#f97316]/20">
+      
+      {/* Background Decor */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#f97316]/5 rounded-full blur-[120px] pointer-events-none -z-10" />
+      <div className="absolute top-40 left-0 w-[300px] h-[300px] bg-[#172b44]/5 rounded-full blur-[100px] pointer-events-none -z-10" />
 
-      {/* Header */}
-      <motion.div variants={fade} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Leaderboard</h1>
-          <p className="text-muted-foreground text-sm mt-1">See how you stack up against other learners</p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors">
-            <Download className="w-4 h-4" /> Export
-          </button>
-        </div>
-      </motion.div>
+      <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
 
-      {/* Your rank card */}
-      <motion.div
-        variants={fade}
-        className="rounded-2xl p-5 text-white relative overflow-hidden shadow-lg"
-        style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
-      >
-        <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-white/10" />
-        <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
-          <ArrowUpRight className="w-3.5 h-3.5 text-white" />
-        </button>
-        <p className="text-white/70 text-xs font-medium">Your Current Rank</p>
-        <p className="text-5xl font-black mt-1">#{userRank}</p>
-        <div className="flex items-center gap-1.5 mt-3">
-          <span className="flex items-center gap-1 bg-white/15 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
-            <TrendingUp className="w-2.5 h-2.5" /> 2,100 points · 14 day streak
-          </span>
-        </div>
-        <p className="text-white/50 text-xs mt-2">Earn <span className="font-bold text-white">750 more points</span> to reach top 5</p>
-      </motion.div>
+        {/* ── HEADER ── */}
+        <motion.div variants={fade} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-[#172b44]">Leaderboard</h1>
+            <p className="text-muted-foreground text-sm mt-1">See how you stack up against other learners</p>
+          </div>
 
-      {/* Time period filter */}
-      <motion.div variants={fade} className="flex items-center justify-between">
-        <h2 className="font-bold text-base">Rankings</h2>
-        <div className="flex gap-1 bg-secondary/40 p-1 rounded-xl">
-          {(['All Time', 'This Month', 'This Week'] as TimePeriod[]).map((p, i) => (
-            <button
-              key={p}
-              className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
-                i === 0 ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {p}
-            </button>
-          ))}
-        </div>
-      </motion.div>
-
-      {/* Top 3 podium */}
-      <motion.div variants={stagger} className="grid grid-cols-3 gap-3">
-        {topThree.map((entry, idx) => {
-          const p = podium[idx]
-          return (
-            <motion.div
-              key={entry.rank}
-              variants={fade}
-              whileHover={{ y: -3, transition: { duration: 0.18 } }}
-              className="bg-white/70 backdrop-blur-sm border border-white/50 rounded-2xl p-4 text-center relative shadow-sm hover:shadow-md transition-all"
-              style={{ borderColor: p.ring + '40' }}
-            >
-              {idx === 0 && <Crown className="w-4 h-4 absolute top-3 right-3" style={{ color: p.ring }} />}
-              <div
-                className="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-white font-bold text-sm shadow-md"
-                style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)`, outline: `3px solid ${p.ring}`, outlineOffset: '2px' }}
-              >
-                {entry.name.split(' ').map(n => n[0]).join('')}
-              </div>
-              <p className="text-lg mt-1">{p.medal}</p>
-              <h3 className="font-bold text-xs mt-1 leading-tight" style={{ color: PRIMARY }}>{entry.name}</h3>
-              <span
-                className="text-[10px] font-medium px-2 py-0.5 rounded-full mt-1 inline-block"
-                style={fieldStyle[entry.field] || fieldStyle.Engineering}
-              >
-                {entry.field}
-              </span>
-              <p className="font-black text-base mt-1.5" style={{ color: ACCENT }}>
-                {entry.points.toLocaleString()}
-              </p>
-              <p className="text-[10px] text-muted-foreground">pts</p>
-              <div className="flex items-center justify-center gap-1 mt-1 text-xs text-muted-foreground">
-                <Flame className="w-3 h-3 text-orange-400" />
-                <span>{entry.streak}d</span>
-              </div>
-            </motion.div>
-          )
-        })}
-      </motion.div>
-
-      {/* Rest of rankings + you */}
-      <motion.div variants={stagger} className="space-y-2">
-        {[...rest, { rank: userRank, name: 'Jordan Smith', field: 'Engineering', points: 2100, streak: 14 }]
-          .sort((a, b) => a.rank - b.rank)
-          .map((entry) => {
-            const isYou = entry.rank === userRank
-            return (
-              <motion.div
-                key={entry.rank}
-                variants={fade}
-                className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${
-                  isYou
-                    ? 'border-2 shadow-md'
-                    : 'bg-white/70 backdrop-blur-sm border-white/50 hover:shadow-sm'
-                }`}
-                style={isYou ? { background: ACCENT + '08', borderColor: ACCENT + '50' } : {}}
-              >
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shrink-0"
-                  style={isYou ? { background: ACCENT, color: '#fff' } : { background: 'rgba(255,255,255,0.8)', color: PRIMARY }}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="bg-white/80 backdrop-blur-md p-1 rounded-xl flex shadow-sm border border-border">
+              {(['This Week', 'This Month', 'All Time'] as TimePeriod[]).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`relative px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-300 ${
+                    activeTab === tab ? 'text-white' : 'text-muted-foreground hover:text-foreground'
+                  }`}
                 >
-                  {entry.rank}
-                </div>
+                  {activeTab === tab && (
+                    <motion.div
+                      layoutId="activeTab"
+                      className="absolute inset-0 bg-[#172b44] rounded-lg -z-10"
+                      transition={{ type: "spring", stiffness: 300, damping: 24 }}
+                    />
+                  )}
+                  {tab}
+                </button>
+              ))}
+            </div>
+            
+            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors text-[#172b44] bg-white">
+              <Download className="w-4 h-4" /> Export
+            </button>
+          </div>
+        </motion.div>
 
-                <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style={isYou ? { background: ACCENT + '20', color: ACCENT } : { background: 'rgba(255,255,255,0.8)', color: PRIMARY }}>
-                  {entry.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-sm" style={{ color: PRIMARY }}>{isYou ? 'Jordan Smith' : entry.name}</h3>
-                    {isYou && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: ACCENT }}>
-                        You
-                      </span>
-                    )}
+        {/* ── PODIUM SECTION ── */}
+        <motion.div variants={fade} className="relative pt-16 pb-8">
+          <div className="flex flex-col md:flex-row items-end justify-center gap-4 md:gap-6 min-h-[300px]">
+            {/* 2ND PLACE */}
+            <motion.div 
+              initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.6 }}
+              className="w-full md:w-1/3 max-w-[280px] order-2 md:order-1"
+            >
+              <div className="relative bg-gradient-to-b from-slate-50 to-white rounded-3xl border border-slate-200 p-6 pt-12 text-center shadow-lg shadow-slate-200/50 transform hover:-translate-y-2 transition-transform duration-300">
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2">
+                  <div className="relative">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 p-[3px] shadow-xl">
+                      <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-2xl font-black text-slate-700">
+                        {getInitials(topThree[1].name)}
+                      </div>
+                    </div>
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-slate-400 text-white text-xs font-black px-3 py-1 rounded-full shadow-md border-2 border-white">
+                      2ND
+                    </div>
                   </div>
-                  <span
-                    className="text-[10px] font-medium px-2 py-0.5 rounded-full inline-block mt-0.5"
-                    style={fieldStyle[entry.field] || fieldStyle.Engineering}
-                  >
-                    {entry.field}
+                </div>
+                
+                <h3 className="text-lg font-bold text-[#172b44] mt-2 truncate">{topThree[1].name}</h3>
+                <div className="flex justify-center mt-2">
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style={fieldStyle[topThree[1].field]}>
+                    {topThree[1].field}
                   </span>
                 </div>
-
-                <div className="hidden sm:flex items-center gap-1 text-muted-foreground">
-                  <Flame className="w-3.5 h-3.5 text-orange-400" />
-                  <span className="text-xs font-medium">{entry.streak}d</span>
+                
+                <div className="mt-6 flex flex-col items-center">
+                  <span className="text-3xl font-black text-slate-700">{topThree[1].points.toLocaleString()}</span>
+                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest mt-1">XP Points</span>
                 </div>
-
-                <div className="text-right shrink-0">
-                  <p className="text-base font-bold" style={isYou ? { color: ACCENT } : { color: PRIMARY }}>
-                    {entry.points.toLocaleString()}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground">pts</p>
+                
+                <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-center gap-2">
+                  <Flame className="w-4 h-4 text-orange-500 fill-orange-500/20" />
+                  <span className="text-sm font-bold text-slate-600">{topThree[1].streak} Day Streak</span>
                 </div>
-              </motion.div>
-            )
-          })}
-      </motion.div>
+              </div>
+            </motion.div>
 
-      {/* CTA */}
-      <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm border border-white/50 rounded-2xl p-5 flex items-center justify-between gap-4 shadow-sm">
-        <div>
-          <h3 className="font-bold" style={{ color: PRIMARY }}>Keep climbing the ranks!</h3>
-          <p className="text-sm text-muted-foreground mt-0.5">Complete courses and maintain your streak to earn more points</p>
-        </div>
-        <button
-          className="shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:shadow-lg hover:-translate-y-0.5 transition-all"
-          style={{ background: ACCENT, boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)' }}
-        >
-          Earn Points
-        </button>
+            {/* 1ST PLACE */}
+            <motion.div 
+              initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, duration: 0.6 }}
+              className="w-full md:w-1/3 max-w-[320px] order-1 md:order-2 z-10"
+            >
+              <div className="relative bg-gradient-to-b from-[#172b44] to-[#233f63] rounded-3xl p-1 shadow-2xl shadow-[#172b44]/20 transform md:-translate-y-8 hover:-translate-y-10 transition-transform duration-300">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-32 h-32 bg-yellow-400/20 rounded-full blur-2xl" />
+                
+                <div className="bg-[#172b44] rounded-[22px] p-6 pt-20 text-center relative h-full">
+                  {/* Subtle glass effect lines */}
+                  <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] rounded-[22px] overflow-hidden" />
+                  
+                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 z-20">
+                    <div className="relative">
+                      <Crown className="w-10 h-10 text-yellow-400 absolute -top-8 left-1/2 -translate-x-1/2 drop-shadow-md" />
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600 p-[4px] shadow-2xl">
+                        <div className="w-full h-full rounded-full bg-[#172b44] flex items-center justify-center text-3xl font-black text-white">
+                          {getInitials(topThree[0].name)}
+                        </div>
+                      </div>
+                      <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#172b44] text-sm font-black px-4 py-1.5 rounded-full shadow-lg border-2 border-[#172b44]">
+                        1ST
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-2xl font-black text-white mt-4 truncate relative z-10">{topThree[0].name}</h3>
+                  <div className="flex justify-center mt-3 relative z-10">
+                    <span className="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider bg-white/10 text-yellow-300 border border-white/10 backdrop-blur-md">
+                      {topThree[0].field}
+                    </span>
+                  </div>
+                  
+                  <div className="mt-8 flex flex-col items-center relative z-10">
+                    <div className="flex items-center gap-1">
+                      <Sparkles className="w-5 h-5 text-yellow-400" />
+                      <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500 drop-shadow-sm">
+                        {topThree[0].points.toLocaleString()}
+                      </span>
+                    </div>
+                    <span className="text-xs font-bold text-white/50 uppercase tracking-widest mt-2">Total XP Points</span>
+                  </div>
+                  
+                  <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-center gap-2 relative z-10">
+                    <Flame className="w-5 h-5 text-orange-400 fill-orange-400/30" />
+                    <span className="text-sm font-bold text-white/90">{topThree[0].streak} Day Streak!</span>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* 3RD PLACE */}
+            <motion.div 
+              initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, duration: 0.6 }}
+              className="w-full md:w-1/3 max-w-[280px] order-3"
+            >
+              <div className="relative bg-gradient-to-b from-orange-50 to-white rounded-3xl border border-orange-100 p-6 pt-12 text-center shadow-lg shadow-orange-100/50 transform hover:-translate-y-2 transition-transform duration-300">
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2">
+                  <div className="relative">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 p-[3px] shadow-xl">
+                      <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-2xl font-black text-orange-800">
+                        {getInitials(topThree[2].name)}
+                      </div>
+                    </div>
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md border-2 border-white">
+                      3RD
+                    </div>
+                  </div>
+                </div>
+                
+                <h3 className="text-lg font-bold text-[#172b44] mt-2 truncate">{topThree[2].name}</h3>
+                <div className="flex justify-center mt-2">
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style={fieldStyle[topThree[2].field]}>
+                    {topThree[2].field}
+                  </span>
+                </div>
+                
+                <div className="mt-6 flex flex-col items-center">
+                  <span className="text-3xl font-black text-orange-900">{topThree[2].points.toLocaleString()}</span>
+                  <span className="text-xs font-semibold text-orange-400/80 uppercase tracking-widest mt-1">XP Points</span>
+                </div>
+                
+                <div className="mt-4 pt-4 border-t border-orange-100/50 flex items-center justify-center gap-2">
+                  <Flame className="w-4 h-4 text-orange-500 fill-orange-500/20" />
+                  <span className="text-sm font-bold text-orange-800/80">{topThree[2].streak} Day Streak</span>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* ── THE LIST ── */}
+        <motion.div variants={stagger} className="bg-white/60 backdrop-blur-xl border border-slate-200/60 rounded-[32px] p-2 md:p-6 shadow-xl shadow-slate-200/40">
+          
+          <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <div className="col-span-1 text-center">Rank</div>
+            <div className="col-span-1"></div>
+            <div className="col-span-4">Learner</div>
+            <div className="col-span-3">Field</div>
+            <div className="col-span-1 text-center">Streak</div>
+            <div className="col-span-2 text-right">XP Points</div>
+          </div>
+
+          <div className="space-y-3 relative">
+            {allRankings.map((entry, idx) => {
+              const isYou = entry.rank === userRank
+              
+              return (
+                <motion.div
+                  key={entry.rank}
+                  variants={fade}
+                  whileHover={{ scale: 1.01, backgroundColor: isYou ? undefined : 'rgba(255,255,255,0.9)' }}
+                  className={`relative grid grid-cols-1 md:grid-cols-12 items-center gap-4 p-4 rounded-2xl transition-all duration-300 ${
+                    isYou 
+                      ? 'bg-gradient-to-r from-[#f97316]/10 to-transparent border-2 border-[#f97316] shadow-md z-10' 
+                      : 'bg-white border border-slate-100 hover:shadow-md'
+                  }`}
+                >
+                  {/* Rank */}
+                  <div className="col-span-1 flex items-center justify-center order-1 md:order-none absolute md:relative top-4 md:top-auto right-4 md:right-auto">
+                    <span className={`text-lg md:text-xl font-black ${isYou ? 'text-[#f97316]' : 'text-slate-400'}`}>
+                      #{entry.rank}
+                    </span>
+                  </div>
+
+                  {/* Avatar */}
+                  <div className="col-span-1 flex items-center justify-center order-2 md:order-none hidden md:flex">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm ${
+                      isYou ? 'bg-[#f97316] text-white' : 'bg-slate-100 text-slate-600'
+                    }`}>
+                      {getInitials(isYou ? 'Jordan Smith' : entry.name)}
+                    </div>
+                  </div>
+
+                  {/* Name & Badge Mobile */}
+                  <div className="col-span-4 flex items-center gap-3 order-3 md:order-none">
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm bg-slate-100 text-slate-600 md:hidden">
+                      {getInitials(isYou ? 'Jordan Smith' : entry.name)}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className={`font-bold text-base ${isYou ? 'text-[#172b44]' : 'text-slate-700'}`}>
+                          {isYou ? 'Jordan Smith' : entry.name}
+                        </h3>
+                        {isYou && (
+                          <span className="bg-[#172b44] text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                            <Zap className="w-2.5 h-2.5 fill-yellow-400 text-yellow-400" /> YOU
+                          </span>
+                        )}
+                      </div>
+                      <div className="md:hidden mt-1">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase" style={fieldStyle[entry.field] || fieldStyle.Engineering}>
+                          {entry.field}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Field Desktop */}
+                  <div className="col-span-3 hidden md:block order-4 md:order-none">
+                    <span className="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block" style={fieldStyle[entry.field] || fieldStyle.Engineering}>
+                      {entry.field}
+                    </span>
+                  </div>
+
+                  {/* Streak */}
+                  <div className="col-span-1 flex items-center md:justify-center gap-1.5 order-5 md:order-none mt-2 md:mt-0">
+                    <Flame className={`w-4 h-4 ${isYou ? 'text-orange-500 fill-orange-500/30' : 'text-orange-400'}`} />
+                    <span className={`text-sm font-bold ${isYou ? 'text-orange-600' : 'text-slate-500'}`}>{entry.streak}</span>
+                    <span className="text-xs text-slate-400 md:hidden ml-1 uppercase tracking-wider font-semibold">Day Streak</span>
+                  </div>
+
+                  {/* Points */}
+                  <div className="col-span-2 text-left md:text-right order-6 md:order-none mt-2 md:mt-0 flex md:block items-baseline gap-1">
+                    <span className={`text-xl font-black ${isYou ? 'text-[#f97316]' : 'text-[#172b44]'}`}>
+                      {entry.points.toLocaleString()}
+                    </span>
+                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">XP</span>
+                  </div>
+                </motion.div>
+              )
+            })}
+          </div>
+        </motion.div>
+
+        {/* ── CTA BANNER ── */}
+        <motion.div variants={fade} className="relative rounded-3xl overflow-hidden shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-[#172b44] via-[#244265] to-[#172b44]" />
+          <div className="absolute inset-0 bg-[url('https://transparenttextures.com/patterns/cubes.png')] opacity-10" />
+          
+          <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 z-10 text-center md:text-left">
+            <div>
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full text-white text-xs font-bold uppercase tracking-wider mb-3">
+                <Medal className="w-3.5 h-3.5 text-yellow-400" />
+                Level Up Fast
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black text-white mb-2">Want to climb the ranks?</h2>
+              <p className="text-white/70 text-sm md:text-base max-w-md">
+                Complete modules, finish assignments, and maintain your daily streak to earn up to <strong className="text-white">500 XP</strong> today.
+              </p>
+            </div>
+            
+            <button className="flex items-center gap-2 bg-[#f97316] hover:bg-[#ea6c0a] text-white font-bold px-8 py-4 rounded-xl shadow-lg shadow-[#f97316]/40 transition-all hover:scale-105 active:scale-95 group shrink-0">
+              Start Learning Now
+              <ArrowUpRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </button>
+          </div>
+        </motion.div>
+        
       </motion.div>
-    </motion.div>
+    </div>
   )
 }
