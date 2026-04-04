@@ -3,139 +3,134 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Heart, CheckCircle2, XCircle, ArrowRight } from 'lucide-react'
+import { Heart, CheckCircle2, XCircle, ArrowRight, Plus, Download, TrendingUp, ArrowUpRight, BookOpen } from 'lucide-react'
 import { mockInterests } from '@/lib/mock-data'
 import { useAppStore } from '@/lib/store'
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
-    },
-  },
-}
+const PRIMARY = '#1a3d2c'
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5 },
-  },
-}
+const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } } }
+const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } }
+
+const interestColors = ['#4f46e5', '#0891b2', '#b45309', '#be185d', '#0d9488', '#7c3aed']
 
 export default function InterestsPage() {
   const { interests, addInterest, updateInterest, uploadedHistory } = useAppStore()
   const [mounted, setMounted] = useState(false)
-  const [localInterests, setLocalInterests] = useState(mockInterests)
 
   useEffect(() => {
     setMounted(true)
-    // Initialize interests if not already set
     if (interests.length === 0) {
-      const initialInterests = mockInterests.map((interest) => ({
-        id: interest.id,
-        name: interest.name,
-        status: 'pending' as const,
-      }))
-      initialInterests.forEach((interest) => {
-        addInterest(interest)
-      })
+      mockInterests.forEach((i) => addInterest({ id: i.id, name: i.name, status: 'pending' }))
     }
   }, [])
 
   if (!mounted) return null
 
-  const handleAccept = (interestId: string) => {
-    updateInterest(interestId, 'accepted')
-  }
+  const accepted = interests.filter((i) => i.status === 'accepted')
+  const pending = interests.filter((i) => i.status === 'pending')
 
-  const handleReject = (interestId: string) => {
-    updateInterest(interestId, 'rejected')
-  }
-
-  const acceptedInterests = interests.filter((i) => i.status === 'accepted')
-  const pendingInterests = interests.filter((i) => i.status === 'pending')
+  const stats = [
+    { label: 'Total Interests', value: interests.length, primary: true },
+    { label: 'Active Paths', value: accepted.length, primary: false },
+    { label: 'Recommended', value: pending.length, primary: false },
+  ]
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="space-y-8"
-    >
+    <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
+
       {/* Header */}
-      <motion.div variants={itemVariants} className="space-y-2">
-        <div className="flex items-center gap-2">
-          <Heart className="w-6 h-6 text-accent" />
-          <h1 className="text-3xl sm:text-4xl font-bold">Your Interests</h1>
+      <motion.div variants={fade} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight">Your Interests</h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            {uploadedHistory ? 'Based on your learning history' : 'Select topics to get personalized recommendations'}
+          </p>
         </div>
-        <p className="text-muted-foreground">
-          {uploadedHistory
-            ? 'Based on your learning history'
-            : 'Select areas that interest you to get personalized recommendations'}
-        </p>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-colors"
+            style={{ background: PRIMARY }}
+          >
+            <Plus className="w-4 h-4" /> Add Interest
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors">
+            <Download className="w-4 h-4" /> Export
+          </button>
+        </div>
       </motion.div>
 
-      {/* Empty State */}
-      {interests.length === 0 && (
-        <motion.div
-          variants={itemVariants}
-          className="text-center py-12 space-y-4"
-        >
-          <Heart className="w-12 h-12 text-muted-foreground/30 mx-auto" />
-          <div>
-            <h3 className="text-lg font-semibold">No interests yet</h3>
-            <p className="text-muted-foreground">
-              {uploadedHistory
-                ? 'Upload your learning history to get personalized interests'
-                : 'Start by exploring recommended interests below'}
-            </p>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Accepted Interests */}
-      {acceptedInterests.length > 0 && (
-        <motion.div variants={containerVariants} className="space-y-4">
-          <h2 className="text-lg font-semibold">Your Learning Paths</h2>
+      {/* Stats */}
+      <motion.div variants={stagger} className="grid grid-cols-3 gap-4">
+        {stats.map(({ label, value, primary }) => (
           <motion.div
-            variants={containerVariants}
-            className="grid md:grid-cols-2 gap-4"
+            key={label}
+            variants={fade}
+            className={`rounded-2xl p-5 border border-border/50 ${!primary ? 'bg-card' : ''}`}
+            style={primary ? { background: PRIMARY } : {}}
           >
-            {acceptedInterests.map((interest) => {
+            {!primary && (
+              <button className="float-right w-7 h-7 rounded-full bg-secondary flex items-center justify-center">
+                <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
+            )}
+            <p className={`text-xs font-medium ${primary ? 'text-white/70' : 'text-muted-foreground'}`}>{label}</p>
+            <p className={`text-3xl font-black mt-1 ${primary ? 'text-white' : ''}`}>{value}</p>
+            <div className="flex items-center gap-1 mt-3">
+              <TrendingUp className={`w-3 h-3 ${primary ? 'text-white/60' : 'text-emerald-600'}`} />
+              <span className={`text-[10px] font-medium ${primary ? 'text-white/60' : 'text-emerald-600'}`}>
+                {primary ? 'Increased from last month' : 'Active'}
+              </span>
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* Active Learning Paths */}
+      {accepted.length > 0 && (
+        <motion.div variants={stagger} className="space-y-3">
+          <motion.div variants={fade} className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <h2 className="font-bold text-base">Active Learning Paths</h2>
+            <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2 py-0.5 rounded-full">
+              {accepted.length}
+            </span>
+          </motion.div>
+
+          <motion.div variants={stagger} className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {accepted.map((interest, idx) => {
               const details = mockInterests.find((m) => m.id === interest.id)
+              const color = interestColors[idx % interestColors.length]
               return (
                 <motion.div
                   key={interest.id}
-                  variants={itemVariants}
-                  className="bg-card border border-border/50 rounded-2xl p-6 space-y-4 hover:border-accent/30 transition-colors"
+                  variants={fade}
+                  whileHover={{ y: -2, transition: { duration: 0.18 } }}
+                  className="bg-card border border-border/50 rounded-2xl overflow-hidden"
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2 flex-1">
-                      <div className="flex items-center gap-2">
-                        <CheckCircle2 className="w-5 h-5 text-accent" />
-                        <h3 className="font-semibold text-lg">{interest.name}</h3>
+                  <div className="h-1" style={{ background: color }} />
+                  <div className="p-5 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: color + '18' }}>
+                        <BookOpen className="w-4 h-4" style={{ color }} />
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {details?.description}
-                      </p>
+                      <span className="flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-semibold px-2 py-1 rounded-full">
+                        <CheckCircle2 className="w-2.5 h-2.5" /> Active
+                      </span>
                     </div>
+                    <div>
+                      <h3 className="font-bold text-sm">{interest.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{details?.description}</p>
+                    </div>
+                    <Link href={`/dashboard/interests/${interest.id}`}>
+                      <button
+                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                        style={{ background: PRIMARY + '12', color: PRIMARY, border: `1px solid ${PRIMARY}25` }}
+                      >
+                        View Roadmap <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </Link>
                   </div>
-
-                  <Link href={`/dashboard/interests/${interest.id}`} className="block">
-                    <Button
-                      variant="outline"
-                      className="w-full gap-2"
-                    >
-                      View Roadmap
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
                 </motion.div>
               )
             })}
@@ -143,51 +138,61 @@ export default function InterestsPage() {
         </motion.div>
       )}
 
-      {/* Pending Interests */}
-      {pendingInterests.length > 0 && (
-        <motion.div variants={containerVariants} className="space-y-4">
-          <h2 className="text-lg font-semibold">Recommended for You</h2>
-          <motion.div
-            variants={containerVariants}
-            className="grid md:grid-cols-2 gap-4"
-          >
-            {pendingInterests.map((interest) => {
+      {/* Recommended */}
+      {pending.length > 0 && (
+        <motion.div variants={stagger} className="space-y-3">
+          <motion.div variants={fade} className="flex items-center gap-2">
+            <Heart className="w-4 h-4 text-rose-500" />
+            <h2 className="font-bold text-base">Recommended for You</h2>
+            <span className="bg-secondary text-muted-foreground text-xs font-semibold px-2 py-0.5 rounded-full border border-border">
+              {pending.length}
+            </span>
+          </motion.div>
+
+          <motion.div variants={stagger} className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {pending.map((interest, idx) => {
               const details = mockInterests.find((m) => m.id === interest.id)
-              const Icon = details ? (require('lucide-react')[details.icon] || Heart) : Heart
+              const gIdx = (idx + accepted.length) % interestColors.length
+              const color = interestColors[gIdx]
+              const Icon = (() => {
+                try { return require('lucide-react')[details?.icon || 'Heart'] || Heart } catch { return Heart }
+              })()
               return (
                 <motion.div
                   key={interest.id}
-                  variants={itemVariants}
-                  className="bg-card border border-border/50 rounded-2xl p-6 space-y-4 hover:border-accent/30 transition-colors"
+                  variants={fade}
+                  whileHover={{ y: -2, transition: { duration: 0.18 } }}
+                  className="bg-card border border-border/50 rounded-2xl overflow-hidden group"
                 >
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2 flex-1">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
-                          <Icon className="w-5 h-5 text-accent" />
-                        </div>
-                        <h3 className="font-semibold text-lg">{interest.name}</h3>
+                  <div className="h-1 opacity-40 group-hover:opacity-100 transition-opacity" style={{ background: color }} />
+                  <div className="p-5 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: color + '18' }}>
+                        <Icon className="w-4 h-4" style={{ color }} />
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {details?.description}
-                      </p>
+                      <span className="text-[10px] font-semibold bg-secondary text-muted-foreground px-2.5 py-1 rounded-full border border-border">
+                        Recommended
+                      </span>
                     </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleAccept(interest.id)}
-                      className="flex-1 bg-accent hover:bg-accent/90 text-accent-foreground"
-                    >
-                      Interested
-                    </Button>
-                    <Button
-                      onClick={() => handleReject(interest.id)}
-                      variant="outline"
-                      className="flex-1"
-                    >
-                      <XCircle className="w-4 h-4" />
-                    </Button>
+                    <div>
+                      <h3 className="font-bold text-sm">{interest.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{details?.description}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => updateInterest(interest.id, 'accepted')}
+                        className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-colors"
+                        style={{ background: PRIMARY }}
+                      >
+                        <Heart className="w-3.5 h-3.5 fill-current" /> Interested
+                      </button>
+                      <button
+                        onClick={() => updateInterest(interest.id, 'rejected')}
+                        className="w-10 h-10 flex items-center justify-center bg-secondary hover:bg-red-50 hover:text-red-500 rounded-xl transition-colors text-muted-foreground"
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
               )

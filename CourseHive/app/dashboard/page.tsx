@@ -1,212 +1,404 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Flame, CheckCircle2, Loader2, FolderOpen, TrendingUp } from 'lucide-react'
-import { AnalyticsCard } from '@/components/analytics-card'
-import { mockAnalytics, mockTimeActivityData, mockProjectsData } from '@/lib/mock-data'
 import {
-  LineChart,
-  Line,
+  ArrowUpRight,
+  Plus,
+  Download,
+  Video,
+  Users,
+  TrendingUp,
+  Pause,
+  Square,
+  BookOpen,
+  Brain,
+  Code2,
+  Smartphone,
+  Cloud,
+  Palette,
+} from 'lucide-react'
+import { mockAnalytics } from '@/lib/mock-data'
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
   PieChart,
   Pie,
-  Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
 } from 'recharts'
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
-    },
-  },
+const PRIMARY = '#1a3d2c'
+const PRIMARY_LIGHT = '#e8f5ee'
+
+/* ─── mock data ─── */
+const weekActivity = [
+  { day: 'S', hours: 1.5, solid: false },
+  { day: 'M', hours: 5.0, solid: true },
+  { day: 'T', hours: 6.5, solid: true, highlight: true, pct: '74%' },
+  { day: 'W', hours: 8.0, solid: true },
+  { day: 'T', hours: 2.5, solid: false },
+  { day: 'F', hours: 4.0, solid: false },
+  { day: 'S', hours: 1.0, solid: false },
+]
+
+const progressData = [
+  { name: 'Completed', value: 7, color: PRIMARY },
+  { name: 'In Progress', value: 3, color: '#52b788' },
+  { name: 'Pending', value: 2, color: PRIMARY_LIGHT },
+]
+
+const recentActivity = [
+  { name: 'Alex Rodriguez', task: 'Advanced TypeScript', status: 'Completed', avatar: 'AR' },
+  { name: 'Sarah Chen', task: 'React Patterns', status: 'In Progress', avatar: 'SC' },
+  { name: 'Mike Johnson', task: 'System Design', status: 'Pending', avatar: 'MJ' },
+  { name: 'Emma Wilson', task: 'Algorithms & DS', status: 'In Progress', avatar: 'EW' },
+]
+
+const activeCourses = [
+  { title: 'Advanced TypeScript', due: 'Due: Dec 10, 2024', icon: Code2, color: '#4f46e5' },
+  { title: 'React Patterns', due: 'Due: Dec 15, 2024', icon: Brain, color: '#0891b2' },
+  { title: 'System Design', due: 'Due: Dec 20, 2024', icon: BookOpen, color: '#b45309' },
+  { title: 'Mobile Development', due: 'Due: Jan 5, 2025', icon: Smartphone, color: '#be185d' },
+  { title: 'DevOps & Cloud', due: 'Due: Jan 12, 2025', icon: Cloud, color: '#0d9488' },
+]
+
+const statusBadge: Record<string, string> = {
+  Completed: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+  'In Progress': 'bg-amber-50 text-amber-700 border border-amber-200',
+  Pending: 'bg-slate-100 text-slate-500 border border-slate-200',
 }
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5 },
-  },
+/* ─── custom rounded bar ─── */
+const RoundedBar = (props: {
+  x?: number; y?: number; width?: number; height?: number; fill?: string
+}) => {
+  const { x = 0, y = 0, width = 0, height = 0, fill } = props
+  if (height <= 0) return null
+  const r = Math.min(width / 2, 8)
+  return (
+    <rect x={x} y={y} width={width} height={height} rx={r} ry={r} fill={fill} />
+  )
+}
+
+/* ─── variants ─── */
+const fade = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
+}
+const stagger = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.07 } },
 }
 
 export default function DashboardPage() {
+  const total = progressData.reduce((s, d) => s + d.value, 0)
+  const completedPct = Math.round((progressData[0].value / total) * 100)
+
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="space-y-8"
-    >
-      {/* Header */}
-      <motion.div variants={itemVariants} className="space-y-2">
-        <h1 className="text-3xl sm:text-4xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back! Here&apos;s your learning overview</p>
-      </motion.div>
+    <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
 
-      {/* Analytics Cards Grid */}
-      <motion.div
-        variants={containerVariants}
-        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-      >
-        <motion.div variants={itemVariants}>
-          <AnalyticsCard
-            icon={Flame}
-            title="Current Streak"
-            value={mockAnalytics.streak}
-            subtitle="days of learning"
-            trend={{ value: 40, isPositive: true }}
-          />
-        </motion.div>
-        <motion.div variants={itemVariants}>
-          <AnalyticsCard
-            icon={CheckCircle2}
-            title="Completed Courses"
-            value={mockAnalytics.completedCourses}
-            subtitle="total courses finished"
-            trend={{ value: 20, isPositive: true }}
-          />
-        </motion.div>
-        <motion.div variants={itemVariants}>
-          <AnalyticsCard
-            icon={Loader2}
-            title="Ongoing Interests"
-            value={mockAnalytics.ongoingInterests}
-            subtitle="active learning paths"
-            trend={{ value: 15, isPositive: true }}
-          />
-        </motion.div>
-        <motion.div variants={itemVariants}>
-          <AnalyticsCard
-            icon={FolderOpen}
-            title="Projects Completed"
-            value={mockAnalytics.projectsCompleted}
-            subtitle="hands-on projects"
-            trend={{ value: 30, isPositive: true }}
-          />
-        </motion.div>
-      </motion.div>
-
-      {/* Charts Section */}
-      <motion.div
-        variants={containerVariants}
-        className="grid lg:grid-cols-2 gap-6"
-      >
-        {/* Time Activity Chart */}
-        <motion.div
-          variants={itemVariants}
-          className="bg-card border border-border/50 rounded-2xl p-6 space-y-4"
-        >
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h2 className="text-xl font-bold">Time Activity</h2>
-              <p className="text-sm text-muted-foreground">Learning hours per day</p>
-            </div>
-            <div className="flex gap-2">
-              {['7d', '30d'].map((period) => (
-                <button
-                  key={period}
-                  className="px-3 py-1 text-xs rounded-lg hover:bg-secondary transition-colors"
-                >
-                  {period}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={mockTimeActivityData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-              <XAxis dataKey="day" stroke="var(--color-muted-foreground)" />
-              <YAxis stroke="var(--color-muted-foreground)" />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'var(--color-card)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: '8px',
-                }}
-                labelStyle={{ color: 'var(--color-foreground)' }}
-              />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke="var(--color-accent)"
-                dot={{ fill: 'var(--color-accent)', r: 5 }}
-                activeDot={{ r: 7 }}
-                strokeWidth={2}
-                name="Hours"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </motion.div>
-
-        {/* Projects Breakdown Chart */}
-        <motion.div
-          variants={itemVariants}
-          className="bg-card border border-border/50 rounded-2xl p-6 space-y-4"
-        >
-          <div className="space-y-1">
-            <h2 className="text-xl font-bold">Projects by Type</h2>
-            <p className="text-sm text-muted-foreground">Distribution of completed projects</p>
-          </div>
-
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={mockProjectsData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, value }) => `${name}: ${value}%`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {mockProjectsData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.fill} />
-                ))}
-              </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'var(--color-card)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: '8px',
-                }}
-                labelStyle={{ color: 'var(--color-foreground)' }}
-              />
-            </PieChart>
-          </ResponsiveContainer>
-        </motion.div>
-      </motion.div>
-
-      {/* Quick Stats */}
-      <motion.div
-        variants={itemVariants}
-        className="bg-card border border-border/50 rounded-2xl p-6"
-      >
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
-            <TrendingUp className="w-6 h-6 text-accent" />
-          </div>
-          <div className="flex-1">
-            <h3 className="font-semibold">You&apos;re on track!</h3>
-            <p className="text-sm text-muted-foreground">
-              Complete 3 more courses to reach your monthly goal
-            </p>
-          </div>
-          <button className="px-4 py-2 bg-accent hover:bg-accent/90 text-accent-foreground rounded-lg transition-colors font-medium">
-            View Goal
+      {/* ── Header ── */}
+      <motion.div variants={fade} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground text-sm mt-1">Plan, prioritize, and accomplish your tasks with ease.</p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors hover:opacity-90"
+            style={{ background: PRIMARY }}
+          >
+            <Plus className="w-4 h-4" /> Add Course
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors">
+            <Download className="w-4 h-4" /> Import Data
           </button>
         </div>
       </motion.div>
+
+      {/* ── Stat cards ── */}
+      <motion.div variants={stagger} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Card 1 — primary green */}
+        <motion.div
+          variants={fade}
+          className="rounded-2xl p-5 relative overflow-hidden col-span-1"
+          style={{ background: PRIMARY }}
+        >
+          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/15 flex items-center justify-center hover:bg-white/25 transition-colors">
+            <ArrowUpRight className="w-3.5 h-3.5 text-white" />
+          </button>
+          <p className="text-white/70 text-xs font-medium mt-1">Total Courses</p>
+          <p className="text-white text-4xl font-black mt-1">
+            {mockAnalytics.completedCourses + mockAnalytics.ongoingInterests + 2}
+          </p>
+          <div className="flex items-center gap-1.5 mt-3">
+            <span className="flex items-center gap-1 bg-white/15 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+              <TrendingUp className="w-2.5 h-2.5" /> Increased from last month
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Card 2 */}
+        <motion.div variants={fade} className="bg-card rounded-2xl p-5 border border-border/50 relative">
+          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors">
+            <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+          <p className="text-muted-foreground text-xs font-medium mt-1">Completed</p>
+          <p className="text-3xl font-black mt-1">{mockAnalytics.completedCourses}</p>
+          <div className="flex items-center gap-1.5 mt-3">
+            <span className="flex items-center gap-1 text-emerald-600 text-[10px] font-semibold">
+              <TrendingUp className="w-2.5 h-2.5" /> Increased from last month
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Card 3 */}
+        <motion.div variants={fade} className="bg-card rounded-2xl p-5 border border-border/50 relative">
+          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors">
+            <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+          <p className="text-muted-foreground text-xs font-medium mt-1">In Progress</p>
+          <p className="text-3xl font-black mt-1">{mockAnalytics.ongoingInterests}</p>
+          <div className="flex items-center gap-1.5 mt-3">
+            <span className="flex items-center gap-1 text-emerald-600 text-[10px] font-semibold">
+              <TrendingUp className="w-2.5 h-2.5" /> Increased from last month
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Card 4 */}
+        <motion.div variants={fade} className="bg-card rounded-2xl p-5 border border-border/50 relative">
+          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors">
+            <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
+          </button>
+          <p className="text-muted-foreground text-xs font-medium mt-1">Upcoming</p>
+          <p className="text-3xl font-black mt-1">2</p>
+          <p className="text-muted-foreground text-[10px] font-medium mt-3">On Schedule</p>
+        </motion.div>
+      </motion.div>
+
+      {/* ── Middle row ── */}
+      <motion.div variants={stagger} className="grid lg:grid-cols-12 gap-4">
+
+        {/* Learning Analytics — bar chart */}
+        <motion.div
+          variants={fade}
+          className="lg:col-span-5 bg-card rounded-2xl p-5 border border-border/50"
+        >
+          <h2 className="font-bold text-base">Learning Analytics</h2>
+          <p className="text-muted-foreground text-xs mt-0.5 mb-4">Hours spent studying this week</p>
+
+          {/* SVG defs for hatch */}
+          <svg width="0" height="0" className="absolute">
+            <defs>
+              <pattern id="hatch" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">
+                <line x1="0" y1="0" x2="0" y2="6" stroke={PRIMARY} strokeWidth="1.5" strokeOpacity="0.3" />
+              </pattern>
+            </defs>
+          </svg>
+
+          <ResponsiveContainer width="100%" height={180}>
+            <BarChart data={weekActivity} barCategoryGap="28%" margin={{ top: 24, right: 4, bottom: 0, left: 0 }}>
+              <XAxis
+                dataKey="day"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }}
+              />
+              <Tooltip
+                cursor={false}
+                contentStyle={{
+                  background: 'var(--color-card)',
+                  border: '1px solid var(--color-border)',
+                  borderRadius: '10px',
+                  fontSize: '12px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                }}
+                formatter={(v: number) => [`${v}h`, 'Study time']}
+              />
+              <Bar dataKey="hours" shape={(p: object) => <RoundedBar {...(p as Parameters<typeof RoundedBar>[0])} />} isAnimationActive>
+                {weekActivity.map((entry, i) => (
+                  <Cell
+                    key={i}
+                    fill={entry.solid ? PRIMARY : 'url(#hatch)'}
+                    stroke={entry.solid ? 'none' : PRIMARY}
+                    strokeWidth={entry.solid ? 0 : 1}
+                    strokeOpacity={0.25}
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </motion.div>
+
+        {/* Reminder / Today's Schedule */}
+        <motion.div
+          variants={fade}
+          className="lg:col-span-4 bg-card rounded-2xl p-5 border border-border/50 flex flex-col justify-between"
+        >
+          <div>
+            <h2 className="font-bold text-base">Reminders</h2>
+            <div className="mt-4 space-y-1">
+              <h3 className="text-xl font-extrabold leading-snug">Deep Dive into<br />React Patterns</h3>
+              <p className="text-muted-foreground text-sm">Time: 02.00 pm – 04.00 pm</p>
+            </div>
+          </div>
+          <button
+            className="mt-5 flex items-center justify-center gap-2 w-full py-3 rounded-xl text-white font-semibold text-sm transition-colors hover:opacity-90"
+            style={{ background: PRIMARY }}
+          >
+            <Video className="w-4 h-4" /> Start Session
+          </button>
+        </motion.div>
+
+        {/* Active Courses list */}
+        <motion.div
+          variants={fade}
+          className="lg:col-span-3 bg-card rounded-2xl p-5 border border-border/50"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-bold text-base">Courses</h2>
+            <button
+              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors hover:bg-secondary"
+              style={{ borderColor: PRIMARY, color: PRIMARY }}
+            >
+              <Plus className="w-3 h-3" /> New
+            </button>
+          </div>
+          <div className="space-y-3">
+            {activeCourses.map((c) => {
+              const Icon = c.icon
+              return (
+                <div key={c.title} className="flex items-center gap-3">
+                  <div
+                    className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                    style={{ background: c.color + '20' }}
+                  >
+                    <Icon className="w-4 h-4" style={{ color: c.color }} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-semibold truncate">{c.title}</p>
+                    <p className="text-[10px] text-muted-foreground">{c.due}</p>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* ── Bottom row ── */}
+      <motion.div variants={stagger} className="grid lg:grid-cols-12 gap-4">
+
+        {/* Team / Learning Activity */}
+        <motion.div
+          variants={fade}
+          className="lg:col-span-5 bg-card rounded-2xl p-5 border border-border/50"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-bold text-base">Learning Activity</h2>
+            <button
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border border-border hover:bg-secondary transition-colors"
+            >
+              <Users className="w-3 h-3" /> Add Member
+            </button>
+          </div>
+          <div className="space-y-3">
+            {recentActivity.map((a) => (
+              <div key={a.name} className="flex items-center gap-3">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
+                  style={{ background: PRIMARY }}
+                >
+                  {a.avatar}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold">{a.name}</p>
+                  <p className="text-[10px] text-muted-foreground truncate">
+                    Working on <span className="font-semibold text-foreground">{a.task}</span>
+                  </p>
+                </div>
+                <span className={`text-[10px] font-semibold px-2.5 py-1 rounded-full shrink-0 ${statusBadge[a.status]}`}>
+                  {a.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Course Progress — donut */}
+        <motion.div
+          variants={fade}
+          className="lg:col-span-4 bg-card rounded-2xl p-5 border border-border/50 flex flex-col items-center"
+        >
+          <div className="w-full mb-2">
+            <h2 className="font-bold text-base">Course Progress</h2>
+          </div>
+
+          <div className="relative mt-2">
+            <ResponsiveContainer width={180} height={130}>
+              <PieChart>
+                <Pie
+                  data={progressData}
+                  cx="50%"
+                  cy="90%"
+                  startAngle={180}
+                  endAngle={0}
+                  innerRadius={50}
+                  outerRadius={80}
+                  paddingAngle={2}
+                  dataKey="value"
+                  strokeWidth={0}
+                >
+                  {progressData.map((entry, i) => (
+                    <Cell key={i} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+            {/* Center label */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
+              <p className="text-3xl font-black leading-none">{completedPct}%</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Course Done</p>
+            </div>
+          </div>
+
+          {/* Legend */}
+          <div className="flex items-center gap-4 mt-4 text-xs">
+            {progressData.map((d) => (
+              <div key={d.name} className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ background: d.color }} />
+                <span className="text-muted-foreground">{d.name}</span>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Study Timer */}
+        <motion.div
+          variants={fade}
+          className="lg:col-span-3 rounded-2xl p-5 flex flex-col justify-between"
+          style={{ background: PRIMARY }}
+        >
+          <div>
+            <h2 className="font-semibold text-white/80 text-sm">Study Timer</h2>
+          </div>
+          <div className="my-4 text-center">
+            <p className="text-4xl font-black text-white tracking-wider font-mono">01:24:08</p>
+          </div>
+          <div className="flex items-center justify-center gap-3">
+            <button className="w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors">
+              <Pause className="w-5 h-5 text-white" />
+            </button>
+            <button className="w-11 h-11 rounded-full bg-red-500/80 hover:bg-red-500 flex items-center justify-center transition-colors">
+              <Square className="w-4 h-4 text-white fill-white" />
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+
     </motion.div>
   )
 }

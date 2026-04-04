@@ -1,167 +1,190 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { FolderOpen, CheckCircle2, Clock } from 'lucide-react'
+import { FolderOpen, Plus, Download, ArrowUpRight, Clock, CheckCircle2, TrendingUp } from 'lucide-react'
 import { mockProjects } from '@/lib/mock-data'
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.1,
-    },
-  },
+const PRIMARY = '#1a3d2c'
+
+const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } } }
+const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } }
+
+const difficultyStyle: Record<string, { bg: string; text: string }> = {
+  Easy:   { bg: '#f0fdf4', text: '#15803d' },
+  Medium: { bg: '#fffbeb', text: '#b45309' },
+  Hard:   { bg: '#fef2f2', text: '#b91c1c' },
 }
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5 },
-  },
-}
+const projectColors = ['#4f46e5', '#0891b2', '#b45309', '#be185d', '#0d9488', '#7c3aed']
 
 export default function ProjectsPage() {
-  const completedProjects = mockProjects.filter((p) => p.status === 'Completed')
-  const inProgressProjects = mockProjects.filter((p) => p.status === 'In Progress')
+  const inProgress = mockProjects.filter((p) => p.status === 'In Progress')
+  const completed = mockProjects.filter((p) => p.status === 'Completed')
+
+  const stats = [
+    { label: 'Total Projects', value: mockProjects.length, primary: true },
+    { label: 'Completed', value: completed.length, primary: false },
+    { label: 'In Progress', value: inProgress.length, primary: false },
+  ]
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-      className="space-y-8"
-    >
+    <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
+
       {/* Header */}
-      <motion.div variants={itemVariants} className="space-y-2">
-        <div className="flex items-center gap-2">
-          <FolderOpen className="w-6 h-6 text-accent" />
-          <h1 className="text-3xl sm:text-4xl font-bold">Your Projects</h1>
+      <motion.div variants={fade} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-extrabold tracking-tight">Your Projects</h1>
+          <p className="text-muted-foreground text-sm mt-1">Build real-world projects to strengthen your portfolio</p>
         </div>
-        <p className="text-muted-foreground">
-          Build real-world projects to strengthen your portfolio
-        </p>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-colors"
+            style={{ background: PRIMARY }}
+          >
+            <Plus className="w-4 h-4" /> New Project
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors">
+            <Download className="w-4 h-4" /> Export
+          </button>
+        </div>
       </motion.div>
 
-      {/* In Progress Projects */}
-      {inProgressProjects.length > 0 && (
-        <motion.div variants={containerVariants} className="space-y-4">
-          <h2 className="text-lg font-semibold">In Progress</h2>
+      {/* Stats */}
+      <motion.div variants={stagger} className="grid grid-cols-3 gap-4">
+        {stats.map(({ label, value, primary }) => (
           <motion.div
-            variants={containerVariants}
-            className="grid md:grid-cols-2 gap-4"
+            key={label}
+            variants={fade}
+            className={`rounded-2xl p-5 border border-border/50 ${!primary ? 'bg-card' : ''}`}
+            style={primary ? { background: PRIMARY } : {}}
           >
-            {inProgressProjects.map((project) => (
-              <motion.div
-                key={project.id}
-                variants={itemVariants}
-                className="bg-card border border-border/50 rounded-2xl p-6 space-y-4 hover:border-accent/30 transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-amber-500" />
-                      <h3 className="font-bold text-lg">{project.title}</h3>
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="px-2 py-1 text-xs rounded-md bg-amber-100/50 dark:bg-amber-950/50 text-amber-900 dark:text-amber-200">
+            {!primary && (
+              <button className="float-right w-7 h-7 rounded-full bg-secondary flex items-center justify-center">
+                <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
+              </button>
+            )}
+            <p className={`text-xs font-medium ${primary ? 'text-white/70' : 'text-muted-foreground'}`}>{label}</p>
+            <p className={`text-3xl font-black mt-1 ${primary ? 'text-white' : ''}`}>{value}</p>
+            <div className="flex items-center gap-1 mt-3">
+              <TrendingUp className={`w-3 h-3 ${primary ? 'text-white/60' : 'text-emerald-600'}`} />
+              <span className={`text-[10px] font-medium ${primary ? 'text-white/60' : 'text-emerald-600'}`}>
+                Increased from last month
+              </span>
+            </div>
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {/* In Progress */}
+      {inProgress.length > 0 && (
+        <motion.div variants={stagger} className="space-y-3">
+          <motion.div variants={fade} className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-amber-500" />
+            <h2 className="font-bold text-base">In Progress</h2>
+            <span className="bg-amber-50 text-amber-700 border border-amber-200 text-xs font-semibold px-2 py-0.5 rounded-full">
+              {inProgress.length}
+            </span>
+          </motion.div>
+
+          <motion.div variants={stagger} className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {inProgress.map((project, idx) => {
+              const ds = difficultyStyle[project.difficulty] || difficultyStyle.Medium
+              const color = projectColors[idx % projectColors.length]
+              return (
+                <motion.div
+                  key={project.id}
+                  variants={fade}
+                  whileHover={{ y: -2, transition: { duration: 0.18 } }}
+                  className="bg-card border border-border/50 rounded-2xl overflow-hidden"
+                >
+                  <div className="h-1" style={{ background: color }} />
+                  <div className="p-5 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div
+                        className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-sm shrink-0"
+                        style={{ background: color + '20' }}
+                      >
+                        <FolderOpen className="w-4 h-4" style={{ color }} />
+                      </div>
+                      <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full" style={{ background: ds.bg, color: ds.text }}>
                         {project.difficulty}
                       </span>
-                      <span className="px-2 py-1 text-xs rounded-md bg-accent/10 text-accent">
-                        {project.progress}% Complete
-                      </span>
                     </div>
+                    <div>
+                      <h3 className="font-bold text-sm">{project.title}</h3>
+                      <p className="text-xs font-semibold mt-1" style={{ color: PRIMARY }}>{project.progress}% complete</p>
+                    </div>
+                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${project.progress}%` }}
+                        transition={{ duration: 0.8 }}
+                        viewport={{ once: true }}
+                        className="h-full rounded-full"
+                        style={{ background: PRIMARY }}
+                      />
+                    </div>
+                    <button
+                      className="w-full py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                      style={{ background: PRIMARY + '12', color: PRIMARY, border: `1px solid ${PRIMARY}25` }}
+                    >
+                      Continue Project
+                    </button>
                   </div>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="space-y-2">
-                  <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileInView={{ width: `${project.progress}%` }}
-                      transition={{ duration: 0.8 }}
-                      viewport={{ once: true }}
-                      className="h-full bg-accent rounded-full"
-                    />
-                  </div>
-                </div>
-
-                <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground">
-                  Continue Project
-                </Button>
-              </motion.div>
-            ))}
+                </motion.div>
+              )
+            })}
           </motion.div>
         </motion.div>
       )}
 
-      {/* Completed Projects */}
-      {completedProjects.length > 0 && (
-        <motion.div variants={containerVariants} className="space-y-4">
-          <h2 className="text-lg font-semibold">Completed</h2>
-          <motion.div
-            variants={containerVariants}
-            className="grid md:grid-cols-2 gap-4"
-          >
-            {completedProjects.map((project) => (
-              <motion.div
-                key={project.id}
-                variants={itemVariants}
-                className="bg-card border border-border/50 rounded-2xl p-6 space-y-4 hover:border-accent/30 transition-colors opacity-75"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <CheckCircle2 className="w-5 h-5 text-accent" />
-                      <h3 className="font-bold text-lg">{project.title}</h3>
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="px-2 py-1 text-xs rounded-md bg-green-100/50 dark:bg-green-950/50 text-green-900 dark:text-green-200">
+      {/* Completed */}
+      {completed.length > 0 && (
+        <motion.div variants={stagger} className="space-y-3">
+          <motion.div variants={fade} className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <h2 className="font-bold text-base">Completed</h2>
+            <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2 py-0.5 rounded-full">
+              {completed.length}
+            </span>
+          </motion.div>
+
+          <motion.div variants={stagger} className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {completed.map((project, idx) => {
+              const ds = difficultyStyle[project.difficulty] || difficultyStyle.Medium
+              const color = projectColors[(idx + inProgress.length) % projectColors.length]
+              return (
+                <motion.div
+                  key={project.id}
+                  variants={fade}
+                  whileHover={{ y: -2, transition: { duration: 0.18 } }}
+                  className="bg-card border border-border/50 rounded-2xl overflow-hidden opacity-80 hover:opacity-100 transition-opacity"
+                >
+                  <div className="h-1 bg-emerald-500" />
+                  <div className="p-5 space-y-4">
+                    <div className="flex items-start justify-between">
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: color + '20' }}>
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                      </div>
+                      <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full" style={{ background: ds.bg, color: ds.text }}>
                         {project.difficulty}
                       </span>
-                      <span className="px-2 py-1 text-xs rounded-md bg-accent/10 text-accent">
-                        Completed
-                      </span>
                     </div>
+                    <div>
+                      <h3 className="font-bold text-sm">{project.title}</h3>
+                      <p className="text-xs font-semibold text-emerald-600 mt-1">Completed</p>
+                    </div>
+                    <div className="h-1.5 bg-emerald-100 rounded-full overflow-hidden">
+                      <div className="h-full w-full bg-emerald-500 rounded-full" />
+                    </div>
+                    <button className="w-full py-2.5 rounded-xl text-sm font-semibold bg-secondary hover:bg-secondary/80 text-muted-foreground transition-colors">
+                      View Certificate
+                    </button>
                   </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
-                    <div className="h-full bg-accent rounded-full w-full" />
-                  </div>
-                </div>
-
-                <Button variant="outline" className="w-full">
-                  View Certificate
-                </Button>
-              </motion.div>
-            ))}
+                </motion.div>
+              )
+            })}
           </motion.div>
-        </motion.div>
-      )}
-
-      {/* Empty State */}
-      {mockProjects.length === 0 && (
-        <motion.div
-          variants={itemVariants}
-          className="text-center py-12 space-y-4"
-        >
-          <FolderOpen className="w-12 h-12 text-muted-foreground/30 mx-auto" />
-          <div>
-            <h3 className="text-lg font-semibold">No projects yet</h3>
-            <p className="text-muted-foreground">
-              Enroll in a course to start your first project
-            </p>
-          </div>
-          <Button className="bg-accent hover:bg-accent/90 text-accent-foreground">
-            Explore Courses
-          </Button>
         </motion.div>
       )}
     </motion.div>

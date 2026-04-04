@@ -1,7 +1,9 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { LucideIcon } from 'lucide-react'
+import { LucideIcon, TrendingUp, TrendingDown, ArrowUpRight } from 'lucide-react'
+
+const PRIMARY = '#1a3d2c'
 
 interface AnalyticsCardProps {
   icon: LucideIcon
@@ -9,6 +11,7 @@ interface AnalyticsCardProps {
   value: string | number
   subtitle?: string
   trend?: { value: number; isPositive: boolean }
+  variant?: 'primary' | 'default'
 }
 
 export function AnalyticsCard({
@@ -17,33 +20,50 @@ export function AnalyticsCard({
   value,
   subtitle,
   trend,
+  variant = 'default',
 }: AnalyticsCardProps) {
+  const isPrimary = variant === 'primary'
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 14 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
       viewport={{ once: true }}
-      className="bg-card border border-border/50 rounded-2xl p-6 space-y-4 hover:border-accent/30 transition-colors"
+      whileHover={{ y: -2, transition: { duration: 0.18 } }}
+      className={`rounded-2xl p-5 border border-border/50 relative overflow-hidden cursor-default ${
+        isPrimary ? '' : 'bg-card'
+      }`}
+      style={isPrimary ? { background: PRIMARY } : {}}
     >
-      {/* Icon */}
-      <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
-        <Icon className="w-6 h-6 text-accent" />
-      </div>
+      {/* Arrow out button */}
+      <button
+        className={`absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+          isPrimary ? 'bg-white/15 hover:bg-white/25' : 'bg-secondary hover:bg-secondary/80'
+        }`}
+      >
+        <ArrowUpRight className={`w-3.5 h-3.5 ${isPrimary ? 'text-white' : 'text-muted-foreground'}`} />
+      </button>
 
-      {/* Content */}
-      <div className="space-y-1">
-        <p className="text-sm text-muted-foreground">{title}</p>
-        <p className="text-2xl sm:text-3xl font-bold">{value}</p>
-        {subtitle && (
-          <p className="text-xs text-muted-foreground">{subtitle}</p>
-        )}
-      </div>
+      <p className={`text-xs font-medium mt-1 ${isPrimary ? 'text-white/70' : 'text-muted-foreground'}`}>
+        {title}
+      </p>
+      <p className={`text-3xl font-black mt-1 ${isPrimary ? 'text-white' : ''}`}>{value}</p>
 
-      {/* Trend */}
+      {subtitle && !trend && (
+        <p className={`text-[10px] font-medium mt-3 ${isPrimary ? 'text-white/50' : 'text-muted-foreground'}`}>
+          {subtitle}
+        </p>
+      )}
+
       {trend && (
-        <div className={`text-sm font-semibold ${trend.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}>
-          {trend.isPositive ? '+' : ''}{trend.value}%
+        <div className="flex items-center gap-1 mt-3">
+          {trend.isPositive
+            ? <TrendingUp className={`w-3 h-3 ${isPrimary ? 'text-white/60' : 'text-emerald-600'}`} />
+            : <TrendingDown className={`w-3 h-3 ${isPrimary ? 'text-white/60' : 'text-red-500'}`} />}
+          <span className={`text-[10px] font-medium ${isPrimary ? 'text-white/60' : trend.isPositive ? 'text-emerald-600' : 'text-red-500'}`}>
+            {trend.isPositive ? '+' : ''}{trend.value}% from last month
+          </span>
         </div>
       )}
     </motion.div>

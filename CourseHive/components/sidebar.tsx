@@ -12,21 +12,29 @@ import {
   FileText,
   User,
   LogOut,
-  Menu,
   X,
+  Settings,
+  HelpCircle,
+  Smartphone,
 } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
 
-const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-  { id: 'interests', label: 'Interests', icon: Heart, href: '/dashboard/interests' },
-  { id: 'courses', label: 'Courses', icon: BookOpen, href: '/dashboard/courses' },
-  { id: 'projects', label: 'Projects', icon: FolderOpen, href: '/dashboard/projects' },
-  { id: 'leaderboard', label: 'Leaderboard', icon: Trophy, href: '/dashboard/leaderboard' },
-  { id: 'resume', label: 'Resume Analysis', icon: FileText, href: '/dashboard/resume' },
-  { id: 'profile', label: 'Profile', icon: User, href: '/dashboard/profile' },
+const PRIMARY = '#1a3d2c'
+
+const menuItems = [
+  { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+  { label: 'Interests', icon: Heart, href: '/dashboard/interests', badge: '5+' },
+  { label: 'Courses', icon: BookOpen, href: '/dashboard/courses' },
+  { label: 'Projects', icon: FolderOpen, href: '/dashboard/projects' },
+  { label: 'Leaderboard', icon: Trophy, href: '/dashboard/leaderboard' },
+]
+
+const generalItems = [
+  { label: 'Resume', icon: FileText, href: '/dashboard/resume' },
+  { label: 'Profile', icon: User, href: '/dashboard/profile' },
+  { label: 'Settings', icon: Settings, href: '#', disabled: true },
+  { label: 'Help', icon: HelpCircle, href: '#', disabled: true },
 ]
 
 interface SidebarProps {
@@ -37,14 +45,14 @@ interface SidebarProps {
 export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const { clearStore, toggleSidebarCollapsed, sidebarCollapsed } = useAppStore()
+  const { clearStore } = useAppStore()
   const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768)
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
   }, [])
 
   const handleLogout = () => {
@@ -52,86 +60,131 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     router.push('/')
   }
 
-  const handleCollapse = () => {
-    if (!isMobile) {
-      toggleSidebarCollapsed()
-    }
+  const isActive = (href: string) =>
+    href !== '/dashboard'
+      ? pathname.startsWith(href)
+      : pathname === '/dashboard'
+
+  const NavLink = ({
+    item,
+  }: {
+    item: { label: string; icon: React.ElementType; href: string; badge?: string; disabled?: boolean }
+  }) => {
+    const active = isActive(item.href)
+    const Icon = item.icon
+    const inner = (
+      <span
+        className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all relative ${
+          active
+            ? 'font-semibold'
+            : item.disabled
+            ? 'opacity-40 cursor-not-allowed'
+            : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'
+        }`}
+        style={active ? { color: PRIMARY } : {}}
+      >
+        {/* Left active bar */}
+        {active && (
+          <span
+            className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full"
+            style={{ background: PRIMARY }}
+          />
+        )}
+        <Icon className="w-4.5 h-4.5 shrink-0" style={active ? { color: PRIMARY } : {}} />
+        <span className="text-sm">{item.label}</span>
+        {item.badge && (
+          <span
+            className="ml-auto text-[10px] font-bold px-1.5 py-0.5 rounded-full text-white"
+            style={{ background: PRIMARY }}
+          >
+            {item.badge}
+          </span>
+        )}
+      </span>
+    )
+    if (item.disabled) return <div>{inner}</div>
+    return (
+      <Link href={item.href} onClick={() => isMobile && onClose?.()}>
+        {inner}
+      </Link>
+    )
   }
 
-  const sidebarVariants = {
-    open: { opacity: 1, x: 0 },
-    closed: { opacity: 0, x: -300 },
-  }
-
-  const sidebarContent = (
-    <motion.div
-      initial={isMobile ? 'closed' : 'open'}
-      animate={isMobile && !isOpen ? 'closed' : 'open'}
-      variants={sidebarVariants}
-      transition={{ duration: 0.3 }}
-      className="h-full flex flex-col"
-    >
-      {/* Header */}
-      <div className="p-6 border-b border-sidebar-border flex items-center justify-between">
-        <div className="flex items-center gap-2 font-bold text-lg">
-          <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
-            <span className="text-accent-foreground text-sm">H</span>
+  const content = (
+    <div className="h-full flex flex-col">
+      {/* Logo */}
+      <div className="flex items-center justify-between px-5 pt-6 pb-5">
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-sm"
+            style={{ background: PRIMARY }}
+          >
+            CH
           </div>
-          {!sidebarCollapsed && <span>CourseHive</span>}
+          <span className="font-bold text-lg tracking-tight">CourseHive</span>
         </div>
-        {isMobile && onClose && (
-          <button onClick={onClose} className="p-1 hover:bg-sidebar-accent rounded">
-            <X className="w-5 h-5" />
+        {isMobile && (
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground transition-colors"
+          >
+            <X className="w-4 h-4" />
           </button>
         )}
       </div>
 
-      {/* Nav Items */}
-      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
-          const Icon = item.icon
+      {/* Nav */}
+      <nav className="flex-1 px-3 overflow-y-auto space-y-0.5">
+        {/* MENU */}
+        <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.12em] px-4 mb-2 mt-1">
+          Menu
+        </p>
+        {menuItems.map((item) => (
+          <NavLink key={item.href} item={item} />
+        ))}
 
-          return (
-            <Link
-              key={item.id}
-              href={item.href}
-              onClick={() => isMobile && onClose?.()}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
-                isActive
-                  ? 'bg-accent/10 text-accent border-l-2 border-accent'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent/50'
-              }`}
-            >
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              {!sidebarCollapsed && (
-                <span className="text-sm font-medium">{item.label}</span>
-              )}
-            </Link>
-          )
-        })}
+        {/* GENERAL */}
+        <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.12em] px-4 mb-2 mt-5">
+          General
+        </p>
+        {generalItems.map((item) => (
+          <NavLink key={item.href} item={item} />
+        ))}
+
+        {/* Logout */}
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all text-sm mt-0.5"
+        >
+          <LogOut className="w-4.5 h-4.5 shrink-0" />
+          Logout
+        </button>
       </nav>
 
-      {/* Footer */}
-      <div className="border-t border-sidebar-border p-4 space-y-3">
-        {!sidebarCollapsed && !isMobile && (
-          <button
-            onClick={handleCollapse}
-            className="w-full text-xs text-sidebar-foreground/60 hover:text-sidebar-foreground py-2 px-4 rounded hover:bg-sidebar-accent/50 transition-colors text-left"
-          >
-            Collapse
-          </button>
-        )}
-        <Button
-          onClick={handleLogout}
-          variant="outline"
-          className={`w-full gap-2 ${sidebarCollapsed ? 'px-2' : ''}`}
+      {/* CTA Card */}
+      <div className="p-4 mt-2">
+        <div
+          className="rounded-2xl p-4 text-white"
+          style={{ background: PRIMARY }}
         >
-          <LogOut className="w-4 h-4" />
-          {!sidebarCollapsed && <span>Logout</span>}
-        </Button>
+          <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center mb-3">
+            <Smartphone className="w-5 h-5 text-white" />
+          </div>
+          <p className="font-bold text-sm leading-snug">
+            Download our<br />Mobile App
+          </p>
+          <p className="text-white/50 text-xs mt-1">Get easy in another way</p>
+          <button
+            className="mt-3 w-full py-2 rounded-xl text-xs font-semibold text-white transition-colors"
+            style={{ background: 'rgba(255,255,255,0.15)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.25)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.15)')}
+          >
+            Download
+          </button>
+        </div>
       </div>
-    </motion.div>
+    </div>
   )
 
   if (isMobile) {
@@ -143,27 +196,23 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            className="fixed inset-0 bg-black/40 z-40 md:hidden"
           />
         )}
         <motion.aside
-          className="fixed left-0 top-0 bottom-0 w-64 bg-sidebar border-r border-sidebar-border z-50 md:hidden flex flex-col"
-          animate={isOpen ? { x: 0 } : { x: -300 }}
-          transition={{ duration: 0.3 }}
+          className="fixed left-0 top-0 bottom-0 w-64 bg-sidebar border-r border-sidebar-border z-50 md:hidden"
+          animate={isOpen ? { x: 0 } : { x: -280 }}
+          transition={{ duration: 0.25, ease: 'easeInOut' }}
         >
-          {sidebarContent}
+          {content}
         </motion.aside>
       </>
     )
   }
 
   return (
-    <aside
-      className={`h-screen bg-sidebar border-r border-sidebar-border flex flex-col transition-all duration-300 ${
-        sidebarCollapsed ? 'w-20' : 'w-64'
-      }`}
-    >
-      {sidebarContent}
+    <aside className="w-60 shrink-0 h-screen bg-sidebar border-r border-sidebar-border flex flex-col">
+      {content}
     </aside>
   )
 }

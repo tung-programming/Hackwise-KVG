@@ -1,75 +1,90 @@
 'use client'
 
-import { useState } from 'react'
 import { useTheme } from 'next-themes'
-import { Bell, Upload, Menu, CircleUser } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Search, Bell, Mail, Sun, Moon, Menu } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
+
+const PRIMARY = '#1a3d2c'
 
 interface TopBarProps {
   onMenuClick?: () => void
-  username?: string
 }
 
-export function TopBar({ onMenuClick, username = 'Jordan' }: TopBarProps) {
+export function TopBar({ onMenuClick }: TopBarProps) {
   const { theme, setTheme } = useTheme()
-  const { setModalOpen } = useAppStore()
-  const [notificationCount] = useState(3)
+  const { currentUser } = useAppStore()
+  const name = currentUser?.username || 'Jordan Smith'
+  const email = 'jordan@example.com'
+  const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
 
   return (
-    <header className="h-16 border-b border-border/40 bg-card/40 backdrop-blur-sm sticky top-0 z-40">
-      <div className="h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
-        {/* Left */}
-        <div className="flex items-center gap-4">
+    <header className="h-17.5 bg-card border-b border-border/50 sticky top-0 z-40 flex items-center">
+      <div className="flex-1 flex items-center justify-between px-6 gap-4">
+        {/* Mobile menu + Search */}
+        <div className="flex items-center gap-3 flex-1 max-w-sm">
           <button
             onClick={onMenuClick}
-            className="md:hidden p-2 hover:bg-secondary rounded-lg transition-colors"
+            className="md:hidden p-2 rounded-xl hover:bg-secondary text-muted-foreground transition-colors"
           >
             <Menu className="w-5 h-5" />
           </button>
-          <div className="hidden sm:block">
-            <p className="text-sm font-medium">Hello, {username}</p>
-            <p className="text-xs text-muted-foreground">Welcome back</p>
+
+          {/* Search bar — Donezo style */}
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
+            <input
+              type="text"
+              placeholder="Search task"
+              className="w-full pl-9 pr-14 py-2.5 text-sm bg-secondary/50 border border-border/40 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition-all placeholder:text-muted-foreground/50"
+              style={{ '--tw-ring-color': PRIMARY } as React.CSSProperties}
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-border/60 rounded-md px-1.5 py-0.5">
+              <span className="text-[10px] text-muted-foreground font-medium">⌘</span>
+              <span className="text-[10px] text-muted-foreground font-medium">F</span>
+            </div>
           </div>
         </div>
 
-        {/* Right */}
-        <div className="flex items-center gap-2 sm:gap-4">
-          {/* Upload History Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setModalOpen('uploadHistory', true)}
-            className="gap-2 hidden sm:flex"
-          >
-            <Upload className="w-4 h-4" />
-            <span>Upload History</span>
-          </Button>
-
-          {/* Notification Bell */}
-          <button
-            className="relative p-2 hover:bg-secondary rounded-lg transition-colors"
-            aria-label="Notifications"
-          >
-            <Bell className="w-5 h-5" />
-            {notificationCount > 0 && (
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-            )}
-          </button>
-
-          {/* Theme Toggle */}
+        {/* Right — icons + user */}
+        <div className="flex items-center gap-2">
+          {/* Theme */}
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2 hover:bg-secondary rounded-lg transition-colors"
-            aria-label="Toggle theme"
+            className="p-2.5 rounded-xl hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark' ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
           </button>
 
-          {/* Avatar */}
-          <button className="p-2 hover:bg-secondary rounded-lg transition-colors">
-            <CircleUser className="w-5 h-5" />
+          {/* Mail */}
+          <button className="p-2.5 rounded-xl hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+            <Mail className="w-4.5 h-4.5" />
           </button>
+
+          {/* Bell */}
+          <button className="relative p-2.5 rounded-xl hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+            <Bell className="w-4.5 h-4.5" />
+            <span
+              className="absolute top-2 right-2 w-2 h-2 rounded-full border-2 border-card"
+              style={{ background: PRIMARY }}
+            />
+          </button>
+
+          {/* Divider */}
+          <div className="w-px h-8 bg-border/60 mx-1" />
+
+          {/* User */}
+          <div className="flex items-center gap-3 cursor-pointer group">
+            <div
+              className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
+              style={{ background: PRIMARY }}
+            >
+              {initials}
+            </div>
+            <div className="hidden sm:block leading-tight">
+              <p className="text-sm font-semibold text-foreground">{name}</p>
+              <p className="text-xs text-muted-foreground">{email}</p>
+            </div>
+          </div>
         </div>
       </div>
     </header>

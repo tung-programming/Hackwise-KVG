@@ -13,7 +13,7 @@ export default function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const { sidebarCollapsed } = useAppStore()
+  const { } = useAppStore()
 
   useEffect(() => {
     setMounted(true)
@@ -22,23 +22,21 @@ export default function DashboardLayout({
   if (!mounted) return null
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen bg-background overflow-hidden">
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* Main */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <TopBar onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
-        {/* Page Content */}
         <main className="flex-1 overflow-y-auto">
-          <div className="p-4 sm:p-6 lg:p-8">
+          <div className="p-5 sm:p-6 lg:p-8 max-w-screen-2xl">
             {children}
           </div>
         </main>
       </div>
 
-      {/* Modals */}
       <UploadHistoryModal />
     </div>
   )
