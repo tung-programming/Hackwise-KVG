@@ -188,12 +188,46 @@ export const authService = {
       email.split("@")[0] ||
       `user_${Date.now()}`;
 
-    // Check if user exists in our users table
-    const { data: existingUser } = await supabase
+    // Check if user exists in our users table - try by ID first, then by email
+    let { data: existingUser } = await supabase
       .from("users")
       .select("*")
       .eq("id", supabaseUser.id)
       .single();
+
+    // If not found by ID, check by email (user might exist from previous auth)
+    if (!existingUser) {
+      const { data: userByEmail } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", email)
+        .single();
+      
+      if (userByEmail) {
+        console.log("Found existing user by email, updating ID to match Supabase auth");
+        // Update the existing user's ID to match Supabase auth ID
+        const { data: updatedUser, error: updateError } = await supabase
+          .from("users")
+          .update({
+            id: supabaseUser.id,
+            avatar_url: avatarUrl || userByEmail.avatar_url,
+            auth_provider: provider,
+            auth_provider_id: providerId,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("email", email)
+          .select()
+          .single();
+        
+        if (updateError) {
+          console.error("Error updating user ID:", updateError);
+          // If update fails, just use the existing user
+          existingUser = userByEmail;
+        } else {
+          existingUser = updatedUser;
+        }
+      }
+    }
 
     let user: UserData;
 
@@ -206,12 +240,17 @@ export const authService = {
           avatar_url: avatarUrl || existingUser.avatar_url,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", supabaseUser.id)
+        .eq("id", existingUser.id)
         .select()
         .single();
 
-      if (updateError) throw updateError;
-      user = updatedUser;
+      if (updateError) {
+        console.error("Update error:", updateError);
+        // If update fails, use existing user data
+        user = existingUser;
+      } else {
+        user = updatedUser;
+      }
     } else {
       console.log("Creating new user for:", email);
       
@@ -229,13 +268,26 @@ export const authService = {
         throw new UnauthorizedError("Invalid field selection. Please complete onboarding first.");
       }
       
+      // Generate unique username if collision
+      let finalUsername = username;
+      const { data: existingUsername } = await supabase
+        .from("users")
+        .select("username")
+        .eq("username", username)
+        .single();
+      
+      if (existingUsername) {
+        finalUsername = `${username}_${Date.now().toString(36)}`;
+        console.log("Username collision, using:", finalUsername);
+      }
+      
       // Create new user with field/type from state (onboarding data)
       const { data: newUser, error: createError } = await supabase
         .from("users")
         .insert({
           id: supabaseUser.id,
           email: email,
-          username: username,
+          username: finalUsername,
           avatar_url: avatarUrl,
           field: fieldValue,
           type: normalizedType || 'general',
@@ -250,15 +302,20 @@ export const authService = {
         .single();
 
       if (createError) {
-        // If user already exists (race condition), fetch them
+        // If user already exists (race condition), fetch them by email
         if (createError.code === "23505") {
-          console.log("User exists (race condition), fetching...");
-          const { data: fetchedUser } = await supabase
+          console.log("User exists (duplicate key), fetching by email...");
+          const { data: fetchedUser, error: fetchError } = await supabase
             .from("users")
             .select("*")
-            .eq("id", supabaseUser.id)
+            .eq("email", email)
             .single();
-          user = fetchedUser!;
+          
+          if (fetchError || !fetchedUser) {
+            console.error("Failed to fetch existing user:", fetchError);
+            throw new UnauthorizedError("User exists but could not be retrieved. Please try again.");
+          }
+          user = fetchedUser;
         } else {
           console.error("User creation error:", createError);
           throw createError;
