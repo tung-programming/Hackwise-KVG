@@ -3,7 +3,8 @@ import { supabase } from "../../config/database";
 import { createClient } from "@supabase/supabase-js";
 import { UnauthorizedError, NotFoundError } from "../../utils/errors";
 import { env } from "../../config/env";
-import jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
+import * as crypto from "crypto";
 
 // Create a separate client for auth operations (uses anon key for OAuth flows)
 const supabaseAuth = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
@@ -12,6 +13,7 @@ interface OAuthState {
   field?: string;
   type?: string;
   redirectUrl?: string;
+  codeVerifier?: string; // PKCE code verifier
 }
 
 interface TokenPair {
@@ -31,61 +33,141 @@ interface UserData {
   auth_provider_id: string;
 }
 
+// Store pending OAuth states in memory (in production, use Redis/DB)
+const pendingOAuthStates = new Map<string, OAuthState>();
+
+// PKCE helper functions
+function generateCodeVerifier(): string {
+  return crypto.randomBytes(32).toString("base64url");
+}
+
+function generateCodeChallenge(verifier: string): string {
+  return crypto.createHash("sha256").update(verifier).digest("base64url");
+}
+
 export const authService = {
   // Generate OAuth URL for Google
   getGoogleAuthUrl: (state: OAuthState): string => {
-    const stateParam = Buffer.from(JSON.stringify(state)).toString("base64");
-    const redirectTo = `${env.BACKEND_URL}/api/auth/google/callback`;
+    // Generate a random state ID to store our custom data
+    const stateId = generateStateId();
+    
+    // Generate PKCE code verifier and challenge
+    const codeVerifier = generateCodeVerifier();
+    const codeChallenge = generateCodeChallenge(codeVerifier);
+    
+    // Store state with code verifier for later verification
+    pendingOAuthStates.set(stateId, { ...state, codeVerifier });
+    
+    // Clean up old states after 10 minutes
+    setTimeout(() => pendingOAuthStates.delete(stateId), 10 * 60 * 1000);
 
-    // Supabase OAuth URL
+    // The redirect goes back to our backend callback
+    const redirectTo = `${env.BACKEND_URL}/api/auth/google/callback?stateId=${stateId}`;
+
+    // Supabase OAuth URL - PKCE flow with code response type
     const url = new URL(`${env.SUPABASE_URL}/auth/v1/authorize`);
     url.searchParams.set("provider", "google");
     url.searchParams.set("redirect_to", redirectTo);
-    url.searchParams.set("state", stateParam);
+    url.searchParams.set("response_type", "code"); // Force code flow, not implicit
+    url.searchParams.set("code_challenge", codeChallenge);
+    url.searchParams.set("code_challenge_method", "S256");
 
+    console.log(`Google OAuth URL generated with stateId: ${stateId}`);
     return url.toString();
   },
 
   // Generate OAuth URL for GitHub
   getGithubAuthUrl: (state: OAuthState): string => {
-    const stateParam = Buffer.from(JSON.stringify(state)).toString("base64");
-    const redirectTo = `${env.BACKEND_URL}/api/auth/github/callback`;
+    const stateId = generateStateId();
+    
+    // Generate PKCE code verifier and challenge
+    const codeVerifier = generateCodeVerifier();
+    const codeChallenge = generateCodeChallenge(codeVerifier);
+    
+    pendingOAuthStates.set(stateId, { ...state, codeVerifier });
+    
+    setTimeout(() => pendingOAuthStates.delete(stateId), 10 * 60 * 1000);
+
+    const redirectTo = `${env.BACKEND_URL}/api/auth/github/callback?stateId=${stateId}`;
 
     const url = new URL(`${env.SUPABASE_URL}/auth/v1/authorize`);
     url.searchParams.set("provider", "github");
     url.searchParams.set("redirect_to", redirectTo);
-    url.searchParams.set("state", stateParam);
+    url.searchParams.set("response_type", "code"); // Force code flow, not implicit
+    url.searchParams.set("code_challenge", codeChallenge);
+    url.searchParams.set("code_challenge_method", "S256");
 
+    console.log(`GitHub OAuth URL generated with stateId: ${stateId}`);
     return url.toString();
+  },
+
+  // Get stored OAuth state by ID (doesn't consume - allows multiple reads)
+  getOAuthState: (stateId: string): OAuthState | undefined => {
+    return pendingOAuthStates.get(stateId);
+  },
+
+  // Consume OAuth state (one-time use)
+  consumeOAuthState: (stateId: string): OAuthState | undefined => {
+    const state = pendingOAuthStates.get(stateId);
+    if (state) {
+      pendingOAuthStates.delete(stateId);
+    }
+    return state;
   },
 
   // Handle OAuth callback - exchange code for session
   handleOAuthCallback: async (
     code: string,
-    state: string,
+    stateId: string,
     provider: "google" | "github"
-  ): Promise<{ user: UserData; tokens: TokenPair }> => {
-    // Decode state parameter
-    let stateData: OAuthState = {};
-    try {
-      stateData = JSON.parse(Buffer.from(state, "base64").toString("utf-8"));
-    } catch (e) {
-      console.warn("Failed to decode state parameter");
+  ): Promise<{ user: UserData; tokens: TokenPair; redirectUrl: string }> => {
+    // Retrieve and consume stored state data
+    const stateData: OAuthState = authService.consumeOAuthState(stateId) || {};
+    const redirectUrl = stateData.redirectUrl || env.FRONTEND_URL;
+    const codeVerifier = stateData.codeVerifier;
+
+    console.log(`OAuth callback for ${provider}, stateId: ${stateId}, code length: ${code?.length}, hasVerifier: ${!!codeVerifier}`);
+
+    if (!codeVerifier) {
+      console.error("Missing code verifier for PKCE");
+      throw new UnauthorizedError("Invalid OAuth state - missing code verifier");
     }
 
-    // Exchange code for session with Supabase
-    const { data: sessionData, error: sessionError } =
-      await supabaseAuth.auth.exchangeCodeForSession(code);
+    // Exchange code for session using Supabase token endpoint with PKCE
+    const tokenUrl = `${env.SUPABASE_URL}/auth/v1/token?grant_type=pkce`;
+    
+    const tokenResponse = await fetch(tokenUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": env.SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({
+        auth_code: code,
+        code_verifier: codeVerifier,
+      }),
+    });
 
-    if (sessionError || !sessionData.session) {
+    if (!tokenResponse.ok) {
+      const errorData = await tokenResponse.json().catch(() => ({}));
+      console.error("Token exchange error:", errorData);
       throw new UnauthorizedError(
-        `OAuth failed: ${sessionError?.message || "No session returned"}`
+        `OAuth failed: ${errorData.error_description || errorData.error || "Token exchange failed"}`
       );
     }
 
-    const supabaseUser = sessionData.user;
+    const tokenData = await tokenResponse.json();
+    
+    if (!tokenData.access_token || !tokenData.user) {
+      console.error("Invalid token response:", tokenData);
+      throw new UnauthorizedError("OAuth failed: Invalid token response");
+    }
+
+    console.log("Session obtained, user:", tokenData.user.email);
+
+    const supabaseUser = tokenData.user;
     const providerIdentity = supabaseUser.identities?.find(
-      (i) => i.provider === provider
+      (i: any) => i.provider === provider
     );
 
     // Extract user info
@@ -116,6 +198,7 @@ export const authService = {
     let user: UserData;
 
     if (existingUser) {
+      console.log("Updating existing user:", existingUser.id);
       // Update existing user (update avatar, last login)
       const { data: updatedUser, error: updateError } = await supabase
         .from("users")
@@ -130,6 +213,22 @@ export const authService = {
       if (updateError) throw updateError;
       user = updatedUser;
     } else {
+      console.log("Creating new user for:", email);
+      
+      // Normalize field and type to lowercase (database constraint requires lowercase)
+      // Valid fields: 'engineering', 'business', 'law', 'medical'
+      const normalizedField = stateData.field?.toLowerCase() || null;
+      const normalizedType = stateData.type?.toLowerCase().replace(/\s+/g, '_').replace(/&/g, 'and') || null;
+      
+      // Validate field value
+      const validFields = ['engineering', 'business', 'law', 'medical'];
+      const fieldValue = normalizedField && validFields.includes(normalizedField) ? normalizedField : null;
+      
+      if (!fieldValue) {
+        console.error("Invalid or missing field value:", stateData.field);
+        throw new UnauthorizedError("Invalid field selection. Please complete onboarding first.");
+      }
+      
       // Create new user with field/type from state (onboarding data)
       const { data: newUser, error: createError } = await supabase
         .from("users")
@@ -138,8 +237,8 @@ export const authService = {
           email: email,
           username: username,
           avatar_url: avatarUrl,
-          field: stateData.field || null,
-          type: stateData.type || null,
+          field: fieldValue,
+          type: normalizedType || 'general',
           auth_provider: provider,
           auth_provider_id: providerId,
           xp: 0,
@@ -153,6 +252,7 @@ export const authService = {
       if (createError) {
         // If user already exists (race condition), fetch them
         if (createError.code === "23505") {
+          console.log("User exists (race condition), fetching...");
           const { data: fetchedUser } = await supabase
             .from("users")
             .select("*")
@@ -160,6 +260,7 @@ export const authService = {
             .single();
           user = fetchedUser!;
         } else {
+          console.error("User creation error:", createError);
           throw createError;
         }
       } else {
@@ -170,7 +271,7 @@ export const authService = {
     // Generate our own JWT tokens
     const tokens = authService.generateTokens(user.id, user.email);
 
-    return { user, tokens };
+    return { user, tokens, redirectUrl };
   },
 
   // Generate JWT access and refresh tokens
@@ -178,13 +279,13 @@ export const authService = {
     const accessToken = jwt.sign(
       { sub: userId, email, type: "access" },
       env.JWT_SECRET,
-      { expiresIn: env.JWT_ACCESS_EXPIRY }
+      { expiresIn: env.JWT_ACCESS_EXPIRY as jwt.SignOptions["expiresIn"] }
     );
 
     const refreshToken = jwt.sign(
       { sub: userId, email, type: "refresh" },
       env.JWT_SECRET,
-      { expiresIn: env.JWT_REFRESH_EXPIRY }
+      { expiresIn: env.JWT_REFRESH_EXPIRY as jwt.SignOptions["expiresIn"] }
     );
 
     // Parse expiry for response
@@ -297,6 +398,13 @@ export const authService = {
     }
   },
 };
+
+// Helper to generate random state ID
+function generateStateId(): string {
+  return Math.random().toString(36).substring(2, 15) + 
+         Math.random().toString(36).substring(2, 15) +
+         Date.now().toString(36);
+}
 
 // Helper to parse expiry string to seconds
 function parseExpiry(expiry: string): number {
