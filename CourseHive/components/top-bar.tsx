@@ -31,7 +31,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
   const [query, setQuery] = useState('')
   const [showSuggestions, setShowSuggestions] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
-  const name = currentUser?.username || 'Jordan Smith'
+  const name = currentUser?.name || 'Jordan Smith'
   const email = 'jordan@example.com'
   const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
 
@@ -84,7 +84,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           </button>
 
           {/* Search bar — Helio style */}
-          <div className="relative flex-1">
+          <div className="relative flex-1" data-tour="search">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
             <input
               ref={inputRef}
@@ -151,6 +151,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
             className="p-2.5 rounded-xl bg-white/50 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20 text-muted-foreground hover:text-foreground transition-all backdrop-blur-sm"
+            data-tour="theme-toggle"
           >
             {theme === 'dark' ? <Sun className="w-4.5 h-4.5" /> : <Moon className="w-4.5 h-4.5" />}
           </button>
@@ -161,7 +162,10 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           </button>
 
           {/* Bell */}
-          <button className="relative p-2.5 rounded-xl bg-white/50 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20 text-muted-foreground hover:text-foreground transition-all backdrop-blur-sm">
+          <button 
+            className="relative p-2.5 rounded-xl bg-white/50 dark:bg-white/10 hover:bg-white/80 dark:hover:bg-white/20 text-muted-foreground hover:text-foreground transition-all backdrop-blur-sm"
+            data-tour="notifications"
+          >
             <Bell className="w-4.5 h-4.5" />
             <span
               className="absolute top-2 right-2 w-2 h-2 rounded-full border-2 border-card"
@@ -173,7 +177,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
           <div className="w-px h-8 bg-border/60 mx-1" />
 
           {/* User */}
-          <div className="flex items-center gap-3 cursor-pointer group">
+          <div className="flex items-center gap-3 cursor-pointer group" data-tour="profile">
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-md"
               style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}

@@ -14,6 +14,7 @@ router.get("/:id/public", usersController.getPublicProfile);
 router.use(authGuard);
 router.get("/profile", usersController.getProfile);
 router.patch("/profile", validateRequest(updateProfileSchema), usersController.updateProfile);
+router.patch("/tour-complete", usersController.completeTour);
 router.get("/stats", usersController.getStats);
 router.delete("/account", usersController.deleteAccount);
 
