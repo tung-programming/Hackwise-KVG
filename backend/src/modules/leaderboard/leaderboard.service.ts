@@ -1,127 +1,115 @@
 // Leaderboard service
-import { prisma } from '../../config/database';
+import { supabase } from "../../config/database";
 
 export const leaderboardService = {
+  // Get global leaderboard (from materialized view)
   getGlobalLeaderboard: async (page: number, limit: number) => {
-    const skip = (page - 1) * limit;
+    const offset = (page - 1) * limit;
 
-    const [users, total] = await Promise.all([
-      prisma.user.findMany({
-        select: {
-          id: true,
-          name: true,
-          avatar: true,
-          xp: true,
-          level: true,
-          streak: true,
-        },
-        orderBy: { xp: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.user.count(),
-    ]);
+    // Get from leaderboard materialized view
+    const { data: entries, error } = await supabase
+      .from("leaderboard")
+      .select("*")
+      .order("rank", { ascending: true })
+      .range(offset, offset + limit - 1);
+
+    if (error) throw error;
+
+    // Get total count
+    const { count } = await supabase.from("leaderboard").select("*", { count: "exact", head: true });
 
     return {
-      entries: users.map((user, index) => ({
-        rank: skip + index + 1,
+      entries: entries || [],
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        pages: Math.ceil((count || 0) / limit),
+      },
+    };
+  },
+
+  // Get top users by XP (live query)
+  getTopByXP: async (limit: number = 10) => {
+    const { data: users, error } = await supabase
+      .from("users")
+      .select("id, username, avatar_url, xp, streak")
+      .order("xp", { ascending: false })
+      .limit(limit);
+
+    if (error) throw error;
+
+    return (users || []).map((user, index) => ({
+      rank: index + 1,
+      ...user,
+    }));
+  },
+
+  // Get top users by streak
+  getStreakLeaderboard: async (page: number, limit: number) => {
+    const offset = (page - 1) * limit;
+
+    const { data: users, error } = await supabase
+      .from("users")
+      .select("id, username, avatar_url, xp, streak")
+      .order("streak", { ascending: false })
+      .range(offset, offset + limit - 1);
+
+    if (error) throw error;
+
+    const { count } = await supabase.from("users").select("*", { count: "exact", head: true });
+
+    return {
+      entries: (users || []).map((user, index) => ({
+        rank: offset + index + 1,
         ...user,
       })),
       pagination: {
         page,
         limit,
-        total,
-        pages: Math.ceil(total / limit),
+        total: count || 0,
+        pages: Math.ceil((count || 0) / limit),
       },
     };
   },
 
-  getWeeklyLeaderboard: async (page: number, limit: number) => {
-    const skip = (page - 1) * limit;
-    const weekAgo = new Date();
-    weekAgo.setDate(weekAgo.getDate() - 7);
-
-    const [users, total] = await Promise.all([
-      prisma.user.findMany({
-        select: {
-          id: true,
-          name: true,
-          avatar: true,
-          xp: true,
-          level: true,
-          weeklyXp: true,
-        },
-        orderBy: { weeklyXp: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.user.count(),
-    ]);
-
-    return {
-      entries: users.map((user, index) => ({
-        rank: skip + index + 1,
-        ...user,
-      })),
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
-    };
-  },
-
+  // Get current user's rank
   getUserRank: async (userId: string) => {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { xp: true },
-    });
+    // Get user's info from leaderboard view
+    const { data: entry, error } = await supabase.from("leaderboard").select("*").eq("user_id", userId).single();
 
-    if (!user) {
-      return { rank: null };
+    if (error || !entry) {
+      // User not in leaderboard, get their XP
+      const { data: user } = await supabase.from("users").select("xp, streak").eq("id", userId).single();
+
+      if (!user) {
+        return { rank: null, xp: 0, streak: 0 };
+      }
+
+      // Calculate rank by counting users with more XP
+      const { count } = await supabase
+        .from("users")
+        .select("*", { count: "exact", head: true })
+        .gt("xp", user.xp);
+
+      return {
+        rank: (count || 0) + 1,
+        xp: user.xp,
+        streak: user.streak,
+      };
     }
 
-    const rank = await prisma.user.count({
-      where: { xp: { gt: user.xp } },
-    });
-
     return {
-      rank: rank + 1,
-      xp: user.xp,
+      rank: entry.rank,
+      xp: entry.xp,
+      streak: entry.streak,
     };
   },
 
-  getStreakLeaderboard: async (page: number, limit: number) => {
-    const skip = (page - 1) * limit;
-
-    const [users, total] = await Promise.all([
-      prisma.user.findMany({
-        select: {
-          id: true,
-          name: true,
-          avatar: true,
-          streak: true,
-          longestStreak: true,
-        },
-        orderBy: { streak: 'desc' },
-        skip,
-        take: limit,
-      }),
-      prisma.user.count(),
-    ]);
-
-    return {
-      entries: users.map((user, index) => ({
-        rank: skip + index + 1,
-        ...user,
-      })),
-      pagination: {
-        page,
-        limit,
-        total,
-        pages: Math.ceil(total / limit),
-      },
-    };
+  // Refresh leaderboard (call Supabase function)
+  refreshLeaderboard: async () => {
+    const { error } = await supabase.rpc("refresh_leaderboard");
+    if (error) throw error;
+    return { refreshed: true };
   },
 };

@@ -1,17 +1,19 @@
 // Onboarding routes
-import { Router } from 'express';
-import { onboardingController } from './onboarding.controller';
-import { authGuard } from '../../middleware/auth.guard';
-import { validateRequest } from '../auth/auth.middleware';
-import { submitStepSchema } from './onboarding.schema';
+import { Router } from "express";
+import { onboardingController } from "./onboarding.controller";
+import { authGuard } from "../../middleware/auth.guard";
+import { validateRequest } from "../auth/auth.middleware";
+import { completeOnboardingSchema } from "./onboarding.schema";
 
 const router = Router();
 
-router.use(authGuard);
+// Public routes (get field/type options)
+router.get("/fields", onboardingController.getFields);
+router.get("/types/:field", onboardingController.getTypes);
 
-router.get('/status', onboardingController.getStatus);
-router.post('/step', validateRequest(submitStepSchema), onboardingController.submitStep);
-router.post('/complete', onboardingController.complete);
-router.post('/skip', onboardingController.skip);
+// Protected routes
+router.use(authGuard);
+router.get("/status", onboardingController.checkStatus);
+router.post("/complete", validateRequest(completeOnboardingSchema), onboardingController.complete);
 
 export default router;

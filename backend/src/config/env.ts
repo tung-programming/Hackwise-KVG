@@ -1,20 +1,33 @@
 // Environment variable validation (Zod)
+import { config } from "dotenv";
 import { z } from "zod";
+
+// Load .env file
+config();
 
 const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
   PORT: z.string().default("3000"),
-  DATABASE_URL: z.string(),
+
+  // Supabase
+  SUPABASE_URL: z.string(),
+  SUPABASE_SERVICE_KEY: z.string(),
+  SUPABASE_ANON_KEY: z.string(),
+  STORAGE_BUCKET: z.string().default("coursehive-uploads"),
+
+  // JWT
   JWT_SECRET: z.string(),
-  JWT_EXPIRES_IN: z.string().default("7d"),
-  GOOGLE_CLIENT_ID: z.string(),
-  GOOGLE_CLIENT_SECRET: z.string(),
-  GITHUB_CLIENT_ID: z.string(),
-  GITHUB_CLIENT_SECRET: z.string(),
-  GEMINI_API_KEYS: z.string(), // Comma-separated keys
+  JWT_ACCESS_EXPIRY: z.string().default("15m"),
+  JWT_REFRESH_EXPIRY: z.string().default("7d"),
+
+  // Gemini Key Pool (comma-separated, 20-30 keys)
+  GEMINI_KEYS: z.string(),
+
+  // App
   FRONTEND_URL: z.string().default("http://localhost:3000"),
+  BACKEND_URL: z.string().default("http://localhost:3000"),
 });
 
 export const env = envSchema.parse(process.env);

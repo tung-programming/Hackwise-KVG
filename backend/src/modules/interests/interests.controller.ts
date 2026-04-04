@@ -1,9 +1,10 @@
 // Interests controller
-import { Request, Response, NextFunction } from 'express';
-import { interestsService } from './interests.service';
-import { ApiResponse } from '../../utils/api-response';
+import { Request, Response, NextFunction } from "express";
+import { interestsService } from "./interests.service";
+import { ApiResponse } from "../../utils/api-response";
 
 export const interestsController = {
+  // Get all interests for current user
   getInterests: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).userId;
@@ -14,42 +15,50 @@ export const interestsController = {
     }
   },
 
-  addInterest: async (req: Request, res: Response, next: NextFunction) => {
+  // Get single interest with courses and projects
+  getInterest: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).userId;
-      const { name, category } = req.body;
-      const interest = await interestsService.addInterest(userId, name, category);
+      const { id } = req.params;
+      const interest = await interestsService.getInterest(userId, id);
       res.json(ApiResponse.success(interest));
     } catch (error) {
       next(error);
     }
   },
 
-  removeInterest: async (req: Request, res: Response, next: NextFunction) => {
+  // Accept interest - triggers roadmap generation
+  acceptInterest: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).userId;
-      const { interestId } = req.params;
-      await interestsService.removeInterest(userId, interestId);
-      res.json(ApiResponse.success({ message: 'Interest removed' }));
+      const { id } = req.params;
+      const result = await interestsService.acceptInterest(userId, id);
+      // Return 202 for async processing
+      res.status(202).json(ApiResponse.success(result));
     } catch (error) {
       next(error);
     }
   },
 
-  getRecommendations: async (req: Request, res: Response, next: NextFunction) => {
+  // Reject interest
+  rejectInterest: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).userId;
-      const recommendations = await interestsService.getRecommendations(userId);
-      res.json(ApiResponse.success(recommendations));
+      const { id } = req.params;
+      const interest = await interestsService.rejectInterest(userId, id);
+      res.json(ApiResponse.success(interest));
     } catch (error) {
       next(error);
     }
   },
 
-  getAllCategories: async (req: Request, res: Response, next: NextFunction) => {
+  // Get progress for an interest
+  getProgress: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const categories = await interestsService.getAllCategories();
-      res.json(ApiResponse.success(categories));
+      const userId = (req as any).userId;
+      const { id } = req.params;
+      const progress = await interestsService.getProgress(userId, id);
+      res.json(ApiResponse.success(progress));
     } catch (error) {
       next(error);
     }
