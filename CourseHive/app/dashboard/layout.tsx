@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Sidebar } from '@/components/sidebar'
 import { TopBar } from '@/components/top-bar'
 import { UploadHistoryModal } from '@/components/upload-history-modal'
+import { DashboardChatbot } from '@/components/dashboard-chatbot'
 import { useAppStore } from '@/lib/store'
 
 export default function DashboardLayout({
@@ -61,6 +62,7 @@ export default function DashboardLayout({
       </div>
 
       <UploadHistoryModal />
+      <DashboardChatbot />
 
       {/* Dark mode gradient override */}
       <style jsx global>{`

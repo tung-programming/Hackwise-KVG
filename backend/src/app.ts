@@ -19,6 +19,7 @@ import projectsRoutes from "./modules/projects/projects.routes";
 import leaderboardRoutes from "./modules/leaderboard/leaderboard.routes";
 import resumeRoutes from "./modules/resume/resume.routes";
 import resumeAnalysisRoutes from "./modules/resume-analysis/resume-analysis.routes";
+import chatbotRoutes from "./modules/chatbot/chatbot.routes";
 
 const app = express();
 
@@ -61,6 +62,7 @@ app.get("/api", (req, res) => {
       leaderboard: "/api/leaderboard - Rankings",
       resume: "/api/resume - Resume ATS analysis",
       resumeAnalysis: "/api/resume-analysis - Resume OCR extraction & ATS analysis",
+      chatbot: "/api/chatbot - Interactive project knowledge assistant",
     },
     health: "/health",
     docs: "See README.md for full documentation",
@@ -78,6 +80,7 @@ app.use("/api/projects", projectsRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/resume", resumeRoutes);
 app.use("/api/resume-analysis", resumeAnalysisRoutes);
+app.use("/api/chatbot", chatbotRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
