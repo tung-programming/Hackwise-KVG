@@ -163,28 +163,38 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         </button>
       </nav>
 
-      {/* CTA Card */}
-      <div className="p-4 mt-2">
+      {/* Subscription Plan Card */}
+      <div className="p-4 mt-auto">
         <div
-          className="rounded-2xl p-4 text-white relative overflow-hidden"
-          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
+          className="rounded-2xl p-4 text-white relative overflow-hidden shadow-md border border-white/10 group"
+          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #233f63 100%)` }}
         >
-          <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-white/10" />
-          <div className="w-9 h-9 rounded-xl bg-white/15 flex items-center justify-center mb-3">
-            <Smartphone className="w-5 h-5 text-white" />
+          {/* Subtle background glow */}
+          <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-[#f97316] opacity-10 blur-xl" />
+          
+          <div className="flex items-center gap-3 relative z-10 mb-3">
+            <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shrink-0">
+              <Hexagon className="w-4 h-4 text-[#f97316] fill-[#f97316]/20" />
+            </div>
+            <div className="min-w-0">
+              <p className="font-bold text-sm text-white/90 truncate">Pro Plan</p>
+              <p className="text-[10px] text-white/50 font-medium tracking-wide uppercase">24 Days Left</p>
+            </div>
           </div>
-          <p className="font-bold text-sm leading-snug">
-            Download our<br />Mobile App
-          </p>
-          <p className="text-white/50 text-xs mt-1">Get easy in another way</p>
-          <button
-            className="mt-3 w-full py-2 rounded-xl text-xs font-semibold transition-all"
-            style={{ background: ACCENT }}
-            onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
-            onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
-          >
-            Download
-          </button>
+          
+          <div className="relative z-10">
+            <div className="h-1 bg-white/10 rounded-full overflow-hidden mb-3">
+              <div className="h-full w-[80%] bg-gradient-to-r from-[#f97316] to-yellow-400 rounded-full" />
+            </div>
+            <button
+              className="w-full py-1.5 rounded-lg text-xs font-bold text-white transition-all active:scale-95 flex items-center justify-center gap-1.5 shadow-sm hover:shadow-[#f97316]/30"
+              style={{ 
+                background: 'linear-gradient(to right, #f97316, #ea6c0a)'
+              }}
+            >
+              Upgrade <span className="group-hover:translate-x-0.5 transition-transform">→</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
