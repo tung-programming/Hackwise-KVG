@@ -13,6 +13,15 @@ const REFRESH_COOKIE_OPTIONS = {
   path: "/",
 };
 
+// Helper to get redirect URL from stateId
+const getRedirectUrl = (stateId: string | undefined): string => {
+  if (stateId) {
+    const state = authService.getOAuthState(stateId as string);
+    return state?.redirectUrl || env.FRONTEND_URL;
+  }
+  return env.FRONTEND_URL;
+};
+
 export const authController = {
   // GET /api/auth/google - Initiate Google OAuth
   googleAuth: async (req: Request, res: Response, next: NextFunction) => {
@@ -22,7 +31,7 @@ export const authController = {
       const authUrl = authService.getGoogleAuthUrl({
         field: field as string,
         type: type as string,
-        redirectUrl: redirect_url as string,
+        redirectUrl: (redirect_url as string) || env.FRONTEND_URL,
       });
 
       res.redirect(authUrl);
@@ -34,40 +43,36 @@ export const authController = {
   // GET /api/auth/google/callback - Handle Google OAuth callback
   googleCallback: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { code, state } = req.query;
+      const { code, stateId, error, error_description } = req.query;
+      const redirectUrl = getRedirectUrl(stateId as string);
 
-      if (!code || typeof code !== "string") {
+      // Check for errors from Supabase OAuth
+      if (error) {
+        console.error("Google OAuth error from Supabase:", error, error_description);
         return res.redirect(
-          `${env.FRONTEND_URL}/auth/error?message=No authorization code received`
+          `${redirectUrl}/callback?error=${encodeURIComponent(
+            (error_description as string) || (error as string) || "Authentication failed"
+          )}`
         );
       }
 
-      const { user, tokens } = await authService.handleOAuthCallback(
+      if (!code || typeof code !== "string") {
+        return res.redirect(
+          `${redirectUrl}/callback?error=${encodeURIComponent("No authorization code received")}`
+        );
+      }
+
+      const { user, tokens, redirectUrl: finalRedirectUrl } = await authService.handleOAuthCallback(
         code,
-        (state as string) || "",
+        (stateId as string) || "",
         "google"
       );
 
       // Set refresh token as httpOnly cookie
       res.cookie("refresh_token", tokens.refreshToken, REFRESH_COOKIE_OPTIONS);
 
-      // Decode state for redirect URL
-      let redirectUrl = env.FRONTEND_URL;
-      if (state) {
-        try {
-          const stateData = JSON.parse(
-            Buffer.from(state as string, "base64").toString("utf-8")
-          );
-          if (stateData.redirectUrl) {
-            redirectUrl = stateData.redirectUrl;
-          }
-        } catch (e) {
-          // Use default redirect
-        }
-      }
-
       // Redirect to frontend with access token
-      const callbackUrl = new URL(`${redirectUrl}/auth/callback`);
+      const callbackUrl = new URL(`${finalRedirectUrl}/callback`);
       callbackUrl.searchParams.set("access_token", tokens.accessToken);
       callbackUrl.searchParams.set("expires_in", tokens.expiresIn.toString());
       callbackUrl.searchParams.set("user_id", user.id);
@@ -81,7 +86,7 @@ export const authController = {
     } catch (error: any) {
       console.error("Google OAuth callback error:", error);
       res.redirect(
-        `${env.FRONTEND_URL}/auth/error?message=${encodeURIComponent(
+        `${env.FRONTEND_URL}/callback?error=${encodeURIComponent(
           error.message || "Authentication failed"
         )}`
       );
@@ -96,7 +101,7 @@ export const authController = {
       const authUrl = authService.getGithubAuthUrl({
         field: field as string,
         type: type as string,
-        redirectUrl: redirect_url as string,
+        redirectUrl: (redirect_url as string) || env.FRONTEND_URL,
       });
 
       res.redirect(authUrl);
@@ -108,40 +113,36 @@ export const authController = {
   // GET /api/auth/github/callback - Handle GitHub OAuth callback
   githubCallback: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { code, state } = req.query;
+      const { code, stateId, error, error_description } = req.query;
+      const redirectUrl = getRedirectUrl(stateId as string);
 
-      if (!code || typeof code !== "string") {
+      // Check for errors from Supabase OAuth
+      if (error) {
+        console.error("GitHub OAuth error from Supabase:", error, error_description);
         return res.redirect(
-          `${env.FRONTEND_URL}/auth/error?message=No authorization code received`
+          `${redirectUrl}/callback?error=${encodeURIComponent(
+            (error_description as string) || (error as string) || "Authentication failed"
+          )}`
         );
       }
 
-      const { user, tokens } = await authService.handleOAuthCallback(
+      if (!code || typeof code !== "string") {
+        return res.redirect(
+          `${redirectUrl}/callback?error=${encodeURIComponent("No authorization code received")}`
+        );
+      }
+
+      const { user, tokens, redirectUrl: finalRedirectUrl } = await authService.handleOAuthCallback(
         code,
-        (state as string) || "",
+        (stateId as string) || "",
         "github"
       );
 
       // Set refresh token as httpOnly cookie
       res.cookie("refresh_token", tokens.refreshToken, REFRESH_COOKIE_OPTIONS);
 
-      // Decode state for redirect URL
-      let redirectUrl = env.FRONTEND_URL;
-      if (state) {
-        try {
-          const stateData = JSON.parse(
-            Buffer.from(state as string, "base64").toString("utf-8")
-          );
-          if (stateData.redirectUrl) {
-            redirectUrl = stateData.redirectUrl;
-          }
-        } catch (e) {
-          // Use default redirect
-        }
-      }
-
       // Redirect to frontend with access token
-      const callbackUrl = new URL(`${redirectUrl}/auth/callback`);
+      const callbackUrl = new URL(`${finalRedirectUrl}/callback`);
       callbackUrl.searchParams.set("access_token", tokens.accessToken);
       callbackUrl.searchParams.set("expires_in", tokens.expiresIn.toString());
       callbackUrl.searchParams.set("user_id", user.id);
@@ -154,7 +155,7 @@ export const authController = {
     } catch (error: any) {
       console.error("GitHub OAuth callback error:", error);
       res.redirect(
-        `${env.FRONTEND_URL}/auth/error?message=${encodeURIComponent(
+        `${env.FRONTEND_URL}/callback?error=${encodeURIComponent(
           error.message || "Authentication failed"
         )}`
       );

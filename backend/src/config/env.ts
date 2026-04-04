@@ -9,7 +9,7 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
-  PORT: z.string().default("3000"),
+  PORT: z.string().default("4000"),
 
   // Supabase
   SUPABASE_URL: z.string(),
@@ -27,7 +27,7 @@ const envSchema = z.object({
 
   // App
   FRONTEND_URL: z.string().default("http://localhost:3000"),
-  BACKEND_URL: z.string().default("http://localhost:3000"),
+  BACKEND_URL: z.string().default("http://localhost:4000"),
 });
 
 export const env = envSchema.parse(process.env);
