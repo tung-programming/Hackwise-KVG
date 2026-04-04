@@ -1,7 +1,7 @@
 // Users controller
-import { Request, Response, NextFunction } from 'express';
-import { usersService } from './users.service';
-import { ApiResponse } from '../../utils/api-response';
+import { Request, Response, NextFunction } from "express";
+import { usersService } from "./users.service";
+import { ApiResponse } from "../../utils/api-response";
 
 export const usersController = {
   getProfile: async (req: Request, res: Response, next: NextFunction) => {
@@ -34,11 +34,21 @@ export const usersController = {
     }
   },
 
+  getPublicProfile: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const user = await usersService.getPublicProfile(id);
+      res.json(ApiResponse.success(user));
+    } catch (error) {
+      next(error);
+    }
+  },
+
   deleteAccount: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).userId;
       await usersService.deleteAccount(userId);
-      res.json(ApiResponse.success({ message: 'Account deleted successfully' }));
+      res.json(ApiResponse.success({ message: "Account deleted successfully" }));
     } catch (error) {
       next(error);
     }

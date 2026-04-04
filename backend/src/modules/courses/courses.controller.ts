@@ -1,59 +1,45 @@
 // Courses controller
-import { Request, Response, NextFunction } from 'express';
-import { coursesService } from './courses.service';
-import { ApiResponse } from '../../utils/api-response';
+import { Request, Response, NextFunction } from "express";
+import { coursesService } from "./courses.service";
+import { ApiResponse } from "../../utils/api-response";
 
 export const coursesController = {
-  getCourses: async (req: Request, res: Response, next: NextFunction) => {
+  // Get all courses for an interest
+  getCoursesByInterest: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).userId;
-      const courses = await coursesService.getUserCourses(userId);
+      const { interestId } = req.query;
+
+      if (!interestId) {
+        return res.status(400).json(ApiResponse.error("interestId query param required", 400));
+      }
+
+      const courses = await coursesService.getCoursesByInterest(userId, interestId as string);
       res.json(ApiResponse.success(courses));
     } catch (error) {
       next(error);
     }
   },
 
+  // Get single course
   getCourse: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).userId;
-      const { courseId } = req.params;
-      const course = await coursesService.getCourse(userId, courseId);
+      const { id } = req.params;
+      const course = await coursesService.getCourse(userId, id);
       res.json(ApiResponse.success(course));
     } catch (error) {
       next(error);
     }
   },
 
-  generateRoadmap: async (req: Request, res: Response, next: NextFunction) => {
+  // Mark course as completed
+  completeCourse: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).userId;
-      const { topic, level } = req.body;
-      const roadmap = await coursesService.generateRoadmap(userId, topic, level);
-      res.json(ApiResponse.success(roadmap));
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  updateProgress: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userId = (req as any).userId;
-      const { courseId } = req.params;
-      const { moduleId, completed } = req.body;
-      const result = await coursesService.updateProgress(userId, courseId, moduleId, completed);
+      const { id } = req.params;
+      const result = await coursesService.completeCourse(userId, id);
       res.json(ApiResponse.success(result));
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  deleteCourse: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userId = (req as any).userId;
-      const { courseId } = req.params;
-      await coursesService.deleteCourse(userId, courseId);
-      res.json(ApiResponse.success({ message: 'Course deleted' }));
     } catch (error) {
       next(error);
     }

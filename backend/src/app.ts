@@ -2,10 +2,10 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
-import passport from "./config/passport";
 import { errorHandler } from "./middleware/error-handler";
 import { requestLogger } from "./middleware/logger";
 import { rateLimiter } from "./middleware/rate-limiter";
+import { env } from "./config/env";
 
 // Import routes
 import authRoutes from "./modules/auth/auth.routes";
@@ -22,12 +22,38 @@ const app = express();
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(
+  cors({
+    origin: env.FRONTEND_URL,
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(passport.initialize());
 app.use(requestLogger);
 app.use(rateLimiter);
+
+// API Root - Documentation
+app.get("/api", (req, res) => {
+  res.json({
+    name: "CourseHive API",
+    version: "1.0.0",
+    description: "Gamified learning platform backend",
+    endpoints: {
+      auth: "/api/auth - Authentication (handled by Supabase)",
+      users: "/api/users - User profiles and stats",
+      onboarding: "/api/onboarding - Field and type selection",
+      history: "/api/history - Browsing history upload",
+      interests: "/api/interests - Interest recommendations",
+      courses: "/api/courses - Course roadmaps",
+      projects: "/api/projects - Project submissions",
+      leaderboard: "/api/leaderboard - Rankings",
+      resume: "/api/resume - Resume ATS analysis",
+    },
+    health: "/health",
+    docs: "See README.md for full documentation",
+  });
+});
 
 // Routes
 app.use("/api/auth", authRoutes);

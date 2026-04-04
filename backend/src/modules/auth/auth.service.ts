@@ -1,70 +1,63 @@
-// Auth service
-import jwt from 'jsonwebtoken';
-import { env } from '../../config/env';
-import { prisma } from '../../config/database';
-import { UnauthorizedError } from '../../utils/errors';
+// Auth service - Supabase handles OAuth, this manages user data
+import { supabase } from "../../config/database";
+import { UnauthorizedError, NotFoundError } from "../../utils/errors";
 
 export const authService = {
-  generateTokens: async (userId: string) => {
-    const accessToken = jwt.sign({ userId }, env.JWT_SECRET, {
-      expiresIn: '15m',
-    });
-
-    const refreshToken = jwt.sign({ userId, type: 'refresh' }, env.JWT_SECRET, {
-      expiresIn: env.JWT_EXPIRES_IN,
-    });
-
-    await prisma.user.update({
-      where: { id: userId },
-      data: { refreshToken },
-    });
-
-    return { accessToken, refreshToken };
-  },
-
-  refreshTokens: async (refreshToken: string) => {
-    try {
-      const decoded = jwt.verify(refreshToken, env.JWT_SECRET) as any;
-
-      const user = await prisma.user.findUnique({
-        where: { id: decoded.userId },
-      });
-
-      if (!user || user.refreshToken !== refreshToken) {
-        throw new UnauthorizedError('Invalid refresh token');
-      }
-
-      return authService.generateTokens(user.id);
-    } catch (error) {
-      throw new UnauthorizedError('Invalid refresh token');
-    }
-  },
-
-  logout: async (userId: string) => {
-    await prisma.user.update({
-      where: { id: userId },
-      data: { refreshToken: null },
-    });
-  },
-
   getCurrentUser: async (userId: string) => {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        avatar: true,
-        xp: true,
-        level: true,
-        streak: true,
-        onboardingCompleted: true,
-        createdAt: true,
-      },
-    });
+    const { data: user, error } = await supabase
+      .from("users")
+      .select(
+        `
+        id,
+        email,
+        username,
+        avatar_url,
+        field,
+        type,
+        xp,
+        streak,
+        leaderboard_pos,
+        resume_score,
+        created_at
+      `
+      )
+      .eq("id", userId)
+      .single();
 
-    if (!user) {
-      throw new UnauthorizedError('User not found');
+    if (error || !user) {
+      throw new NotFoundError("User not found");
+    }
+
+    return user;
+  },
+
+  // Check if user exists, if not create from Supabase auth
+  ensureUser: async (authUser: { id: string; email: string }) => {
+    const { data: existingUser } = await supabase
+      .from("users")
+      .select("id")
+      .eq("id", authUser.id)
+      .single();
+
+    if (existingUser) {
+      return existingUser;
+    }
+
+    // User doesn't exist in our users table, they need to complete onboarding
+    return null;
+  },
+
+  // Get user by auth provider ID (for looking up after OAuth)
+  getUserByAuthProvider: async (provider: string, providerId: string) => {
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("auth_provider", provider)
+      .eq("auth_provider_id", providerId)
+      .single();
+
+    if (error || !user) {
+      return null;
     }
 
     return user;

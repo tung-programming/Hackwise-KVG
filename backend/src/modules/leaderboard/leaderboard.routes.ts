@@ -1,13 +1,16 @@
 // Leaderboard routes
-import { Router } from 'express';
-import { leaderboardController } from './leaderboard.controller';
-import { authGuard } from '../../middleware/auth.guard';
+import { Router } from "express";
+import { leaderboardController } from "./leaderboard.controller";
+import { authGuard } from "../../middleware/auth.guard";
 
 const router = Router();
 
-router.get('/global', leaderboardController.getGlobalLeaderboard);
-router.get('/weekly', leaderboardController.getWeeklyLeaderboard);
-router.get('/streaks', leaderboardController.getStreakLeaderboard);
-router.get('/me', authGuard, leaderboardController.getUserRank);
+// Public routes
+router.get("/", leaderboardController.getGlobalLeaderboard);
+router.get("/top", leaderboardController.getTopUsers);
+router.get("/streaks", leaderboardController.getStreakLeaderboard);
+
+// Protected route
+router.get("/me", authGuard, leaderboardController.getUserRank);
 
 export default router;
