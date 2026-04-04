@@ -5,7 +5,8 @@ import { motion } from 'framer-motion'
 import { BookOpen, Plus, Download, MoreHorizontal, ArrowUpRight, Clock, Users, CheckCircle2 } from 'lucide-react'
 import { mockCourses } from '@/lib/mock-data'
 
-const PRIMARY = '#1a3d2c'
+const PRIMARY = '#172b44'
+const ACCENT = '#f97316'
 type Filter = 'All' | 'In Progress' | 'Completed'
 
 const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } } }
@@ -37,12 +38,12 @@ export default function CoursesPage() {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-colors"
-            style={{ background: PRIMARY }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:shadow-lg hover:-translate-y-0.5 transition-all"
+            style={{ background: ACCENT, boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)' }}
           >
             <Plus className="w-4 h-4" /> Enroll Course
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors">
+          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white/70 border border-border/50 hover:bg-white transition-all backdrop-blur-sm">
             <Download className="w-4 h-4" /> Export
           </button>
         </div>
@@ -54,16 +55,16 @@ export default function CoursesPage() {
           <motion.div
             key={label}
             variants={fade}
-            className={`rounded-2xl p-5 border border-border/50 ${i === 0 ? 'text-white' : 'bg-card'}`}
-            style={i === 0 ? { background: PRIMARY } : {}}
+            className={`rounded-2xl p-5 border border-white/50 shadow-sm ${i === 0 ? 'text-white' : 'bg-white/70 backdrop-blur-sm'}`}
+            style={i === 0 ? { background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` } : {}}
           >
             {i !== 0 && (
-              <button className="float-right w-7 h-7 rounded-full bg-secondary flex items-center justify-center">
+              <button className="float-right w-7 h-7 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors">
                 <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             )}
             <p className={`text-xs font-medium ${i === 0 ? 'text-white/70' : 'text-muted-foreground'}`}>{label}</p>
-            <p className={`text-3xl font-black mt-1 ${i === 0 ? 'text-white' : ''}`}>{value}</p>
+            <p className={`text-3xl font-black mt-1 ${i === 0 ? 'text-white' : ''}`} style={i !== 0 ? { color: PRIMARY } : {}}>{value}</p>
           </motion.div>
         ))}
       </motion.div>
@@ -92,7 +93,7 @@ export default function CoursesPage() {
               key={course.id}
               variants={fade}
               whileHover={{ y: -3, transition: { duration: 0.18 } }}
-              className="bg-card border border-border/50 rounded-2xl overflow-hidden group"
+              className="bg-white/70 backdrop-blur-sm border border-white/50 rounded-2xl overflow-hidden group shadow-sm hover:shadow-md transition-all"
             >
               {/* Thumbnail */}
               <div className="relative h-44 bg-secondary overflow-hidden">
@@ -109,7 +110,7 @@ export default function CoursesPage() {
 
               <div className="p-5 space-y-4">
                 <div>
-                  <h3 className="font-bold text-sm leading-snug">{course.title}</h3>
+                  <h3 className="font-bold text-sm leading-snug" style={{ color: PRIMARY }}>{course.title}</h3>
                   <div className="flex items-center gap-1.5 mt-1.5 text-muted-foreground text-xs">
                     <Users className="w-3.5 h-3.5" />
                     <span>{course.instructor}</span>
@@ -119,26 +120,26 @@ export default function CoursesPage() {
                 <div className="space-y-1.5">
                   <div className="flex justify-between text-xs">
                     <span className="text-muted-foreground">Progress</span>
-                    <span className="font-bold" style={{ color: done ? '#059669' : PRIMARY }}>{course.progress}%</span>
+                    <span className="font-bold" style={{ color: done ? '#059669' : ACCENT }}>{course.progress}%</span>
                   </div>
-                  <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-white/80 rounded-full overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       whileInView={{ width: `${course.progress}%` }}
                       transition={{ duration: 0.8, ease: 'easeOut' }}
                       viewport={{ once: true }}
                       className="h-full rounded-full"
-                      style={{ background: done ? '#059669' : PRIMARY }}
+                      style={{ background: done ? '#059669' : ACCENT }}
                     />
                   </div>
                 </div>
 
                 <button
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5"
                   style={
                     done
                       ? { background: '#f0fdf4', color: '#059669', border: '1px solid #bbf7d0' }
-                      : { background: PRIMARY + '15', color: PRIMARY, border: `1px solid ${PRIMARY}30` }
+                      : { background: ACCENT + '15', color: ACCENT, border: `1px solid ${ACCENT}30` }
                   }
                 >
                   {done ? <><CheckCircle2 className="w-4 h-4" /> Certificate</> : <><Clock className="w-4 h-4" /> Continue</>}

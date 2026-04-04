@@ -106,12 +106,12 @@ export function UploadHistoryModal() {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
           >
-            <div className="bg-card border border-border rounded-2xl p-6 space-y-6">
+            <div className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-2xl p-6 space-y-6 shadow-xl">
               {/* Close Button */}
               {step !== 'success' && (
                 <button
                   onClick={handleClose}
-                  className="absolute top-4 right-4 p-1 hover:bg-secondary rounded-lg transition-colors"
+                  className="absolute top-4 right-4 p-1 hover:bg-white/80 rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -119,7 +119,7 @@ export function UploadHistoryModal() {
 
               {/* Header */}
               <div className="space-y-2">
-                <h2 className="text-2xl font-bold">Upload Your History</h2>
+                <h2 className="text-2xl font-bold" style={{ color: '#172b44' }}>Upload Your History</h2>
                 <p className="text-sm text-muted-foreground">
                   {step === 'success'
                     ? 'Your history has been processed successfully!'
@@ -134,10 +134,11 @@ export function UploadHistoryModal() {
                   <div className="space-y-3">
                     <button
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full p-6 border-2 border-dashed border-border rounded-xl hover:border-accent/50 hover:bg-accent/5 transition-colors flex flex-col items-center justify-center gap-3 cursor-pointer group"
+                      className="w-full p-6 border-2 border-dashed rounded-xl hover:border-[#f97316]/50 hover:bg-[#f97316]/5 transition-colors flex flex-col items-center justify-center gap-3 cursor-pointer group"
+                      style={{ borderColor: 'rgba(249,115,22,0.3)' }}
                     >
-                      <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center group-hover:bg-accent/20 transition-colors">
-                        <Upload className="w-5 h-5 text-accent" />
+                      <div className="w-10 h-10 bg-[#f97316]/10 rounded-lg flex items-center justify-center group-hover:bg-[#f97316]/20 transition-colors">
+                        <Upload className="w-5 h-5 text-[#f97316]" />
                       </div>
                       <div className="text-center">
                         <p className="font-semibold text-sm">Drag and drop your file</p>
@@ -153,10 +154,10 @@ export function UploadHistoryModal() {
                   {/* Divider */}
                   <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-border/40" />
+                      <div className="w-full border-t border-border/30" />
                     </div>
                     <div className="relative flex justify-center text-xs">
-                      <span className="px-2 bg-card text-muted-foreground">or</span>
+                      <span className="px-2 bg-white/90 text-muted-foreground">or</span>
                     </div>
                   </div>
 
@@ -171,15 +172,15 @@ export function UploadHistoryModal() {
               {step === 'uploading' && (
                 <div className="py-6 space-y-4">
                   <div className="flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 text-accent animate-spin" />
+                    <Loader2 className="w-8 h-8 text-[#f97316] animate-spin" />
                   </div>
                   <div className="text-center space-y-2">
-                    <p className="font-semibold">Uploading file...</p>
+                    <p className="font-semibold" style={{ color: '#172b44' }}>Uploading file...</p>
                     <p className="text-sm text-muted-foreground">{fileName}</p>
                   </div>
-                  <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-white/80 rounded-full overflow-hidden">
                     <motion.div
-                      className="h-full bg-accent"
+                      className="h-full bg-[#f97316]"
                       initial={{ width: 0 }}
                       animate={{ width: '100%' }}
                       transition={{ duration: 1.5 }}
@@ -192,15 +193,15 @@ export function UploadHistoryModal() {
               {step === 'processing' && (
                 <div className="py-6 space-y-4">
                   <div className="flex items-center justify-center">
-                    <Loader2 className="w-8 h-8 text-accent animate-spin" />
+                    <Loader2 className="w-8 h-8 text-[#f97316] animate-spin" />
                   </div>
                   <div className="text-center space-y-2">
-                    <p className="font-semibold">Processing your data...</p>
+                    <p className="font-semibold" style={{ color: '#172b44' }}>Processing your data...</p>
                     <p className="text-sm text-muted-foreground">Analyzing learning patterns</p>
                   </div>
-                  <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-white/80 rounded-full overflow-hidden">
                     <motion.div
-                      className="h-full bg-accent"
+                      className="h-full bg-[#f97316]"
                       initial={{ width: 0 }}
                       animate={{ width: '100%' }}
                       transition={{ duration: 1.5 }}
@@ -218,11 +219,11 @@ export function UploadHistoryModal() {
                     transition={{ type: 'spring', duration: 0.5 }}
                     className="flex justify-center"
                   >
-                    <CheckCircle2 className="w-12 h-12 text-accent" />
+                    <CheckCircle2 className="w-12 h-12 text-[#f97316]" />
                   </motion.div>
 
                   <div className="text-center space-y-2">
-                    <p className="font-semibold text-lg">Success!</p>
+                    <p className="font-semibold text-lg" style={{ color: '#172b44' }}>Success!</p>
                     <p className="text-sm text-muted-foreground">
                       Your learning history has been analyzed. Check your recommendations.
                     </p>
@@ -230,7 +231,7 @@ export function UploadHistoryModal() {
 
                   <div className="space-y-2">
                     <Link href="/dashboard/interests" className="block">
-                      <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground gap-2">
+                      <Button className="w-full bg-[#f97316] hover:bg-[#ea6c0a] text-white gap-2">
                         View Interests
                         <ArrowRight className="w-4 h-4" />
                       </Button>

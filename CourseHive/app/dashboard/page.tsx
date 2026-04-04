@@ -16,6 +16,7 @@ import {
   Smartphone,
   Cloud,
   Palette,
+  Sparkles,
 } from 'lucide-react'
 import { mockAnalytics } from '@/lib/mock-data'
 import {
@@ -29,8 +30,9 @@ import {
   Pie,
 } from 'recharts'
 
-const PRIMARY = '#1a3d2c'
-const PRIMARY_LIGHT = '#e8f5ee'
+const PRIMARY = '#172b44'
+const ACCENT = '#f97316'
+const PRIMARY_LIGHT = '#e8f1f8'
 
 /* ─── mock data ─── */
 const weekActivity = [
@@ -45,7 +47,7 @@ const weekActivity = [
 
 const progressData = [
   { name: 'Completed', value: 7, color: PRIMARY },
-  { name: 'In Progress', value: 3, color: '#52b788' },
+  { name: 'In Progress', value: 3, color: ACCENT },
   { name: 'Pending', value: 2, color: PRIMARY_LIGHT },
 ]
 
@@ -59,14 +61,14 @@ const recentActivity = [
 const activeCourses = [
   { title: 'Advanced TypeScript', due: 'Due: Dec 10, 2024', icon: Code2, color: '#4f46e5' },
   { title: 'React Patterns', due: 'Due: Dec 15, 2024', icon: Brain, color: '#0891b2' },
-  { title: 'System Design', due: 'Due: Dec 20, 2024', icon: BookOpen, color: '#b45309' },
+  { title: 'System Design', due: 'Due: Dec 20, 2024', icon: BookOpen, color: ACCENT },
   { title: 'Mobile Development', due: 'Due: Jan 5, 2025', icon: Smartphone, color: '#be185d' },
   { title: 'DevOps & Cloud', due: 'Due: Jan 12, 2025', icon: Cloud, color: '#0d9488' },
 ]
 
 const statusBadge: Record<string, string> = {
   Completed: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  'In Progress': 'bg-amber-50 text-amber-700 border border-amber-200',
+  'In Progress': 'bg-orange-50 text-orange-700 border border-orange-200',
   Pending: 'bg-slate-100 text-slate-500 border border-slate-200',
 }
 
@@ -102,17 +104,22 @@ export default function DashboardPage() {
       {/* ── Header ── */}
       <motion.div variants={fade} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground text-sm mt-1">Plan, prioritize, and accomplish your tasks with ease.</p>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: PRIMARY }}>Dashboard</h1>
+            <span className="flex items-center gap-1 bg-orange-100 text-orange-600 text-[10px] font-bold px-2 py-1 rounded-full">
+              <Sparkles className="w-3 h-3" /> AI Powered
+            </span>
+          </div>
+          <p className="text-muted-foreground text-sm">Plan, prioritize, and accomplish your learning goals.</p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-colors hover:opacity-90"
-            style={{ background: PRIMARY }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all hover:shadow-lg hover:-translate-y-0.5 shadow-md"
+            style={{ background: ACCENT, boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)' }}
           >
             <Plus className="w-4 h-4" /> Add Course
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors">
+          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white/70 border border-border/50 hover:bg-white transition-all backdrop-blur-sm">
             <Download className="w-4 h-4" /> Import Data
           </button>
         </div>
@@ -120,12 +127,13 @@ export default function DashboardPage() {
 
       {/* ── Stat cards ── */}
       <motion.div variants={stagger} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1 — primary green */}
+        {/* Card 1 — accent gradient */}
         <motion.div
           variants={fade}
-          className="rounded-2xl p-5 relative overflow-hidden col-span-1"
-          style={{ background: PRIMARY }}
+          className="rounded-2xl p-5 relative overflow-hidden col-span-1 shadow-lg"
+          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
         >
+          <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-white/10" />
           <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/15 flex items-center justify-center hover:bg-white/25 transition-colors">
             <ArrowUpRight className="w-3.5 h-3.5 text-white" />
           </button>
@@ -141,12 +149,12 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* Card 2 */}
-        <motion.div variants={fade} className="bg-card rounded-2xl p-5 border border-border/50 relative">
-          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors">
+        <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
+          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors">
             <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
           <p className="text-muted-foreground text-xs font-medium mt-1">Completed</p>
-          <p className="text-3xl font-black mt-1">{mockAnalytics.completedCourses}</p>
+          <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>{mockAnalytics.completedCourses}</p>
           <div className="flex items-center gap-1.5 mt-3">
             <span className="flex items-center gap-1 text-emerald-600 text-[10px] font-semibold">
               <TrendingUp className="w-2.5 h-2.5" /> Increased from last month
@@ -155,26 +163,26 @@ export default function DashboardPage() {
         </motion.div>
 
         {/* Card 3 */}
-        <motion.div variants={fade} className="bg-card rounded-2xl p-5 border border-border/50 relative">
-          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors">
+        <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
+          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors">
             <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
           <p className="text-muted-foreground text-xs font-medium mt-1">In Progress</p>
-          <p className="text-3xl font-black mt-1">{mockAnalytics.ongoingInterests}</p>
+          <p className="text-3xl font-black mt-1" style={{ color: ACCENT }}>{mockAnalytics.ongoingInterests}</p>
           <div className="flex items-center gap-1.5 mt-3">
-            <span className="flex items-center gap-1 text-emerald-600 text-[10px] font-semibold">
-              <TrendingUp className="w-2.5 h-2.5" /> Increased from last month
+            <span className="flex items-center gap-1 text-orange-600 text-[10px] font-semibold">
+              <TrendingUp className="w-2.5 h-2.5" /> Active learning
             </span>
           </div>
         </motion.div>
 
         {/* Card 4 */}
-        <motion.div variants={fade} className="bg-card rounded-2xl p-5 border border-border/50 relative">
-          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors">
+        <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
+          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors">
             <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
           </button>
           <p className="text-muted-foreground text-xs font-medium mt-1">Upcoming</p>
-          <p className="text-3xl font-black mt-1">2</p>
+          <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>2</p>
           <p className="text-muted-foreground text-[10px] font-medium mt-3">On Schedule</p>
         </motion.div>
       </motion.div>
@@ -185,9 +193,9 @@ export default function DashboardPage() {
         {/* Learning Analytics — bar chart */}
         <motion.div
           variants={fade}
-          className="lg:col-span-5 bg-card rounded-2xl p-5 border border-border/50"
+          className="lg:col-span-5 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm"
         >
-          <h2 className="font-bold text-base">Learning Analytics</h2>
+          <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Learning Analytics</h2>
           <p className="text-muted-foreground text-xs mt-0.5 mb-4">Hours spent studying this week</p>
 
           {/* SVG defs for hatch */}
@@ -205,16 +213,16 @@ export default function DashboardPage() {
                 dataKey="day"
                 axisLine={false}
                 tickLine={false}
-                tick={{ fontSize: 11, fill: 'var(--color-muted-foreground)' }}
+                tick={{ fontSize: 11, fill: '#3d5f80' }}
               />
               <Tooltip
                 cursor={false}
                 contentStyle={{
-                  background: 'var(--color-card)',
-                  border: '1px solid var(--color-border)',
-                  borderRadius: '10px',
+                  background: 'rgba(255,255,255,0.95)',
+                  border: '1px solid rgba(23, 43, 68, 0.1)',
+                  borderRadius: '12px',
                   fontSize: '12px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
                 }}
                 formatter={(v: number) => [`${v}h`, 'Study time']}
               />
@@ -236,18 +244,18 @@ export default function DashboardPage() {
         {/* Reminder / Today's Schedule */}
         <motion.div
           variants={fade}
-          className="lg:col-span-4 bg-card rounded-2xl p-5 border border-border/50 flex flex-col justify-between"
+          className="lg:col-span-4 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm flex flex-col justify-between"
         >
           <div>
-            <h2 className="font-bold text-base">Reminders</h2>
+            <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Reminders</h2>
             <div className="mt-4 space-y-1">
-              <h3 className="text-xl font-extrabold leading-snug">Deep Dive into<br />React Patterns</h3>
+              <h3 className="text-xl font-extrabold leading-snug" style={{ color: PRIMARY }}>Deep Dive into<br />React Patterns</h3>
               <p className="text-muted-foreground text-sm">Time: 02.00 pm – 04.00 pm</p>
             </div>
           </div>
           <button
-            className="mt-5 flex items-center justify-center gap-2 w-full py-3 rounded-xl text-white font-semibold text-sm transition-colors hover:opacity-90"
-            style={{ background: PRIMARY }}
+            className="mt-5 flex items-center justify-center gap-2 w-full py-3 rounded-xl text-white font-semibold text-sm transition-all hover:shadow-lg hover:-translate-y-0.5"
+            style={{ background: ACCENT, boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)' }}
           >
             <Video className="w-4 h-4" /> Start Session
           </button>
@@ -256,13 +264,13 @@ export default function DashboardPage() {
         {/* Active Courses list */}
         <motion.div
           variants={fade}
-          className="lg:col-span-3 bg-card rounded-2xl p-5 border border-border/50"
+          className="lg:col-span-3 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-base">Courses</h2>
+            <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Courses</h2>
             <button
-              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full border transition-colors hover:bg-secondary"
-              style={{ borderColor: PRIMARY, color: PRIMARY }}
+              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:bg-orange-50"
+              style={{ border: `1px solid ${ACCENT}`, color: ACCENT }}
             >
               <Plus className="w-3 h-3" /> New
             </button>
@@ -271,15 +279,15 @@ export default function DashboardPage() {
             {activeCourses.map((c) => {
               const Icon = c.icon
               return (
-                <div key={c.title} className="flex items-center gap-3">
+                <div key={c.title} className="flex items-center gap-3 group cursor-pointer">
                   <div
-                    className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                    className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
                     style={{ background: c.color + '20' }}
                   >
                     <Icon className="w-4 h-4" style={{ color: c.color }} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold truncate">{c.title}</p>
+                    <p className="text-xs font-semibold truncate group-hover:text-[#172b44]">{c.title}</p>
                     <p className="text-[10px] text-muted-foreground">{c.due}</p>
                   </div>
                 </div>
@@ -295,22 +303,22 @@ export default function DashboardPage() {
         {/* Team / Learning Activity */}
         <motion.div
           variants={fade}
-          className="lg:col-span-5 bg-card rounded-2xl p-5 border border-border/50"
+          className="lg:col-span-5 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-base">Learning Activity</h2>
+            <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Learning Activity</h2>
             <button
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border border-border hover:bg-secondary transition-colors"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-white/80 border border-border/50 hover:bg-white transition-colors"
             >
               <Users className="w-3 h-3" /> Add Member
             </button>
           </div>
           <div className="space-y-3">
             {recentActivity.map((a) => (
-              <div key={a.name} className="flex items-center gap-3">
+              <div key={a.name} className="flex items-center gap-3 group cursor-pointer">
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0"
-                  style={{ background: PRIMARY }}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm transition-transform group-hover:scale-105"
+                  style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
                 >
                   {a.avatar}
                 </div>
@@ -331,10 +339,10 @@ export default function DashboardPage() {
         {/* Course Progress — donut */}
         <motion.div
           variants={fade}
-          className="lg:col-span-4 bg-card rounded-2xl p-5 border border-border/50 flex flex-col items-center"
+          className="lg:col-span-4 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm flex flex-col items-center"
         >
           <div className="w-full mb-2">
-            <h2 className="font-bold text-base">Course Progress</h2>
+            <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Course Progress</h2>
           </div>
 
           <div className="relative mt-2">
@@ -360,7 +368,7 @@ export default function DashboardPage() {
             </ResponsiveContainer>
             {/* Center label */}
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-center">
-              <p className="text-3xl font-black leading-none">{completedPct}%</p>
+              <p className="text-3xl font-black leading-none" style={{ color: PRIMARY }}>{completedPct}%</p>
               <p className="text-xs text-muted-foreground mt-0.5">Course Done</p>
             </div>
           </div>
@@ -379,20 +387,25 @@ export default function DashboardPage() {
         {/* Study Timer */}
         <motion.div
           variants={fade}
-          className="lg:col-span-3 rounded-2xl p-5 flex flex-col justify-between"
-          style={{ background: PRIMARY }}
+          className="lg:col-span-3 rounded-2xl p-5 flex flex-col justify-between shadow-lg relative overflow-hidden"
+          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
         >
-          <div>
+          <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-white/10" />
+          <div className="absolute -bottom-6 -left-6 w-20 h-20 rounded-full bg-white/5" />
+          <div className="relative z-10">
             <h2 className="font-semibold text-white/80 text-sm">Study Timer</h2>
           </div>
-          <div className="my-4 text-center">
+          <div className="my-4 text-center relative z-10">
             <p className="text-4xl font-black text-white tracking-wider font-mono">01:24:08</p>
           </div>
-          <div className="flex items-center justify-center gap-3">
+          <div className="flex items-center justify-center gap-3 relative z-10">
             <button className="w-11 h-11 rounded-full bg-white/15 hover:bg-white/25 flex items-center justify-center transition-colors">
               <Pause className="w-5 h-5 text-white" />
             </button>
-            <button className="w-11 h-11 rounded-full bg-red-500/80 hover:bg-red-500 flex items-center justify-center transition-colors">
+            <button 
+              className="w-11 h-11 rounded-full flex items-center justify-center transition-all hover:scale-105"
+              style={{ background: ACCENT }}
+            >
               <Square className="w-4 h-4 text-white fill-white" />
             </button>
           </div>

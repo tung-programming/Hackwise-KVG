@@ -3,7 +3,8 @@
 import { motion } from 'framer-motion'
 import { LucideIcon, TrendingUp, TrendingDown, ArrowUpRight } from 'lucide-react'
 
-const PRIMARY = '#1a3d2c'
+const PRIMARY = '#172b44'
+const ACCENT = '#f97316'
 
 interface AnalyticsCardProps {
   icon: LucideIcon
@@ -31,15 +32,15 @@ export function AnalyticsCard({
       transition={{ duration: 0.4, ease: 'easeOut' }}
       viewport={{ once: true }}
       whileHover={{ y: -2, transition: { duration: 0.18 } }}
-      className={`rounded-2xl p-5 border border-border/50 relative overflow-hidden cursor-default ${
-        isPrimary ? '' : 'bg-card'
+      className={`rounded-2xl p-5 border relative overflow-hidden cursor-default shadow-sm hover:shadow-md transition-all ${
+        isPrimary ? 'border-white/20' : 'bg-white/70 backdrop-blur-sm border-white/50'
       }`}
-      style={isPrimary ? { background: PRIMARY } : {}}
+      style={isPrimary ? { background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` } : {}}
     >
       {/* Arrow out button */}
       <button
         className={`absolute top-4 right-4 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-          isPrimary ? 'bg-white/15 hover:bg-white/25' : 'bg-secondary hover:bg-secondary/80'
+          isPrimary ? 'bg-white/15 hover:bg-white/25' : 'bg-white/80 hover:bg-white'
         }`}
       >
         <ArrowUpRight className={`w-3.5 h-3.5 ${isPrimary ? 'text-white' : 'text-muted-foreground'}`} />
@@ -48,7 +49,7 @@ export function AnalyticsCard({
       <p className={`text-xs font-medium mt-1 ${isPrimary ? 'text-white/70' : 'text-muted-foreground'}`}>
         {title}
       </p>
-      <p className={`text-3xl font-black mt-1 ${isPrimary ? 'text-white' : ''}`}>{value}</p>
+      <p className={`text-3xl font-black mt-1 ${isPrimary ? 'text-white' : ''}`} style={!isPrimary ? { color: PRIMARY } : {}}>{value}</p>
 
       {subtitle && !trend && (
         <p className={`text-[10px] font-medium mt-3 ${isPrimary ? 'text-white/50' : 'text-muted-foreground'}`}>

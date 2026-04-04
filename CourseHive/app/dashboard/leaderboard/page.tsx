@@ -4,7 +4,8 @@ import { motion } from 'framer-motion'
 import { Trophy, Flame, Download, ArrowUpRight, Crown, TrendingUp } from 'lucide-react'
 import { mockLeaderboard } from '@/lib/mock-data'
 
-const PRIMARY = '#1a3d2c'
+const PRIMARY = '#172b44'
+const ACCENT = '#f97316'
 
 const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } } }
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } }
@@ -48,9 +49,10 @@ export default function LeaderboardPage() {
       {/* Your rank card */}
       <motion.div
         variants={fade}
-        className="rounded-2xl p-5 text-white relative overflow-hidden"
-        style={{ background: PRIMARY }}
+        className="rounded-2xl p-5 text-white relative overflow-hidden shadow-lg"
+        style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
       >
+        <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-white/10" />
         <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
           <ArrowUpRight className="w-3.5 h-3.5 text-white" />
         </button>
@@ -90,25 +92,25 @@ export default function LeaderboardPage() {
               key={entry.rank}
               variants={fade}
               whileHover={{ y: -3, transition: { duration: 0.18 } }}
-              className="bg-card border border-border/50 rounded-2xl p-4 text-center relative"
+              className="bg-white/70 backdrop-blur-sm border border-white/50 rounded-2xl p-4 text-center relative shadow-sm hover:shadow-md transition-all"
               style={{ borderColor: p.ring + '40' }}
             >
               {idx === 0 && <Crown className="w-4 h-4 absolute top-3 right-3" style={{ color: p.ring }} />}
               <div
-                className="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-white font-bold text-sm"
-                style={{ background: PRIMARY, outline: `3px solid ${p.ring}`, outlineOffset: '2px' }}
+                className="w-12 h-12 rounded-full mx-auto flex items-center justify-center text-white font-bold text-sm shadow-md"
+                style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)`, outline: `3px solid ${p.ring}`, outlineOffset: '2px' }}
               >
                 {entry.name.split(' ').map(n => n[0]).join('')}
               </div>
               <p className="text-lg mt-1">{p.medal}</p>
-              <h3 className="font-bold text-xs mt-1 leading-tight">{entry.name}</h3>
+              <h3 className="font-bold text-xs mt-1 leading-tight" style={{ color: PRIMARY }}>{entry.name}</h3>
               <span
                 className="text-[10px] font-medium px-2 py-0.5 rounded-full mt-1 inline-block"
                 style={fieldStyle[entry.field] || fieldStyle.Engineering}
               >
                 {entry.field}
               </span>
-              <p className="font-black text-base mt-1.5" style={{ color: PRIMARY }}>
+              <p className="font-black text-base mt-1.5" style={{ color: ACCENT }}>
                 {entry.points.toLocaleString()}
               </p>
               <p className="text-[10px] text-muted-foreground">pts</p>
@@ -133,27 +135,27 @@ export default function LeaderboardPage() {
                 variants={fade}
                 className={`flex items-center gap-4 p-4 rounded-2xl border transition-all ${
                   isYou
-                    ? 'border-2'
-                    : 'bg-card border-border/50 hover:border-accent/20'
+                    ? 'border-2 shadow-md'
+                    : 'bg-white/70 backdrop-blur-sm border-white/50 hover:shadow-sm'
                 }`}
-                style={isYou ? { background: PRIMARY + '08', borderColor: PRIMARY + '50' } : {}}
+                style={isYou ? { background: ACCENT + '08', borderColor: ACCENT + '50' } : {}}
               >
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shrink-0"
-                  style={isYou ? { background: PRIMARY, color: '#fff' } : { background: 'var(--secondary)', color: 'var(--muted-foreground)' }}
+                  style={isYou ? { background: ACCENT, color: '#fff' } : { background: 'rgba(255,255,255,0.8)', color: PRIMARY }}
                 >
                   {entry.rank}
                 </div>
 
-                <div className="w-9 h-9 rounded-full bg-secondary flex items-center justify-center font-bold text-xs shrink-0" style={isYou ? { background: PRIMARY + '20', color: PRIMARY } : {}}>
+                <div className="w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0" style={isYou ? { background: ACCENT + '20', color: ACCENT } : { background: 'rgba(255,255,255,0.8)', color: PRIMARY }}>
                   {entry.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-semibold text-sm">{isYou ? 'Jordan Smith' : entry.name}</h3>
+                    <h3 className="font-semibold text-sm" style={{ color: PRIMARY }}>{isYou ? 'Jordan Smith' : entry.name}</h3>
                     {isYou && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: PRIMARY }}>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white shrink-0" style={{ background: ACCENT }}>
                         You
                       </span>
                     )}
@@ -172,7 +174,7 @@ export default function LeaderboardPage() {
                 </div>
 
                 <div className="text-right shrink-0">
-                  <p className="text-base font-bold" style={isYou ? { color: PRIMARY } : {}}>
+                  <p className="text-base font-bold" style={isYou ? { color: ACCENT } : { color: PRIMARY }}>
                     {entry.points.toLocaleString()}
                   </p>
                   <p className="text-[10px] text-muted-foreground">pts</p>
@@ -183,14 +185,14 @@ export default function LeaderboardPage() {
       </motion.div>
 
       {/* CTA */}
-      <motion.div variants={fade} className="bg-card border border-border/50 rounded-2xl p-5 flex items-center justify-between gap-4">
+      <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm border border-white/50 rounded-2xl p-5 flex items-center justify-between gap-4 shadow-sm">
         <div>
-          <h3 className="font-bold">Keep climbing the ranks!</h3>
+          <h3 className="font-bold" style={{ color: PRIMARY }}>Keep climbing the ranks!</h3>
           <p className="text-sm text-muted-foreground mt-0.5">Complete courses and maintain your streak to earn more points</p>
         </div>
         <button
-          className="shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-colors"
-          style={{ background: PRIMARY }}
+          className="shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:shadow-lg hover:-translate-y-0.5 transition-all"
+          style={{ background: ACCENT, boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)' }}
         >
           Earn Points
         </button>

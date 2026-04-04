@@ -5,7 +5,8 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, CheckCircle2, Loader2, Lock, Clock, BookOpen, ArrowRight, Download } from 'lucide-react'
 import { mockRoadmap } from '@/lib/mock-data'
 
-const PRIMARY = '#1a3d2c'
+const PRIMARY = '#172b44'
+const ACCENT = '#f97316'
 
 const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } } }
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } }
@@ -25,21 +26,21 @@ const statusConfig = {
   'in-progress': {
     Icon: Loader2,
     label: 'In Progress',
-    cardBorder: PRIMARY + '40',
-    cardBg: PRIMARY + '06',
-    badgeBg: PRIMARY + '15',
-    badgeText: PRIMARY,
-    iconColor: PRIMARY,
+    cardBorder: ACCENT + '40',
+    cardBg: ACCENT + '06',
+    badgeBg: ACCENT + '15',
+    badgeText: ACCENT,
+    iconColor: ACCENT,
     spin: true,
   },
   todo: {
     Icon: Lock,
     label: 'Locked',
-    cardBorder: 'var(--border)',
+    cardBorder: 'rgba(23, 43, 68, 0.15)',
     cardBg: 'transparent',
-    badgeBg: 'var(--secondary)',
-    badgeText: 'var(--muted-foreground)',
-    iconColor: 'var(--muted-foreground)',
+    badgeBg: 'rgba(255,255,255,0.8)',
+    badgeText: '#3d5f80',
+    iconColor: '#3d5f80',
     dim: true,
   },
 }
@@ -78,8 +79,8 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
       {/* Progress stat card */}
       <motion.div
         variants={fade}
-        className="rounded-2xl p-5 text-white relative overflow-hidden"
-        style={{ background: PRIMARY }}
+        className="rounded-2xl p-5 text-white relative overflow-hidden shadow-lg"
+        style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
       >
         <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-white/8" />
         <div className="relative z-10 flex items-center justify-between gap-4">
@@ -95,7 +96,8 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
                 initial={{ width: 0 }}
                 animate={{ width: `${pct}%` }}
                 transition={{ duration: 1, ease: 'easeOut', delay: 0.3 }}
-                className="h-full bg-white rounded-full"
+                className="h-full rounded-full"
+                style={{ background: ACCENT }}
               />
             </div>
           </div>
@@ -140,11 +142,11 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
                 return (
                   <div
                     key={course.id}
-                    className={`rounded-2xl p-5 space-y-4 border transition-all ${cfg.dim ? 'opacity-55' : ''}`}
+                    className={`rounded-2xl p-5 space-y-4 border transition-all backdrop-blur-sm ${cfg.dim ? 'opacity-55' : 'bg-white/70 shadow-sm hover:shadow-md'}`}
                     style={{ background: cfg.cardBg, borderColor: cfg.cardBorder }}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div className="w-9 h-9 bg-secondary rounded-xl flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 bg-white/80 rounded-xl flex items-center justify-center shrink-0">
                         <BookOpen className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <span
@@ -156,7 +158,7 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
                     </div>
 
                     <div>
-                      <h3 className="font-bold text-sm leading-snug">{course.title}</h3>
+                      <h3 className="font-bold text-sm leading-snug" style={{ color: PRIMARY }}>{course.title}</h3>
                       <div className="flex items-center gap-1.5 mt-1.5 text-xs text-muted-foreground">
                         <Clock className="w-3 h-3" />
                         <span>{course.duration}</span>
@@ -165,13 +167,13 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
 
                     <button
                       disabled={course.status === 'todo'}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-colors"
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5"
                       style={
                         course.status === 'completed'
                           ? { background: '#dcfce7', color: '#15803d' }
                           : course.status === 'in-progress'
-                          ? { background: PRIMARY, color: '#fff' }
-                          : { background: 'var(--secondary)', color: 'var(--muted-foreground)' }
+                          ? { background: ACCENT, color: '#fff' }
+                          : { background: 'rgba(255,255,255,0.8)', color: '#3d5f80' }
                       }
                     >
                       {course.status === 'completed' && <><CheckCircle2 className="w-4 h-4" /> Completed</>}
@@ -187,15 +189,15 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
       </motion.div>
 
       {/* CTA */}
-      <motion.div variants={fade} className="bg-card border border-border/50 rounded-2xl p-5 flex items-center justify-between gap-4">
+      <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm border border-white/50 rounded-2xl p-5 flex items-center justify-between gap-4 shadow-sm">
         <div>
-          <h3 className="font-bold">Ready to start learning?</h3>
+          <h3 className="font-bold" style={{ color: PRIMARY }}>Ready to start learning?</h3>
           <p className="text-sm text-muted-foreground mt-0.5">Enroll in the first course to begin your journey</p>
         </div>
         <Link href="/dashboard/courses">
           <button
-            className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-colors"
-            style={{ background: PRIMARY }}
+            className="shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white hover:shadow-lg hover:-translate-y-0.5 transition-all"
+            style={{ background: ACCENT, boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)' }}
           >
             Explore Courses <ArrowRight className="w-4 h-4" />
           </button>

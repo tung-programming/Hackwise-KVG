@@ -4,7 +4,8 @@ import { motion } from 'framer-motion'
 import { FolderOpen, Plus, Download, ArrowUpRight, Clock, CheckCircle2, TrendingUp } from 'lucide-react'
 import { mockProjects } from '@/lib/mock-data'
 
-const PRIMARY = '#1a3d2c'
+const PRIMARY = '#172b44'
+const ACCENT = '#f97316'
 
 const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } } }
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } }
@@ -38,12 +39,12 @@ export default function ProjectsPage() {
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <button
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-colors"
-            style={{ background: PRIMARY }}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white hover:shadow-lg hover:-translate-y-0.5 transition-all"
+            style={{ background: ACCENT, boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)' }}
           >
             <Plus className="w-4 h-4" /> New Project
           </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors">
+          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white/70 border border-border/50 hover:bg-white transition-all backdrop-blur-sm">
             <Download className="w-4 h-4" /> Export
           </button>
         </div>
@@ -55,16 +56,16 @@ export default function ProjectsPage() {
           <motion.div
             key={label}
             variants={fade}
-            className={`rounded-2xl p-5 border border-border/50 ${!primary ? 'bg-card' : ''}`}
-            style={primary ? { background: PRIMARY } : {}}
+            className={`rounded-2xl p-5 border border-white/50 shadow-sm ${!primary ? 'bg-white/70 backdrop-blur-sm' : ''}`}
+            style={primary ? { background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` } : {}}
           >
             {!primary && (
-              <button className="float-right w-7 h-7 rounded-full bg-secondary flex items-center justify-center">
+              <button className="float-right w-7 h-7 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors">
                 <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             )}
             <p className={`text-xs font-medium ${primary ? 'text-white/70' : 'text-muted-foreground'}`}>{label}</p>
-            <p className={`text-3xl font-black mt-1 ${primary ? 'text-white' : ''}`}>{value}</p>
+            <p className={`text-3xl font-black mt-1 ${primary ? 'text-white' : ''}`} style={!primary ? { color: PRIMARY } : {}}>{value}</p>
             <div className="flex items-center gap-1 mt-3">
               <TrendingUp className={`w-3 h-3 ${primary ? 'text-white/60' : 'text-emerald-600'}`} />
               <span className={`text-[10px] font-medium ${primary ? 'text-white/60' : 'text-emerald-600'}`}>
@@ -95,7 +96,7 @@ export default function ProjectsPage() {
                   key={project.id}
                   variants={fade}
                   whileHover={{ y: -2, transition: { duration: 0.18 } }}
-                  className="bg-card border border-border/50 rounded-2xl overflow-hidden"
+                  className="bg-white/70 backdrop-blur-sm border border-white/50 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all"
                 >
                   <div className="h-1" style={{ background: color }} />
                   <div className="p-5 space-y-4">
@@ -111,22 +112,22 @@ export default function ProjectsPage() {
                       </span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm">{project.title}</h3>
-                      <p className="text-xs font-semibold mt-1" style={{ color: PRIMARY }}>{project.progress}% complete</p>
+                      <h3 className="font-bold text-sm" style={{ color: PRIMARY }}>{project.title}</h3>
+                      <p className="text-xs font-semibold mt-1" style={{ color: ACCENT }}>{project.progress}% complete</p>
                     </div>
-                    <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-white/80 rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         whileInView={{ width: `${project.progress}%` }}
                         transition={{ duration: 0.8 }}
                         viewport={{ once: true }}
                         className="h-full rounded-full"
-                        style={{ background: PRIMARY }}
+                        style={{ background: ACCENT }}
                       />
                     </div>
                     <button
-                      className="w-full py-2.5 rounded-xl text-sm font-semibold transition-colors"
-                      style={{ background: PRIMARY + '12', color: PRIMARY, border: `1px solid ${PRIMARY}25` }}
+                      className="w-full py-2.5 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5"
+                      style={{ background: ACCENT + '12', color: ACCENT, border: `1px solid ${ACCENT}25` }}
                     >
                       Continue Project
                     </button>
@@ -158,7 +159,7 @@ export default function ProjectsPage() {
                   key={project.id}
                   variants={fade}
                   whileHover={{ y: -2, transition: { duration: 0.18 } }}
-                  className="bg-card border border-border/50 rounded-2xl overflow-hidden opacity-80 hover:opacity-100 transition-opacity"
+                  className="bg-white/70 backdrop-blur-sm border border-white/50 rounded-2xl overflow-hidden opacity-80 hover:opacity-100 transition-all shadow-sm hover:shadow-md"
                 >
                   <div className="h-1 bg-emerald-500" />
                   <div className="p-5 space-y-4">
@@ -171,13 +172,13 @@ export default function ProjectsPage() {
                       </span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-sm">{project.title}</h3>
+                      <h3 className="font-bold text-sm" style={{ color: PRIMARY }}>{project.title}</h3>
                       <p className="text-xs font-semibold text-emerald-600 mt-1">Completed</p>
                     </div>
                     <div className="h-1.5 bg-emerald-100 rounded-full overflow-hidden">
                       <div className="h-full w-full bg-emerald-500 rounded-full" />
                     </div>
-                    <button className="w-full py-2.5 rounded-xl text-sm font-semibold bg-secondary hover:bg-secondary/80 text-muted-foreground transition-colors">
+                    <button className="w-full py-2.5 rounded-xl text-sm font-semibold bg-white/80 hover:bg-white text-muted-foreground transition-all">
                       View Certificate
                     </button>
                   </div>
