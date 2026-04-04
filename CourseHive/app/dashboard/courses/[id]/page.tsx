@@ -232,60 +232,66 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
   const INNER_R = 16
 
   return (
-    <>
-      <div className="space-y-5 pb-8">
-
-        {/* Back */}
-        <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-          <Link href="/dashboard/courses">
-            <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-              <ArrowLeft className="w-4 h-4" /> Back to Courses
-            </button>
-          </Link>
-        </motion.div>
-
-        {/* Title */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
-          <h1 className="text-3xl font-extrabold tracking-tight">{roadmap.title}</h1>
-          <div className="flex items-center gap-1.5 mt-1.5 text-muted-foreground text-sm">
+    <div className="max-w-[1200px] mx-auto pb-24">
+      {/* ── Minimal Breadcrumb / Top UI ── */}
+      <motion.div 
+        initial={{ opacity: 0, y: -10 }} 
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between mb-8 pb-6 border-b border-border/40"
+      >
+        <div>
+          <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-4xl font-black tracking-tight" style={{ color: PRIMARY }}>{roadmap.title}</h1>
+            <span className="bg-orange-100 text-orange-600 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
+              Active Path
+            </span>
+          </div>
+          <div className="flex items-center gap-4 text-slate-500 text-sm font-medium">
             <Users className="w-3.5 h-3.5" />
             <span>{roadmap.instructor}</span>
             <span className="mx-1">·</span>
             <Clock className="w-3.5 h-3.5" />
             <span>{roadmap.totalDuration}</span>
           </div>
-          <p className="text-muted-foreground text-sm mt-1.5 max-w-xl">{roadmap.description}</p>
-        </motion.div>
+          <p className="text-slate-500 text-sm mt-3 max-w-xl mb-4 leading-relaxed">{roadmap.description}</p>
+        </div>
+      </motion.div>
 
+      <div className="max-w-[1200px] mx-auto space-y-12 pb-24">
         {/* Progress hero */}
         <motion.div
           initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="rounded-2xl p-5 text-white relative overflow-hidden shadow-lg"
-          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
+          className="rounded-3xl p-6 text-white relative overflow-hidden shadow-xl border border-white/10"
+          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #213c5e 100%)` }}
         >
-          <div className="absolute -top-8 -right-8 w-36 h-36 rounded-full bg-white/5 pointer-events-none" />
-          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-5 justify-between">
+          <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-8 justify-between">
             <div>
-              <p className="text-white/50 text-xs uppercase tracking-widest">Learning Progress</p>
-              <p className="text-5xl font-black mt-0.5">{pct}%</p>
-              <p className="text-white/40 text-xs mt-1">{doneCount} / {allNodes.length} lessons done</p>
+              <p className="text-white/60 font-bold text-xs uppercase tracking-widest mb-1 shadow-sm">Your Progress</p>
+              <p className="text-5xl font-black drop-shadow-md text-white">{pct}%</p>
+              <p className="text-white/70 font-semibold text-xs mt-2 bg-white/10 w-fit px-3 py-1 rounded-full">{doneCount} / {allNodes.length} lessons completed</p>
             </div>
-            <div className="flex-1 max-w-sm space-y-2">
-              <div className="h-2.5 bg-white/15 rounded-full overflow-hidden">
+            
+            <div className="flex-1 max-w-sm space-y-4">
+              <div className="h-3 bg-black/40 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
                 <motion.div
                   initial={{ width: 0 }} animate={{ width: `${pct}%` }}
-                  transition={{ duration: 1.3, ease: 'easeOut', delay: 0.5 }}
-                  className="h-full rounded-full"
-                  style={{ background: ACCENT }}
-                />
+                  transition={{ duration: 1.5, type: 'spring', bounce: 0.25, delay: 0.4 }}
+                  className="h-full rounded-full relative overflow-hidden"
+                  style={{ background: `linear-gradient(90deg, #ea580c 0%, ${ACCENT} 100%)` }}
+                >
+                  <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-white/30 to-transparent animate-pulse" />
+                </motion.div>
               </div>
-              <div className="flex gap-4 text-[10px] text-white/40">
+              <div className="flex gap-4 text-[11px] font-bold uppercase tracking-wider text-white/60">
                 {(['completed', 'in-progress', 'todo'] as const).map(s => {
                   const cnt = allNodes.filter(n => n.status === s).length
-                  const col = s === 'completed' ? '#34d399' : s === 'in-progress' ? ACCENT : '#6b7280'
+                  const col = s === 'completed' ? '#10b981' : s === 'in-progress' ? ACCENT : '#475569'
                   return (
-                    <span key={s} className="flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full" style={{ background: col }} />
+                    <span key={s} className="flex items-center gap-2 bg-black/20 px-2.5 py-1 rounded-md border border-white/5">
+                      <span className="w-2 h-2 rounded-full shadow-sm" style={{ background: col, boxShadow: `0 0 10px ${col}` }} />
                       {cnt} {s === 'completed' ? 'Done' : s === 'in-progress' ? 'Active' : 'Locked'}
                     </span>
                   )
@@ -295,42 +301,47 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
           </div>
         </motion.div>
 
-        {/* ─── Winding Road ─────────────────────────────────────────────── */}
+        {/* ─── Winding Road 3D Map ─────────────────────────────────────────────── */}
         <motion.div
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}
-          className="rounded-3xl overflow-hidden select-none"
-          style={{ background: 'linear-gradient(180deg, #060c1c 0%, #0a1628 50%, #060c1c 100%)' }}
+          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+          className="rounded-3xl overflow-hidden select-none border border-slate-200/60 shadow-2xl relative mt-8"
+          style={{ 
+            background: 'linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)',
+            perspective: '1000px'
+          }}
         >
           {/* scroll container */}
-          <div style={{ maxHeight: '80vh', overflowY: 'auto', overflowX: 'hidden' }}>
+          <div style={{ maxHeight: '75vh', overflowY: 'auto', overflowX: 'hidden' }} className="custom-scrollbar">
             <svg
               viewBox={`0 0 ${VIEW_W} ${SVG_H}`}
               width="100%"
               style={{ display: 'block' }}
             >
-              {/* ── Stars ─────────────────────────────────── */}
-              {Array.from({ length: 60 }, (_, i) => (
-                <circle
-                  key={i}
-                  cx={(i * 139.7) % VIEW_W}
-                  cy={(i * 97.3) % SVG_H}
-                  r={i % 5 === 0 ? 1.5 : i % 3 === 0 ? 1.1 : 0.65}
-                  fill="white"
-                  opacity={0.06 + (i % 7) * 0.035}
-                />
-              ))}
+              {/* ── Grid Pattern Backing ─────────────────────────────────── */}
+              <defs>
+                <pattern id="isometricGrid" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="scale(1, 0.5) rotate(45)">
+                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#cbd5e1" strokeWidth="1" strokeOpacity="0.4" />
+                </pattern>
+                <linearGradient id="roadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stopColor="#e2e8f0" />
+                  <stop offset="100%" stopColor="#cbd5e1" />
+                </linearGradient>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#isometricGrid)" />
 
               {/* ── Road layers ───────────────────────────── */}
               {/* drop shadow */}
-              <path d={pathD} stroke="#000" strokeWidth="70" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.55" />
-              {/* curb */}
-              <path d={pathD} stroke="#2a3547" strokeWidth="62" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              {/* asphalt */}
-              <path d={pathD} stroke="#18202e" strokeWidth="54" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              {/* subtle surface sheen */}
-              <path d={pathD} stroke="#1e2a3d" strokeWidth="50" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              {/* centre dashes */}
-              <path d={pathD} stroke="rgba(255,255,255,0.14)" strokeWidth="2.5" fill="none" strokeDasharray="13 12" strokeLinecap="round" />
+              <path d={pathD} stroke="rgba(15, 23, 42, 0.15)" strokeWidth="80" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'blur(10px)', transform: 'translateY(12px)' }} />
+              {/* darker bottom edge / 3d extrude */}
+              <path d={pathD} stroke="#94a3b8" strokeWidth="66" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(6px)' }} />
+              {/* main asphalt surface */}
+              <path d={pathD} stroke="url(#roadGradient)" strokeWidth="64" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              {/* highlight rim */}
+              <path d={pathD} stroke="#ffffff" strokeWidth="60" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
+              {/* inner track main */}
+              <path d={pathD} stroke="#f1f5f9" strokeWidth="58" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              {/* dashes */}
+              <path d={pathD} stroke="#cbd5e1" strokeWidth="4" fill="none" strokeDasharray="16 20" strokeLinecap="round" />
 
               {/* ── START ─────────────────────────────────── */}
               {/* flag pole */}
@@ -519,7 +530,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
           />
         )}
       </AnimatePresence>
-    </>
+    </div>
   )
 }
 

@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -7,7 +8,7 @@ import { Hexagon, Loader2, CheckCircle, XCircle } from 'lucide-react'
 import { setTokens, getCurrentUser } from '@/lib/auth'
 import { useAppStore } from '@/lib/store'
 
-export default function AuthCallbackPage() {
+function CallbackContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { setCurrentUser, clearOnboarding } = useAppStore()
@@ -160,5 +161,29 @@ export default function AuthCallbackPage() {
         )}
       </motion.div>
     </div>
+  )
+}
+
+export default function AuthCallbackPage() {
+  return (
+    <Suspense fallback={
+      <div 
+        className="min-h-screen flex flex-col items-center justify-center"
+        style={{
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+          background: 'linear-gradient(180deg,#a8c8e8 0%,#c0d9f0 14%,#d8edf8 30%,#edf5fb 48%,#f3e9da 72%,#ecdcc8 100%)'
+        }}
+      >
+        <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-8 sm:p-12 shadow-xl shadow-black/5 border border-white/60 text-center max-w-md w-full mx-4">
+          <div className="w-14 h-14 bg-[#172b44] rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-6">
+            <Hexagon className="w-7 h-7 text-white" />
+          </div>
+          <Loader2 className="w-12 h-12 text-[#f97316] mx-auto mb-6 animate-spin" />
+          <p className="text-[#3d5f80]">Loading...</p>
+        </div>
+      </div>
+    }>
+      <CallbackContent />
+    </Suspense>
   )
 }
