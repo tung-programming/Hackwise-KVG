@@ -1,19 +1,16 @@
 // Interests routes
-import { Router } from 'express';
-import { interestsController } from './interests.controller';
-import { authGuard } from '../../middleware/auth.guard';
-import { validateRequest } from '../auth/auth.middleware';
-import { addInterestSchema } from './interests.schema';
+import { Router } from "express";
+import { interestsController } from "./interests.controller";
+import { authGuard } from "../../middleware/auth.guard";
 
 const router = Router();
 
-router.get('/categories', interestsController.getAllCategories);
-
 router.use(authGuard);
 
-router.get('/', interestsController.getInterests);
-router.post('/', validateRequest(addInterestSchema), interestsController.addInterest);
-router.delete('/:interestId', interestsController.removeInterest);
-router.get('/recommendations', interestsController.getRecommendations);
+router.get("/", interestsController.getInterests);
+router.get("/:id", interestsController.getInterest);
+router.patch("/:id/accept", interestsController.acceptInterest);
+router.patch("/:id/reject", interestsController.rejectInterest);
+router.get("/:id/progress", interestsController.getProgress);
 
 export default router;

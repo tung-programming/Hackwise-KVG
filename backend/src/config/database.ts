@@ -1,19 +1,20 @@
-// Prisma client setup
-import { PrismaClient } from "@prisma/client";
+// Supabase client setup
+import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { env } from "./env";
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+const globalForSupabase = globalThis as unknown as {
+  supabase: SupabaseClient | undefined;
 };
 
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log:
-      process.env.NODE_ENV === "development"
-        ? ["query", "error", "warn"]
-        : ["error"],
+export const supabase =
+  globalForSupabase.supabase ??
+  createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
   });
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== "production") globalForSupabase.supabase = supabase;
 
-export default prisma;
+export default supabase;

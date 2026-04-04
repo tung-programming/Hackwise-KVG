@@ -1,47 +1,23 @@
-// Auth routes
-import { Router } from 'express';
-import passport from 'passport';
-import { authController } from './auth.controller';
-import { authGuard } from '../../middleware/auth.guard';
-import { validateRequest } from './auth.middleware';
-import { refreshTokenSchema } from './auth.schema';
+// Auth routes - Full OAuth implementation
+import { Router } from "express";
+import { authController } from "./auth.controller";
+import { authGuard } from "../../middleware/auth.guard";
 
 const router = Router();
 
-// Google OAuth
-router.get(
-  '/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
+// OAuth initiation routes
+router.get("/google", authController.googleAuth);
+router.get("/github", authController.githubAuth);
 
-router.get(
-  '/google/callback',
-  passport.authenticate('google', { session: false }),
-  authController.googleCallback
-);
-
-// GitHub OAuth
-router.get(
-  '/github',
-  passport.authenticate('github', { scope: ['user:email'] })
-);
-
-router.get(
-  '/github/callback',
-  passport.authenticate('github', { session: false }),
-  authController.githubCallback
-);
+// OAuth callback routes
+router.get("/google/callback", authController.googleCallback);
+router.get("/github/callback", authController.githubCallback);
 
 // Token management
-router.post(
-  '/refresh',
-  validateRequest(refreshTokenSchema),
-  authController.refreshToken
-);
+router.post("/refresh", authController.refresh);
+router.post("/logout", authController.logout);
 
-router.post('/logout', authGuard, authController.logout);
-
-// Current user
-router.get('/me', authGuard, authController.me);
+// Current user (requires JWT)
+router.get("/me", authGuard, authController.me);
 
 export default router;

@@ -1,9 +1,10 @@
 // Projects controller
-import { Request, Response, NextFunction } from 'express';
-import { projectsService } from './projects.service';
-import { ApiResponse } from '../../utils/api-response';
+import { Request, Response, NextFunction } from "express";
+import { projectsService } from "./projects.service";
+import { ApiResponse } from "../../utils/api-response";
 
 export const projectsController = {
+  // Get all projects for user
   getProjects: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).userId;
@@ -14,55 +15,44 @@ export const projectsController = {
     }
   },
 
+  // Get single project
   getProject: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).userId;
-      const { projectId } = req.params;
-      const project = await projectsService.getProject(userId, projectId);
+      const { id } = req.params;
+      const project = await projectsService.getProject(userId, id);
       res.json(ApiResponse.success(project));
     } catch (error) {
       next(error);
     }
   },
 
-  createProject: async (req: Request, res: Response, next: NextFunction) => {
+  // Submit project
+  submitProject: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).userId;
-      const project = await projectsService.createProject(userId, req.body);
-      res.json(ApiResponse.success(project));
+      const { id } = req.params;
+      const { submission_url, submission_data } = req.body;
+
+      if (!submission_url) {
+        return res.status(400).json(ApiResponse.error("submission_url is required", 400));
+      }
+
+      const result = await projectsService.submitProject(userId, id, submission_url, submission_data);
+      // Return 202 for async validation
+      res.status(202).json(ApiResponse.success(result));
     } catch (error) {
       next(error);
     }
   },
 
-  updateProject: async (req: Request, res: Response, next: NextFunction) => {
+  // Get validation result
+  getValidation: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = (req as any).userId;
-      const { projectId } = req.params;
-      const project = await projectsService.updateProject(userId, projectId, req.body);
-      res.json(ApiResponse.success(project));
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  validateProject: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userId = (req as any).userId;
-      const { projectId } = req.params;
-      const validation = await projectsService.validateProject(userId, projectId);
+      const { id } = req.params;
+      const validation = await projectsService.getValidation(userId, id);
       res.json(ApiResponse.success(validation));
-    } catch (error) {
-      next(error);
-    }
-  },
-
-  deleteProject: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const userId = (req as any).userId;
-      const { projectId } = req.params;
-      await projectsService.deleteProject(userId, projectId);
-      res.json(ApiResponse.success({ message: 'Project deleted' }));
     } catch (error) {
       next(error);
     }
