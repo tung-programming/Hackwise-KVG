@@ -150,7 +150,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           General
         </p>
         {generalItems.map((item) => (
-          <NavLink key={item.href} item={item} />
+          <NavLink key={`${item.label}-${item.href}`} item={item} />
         ))}
 
         {/* Logout */}
