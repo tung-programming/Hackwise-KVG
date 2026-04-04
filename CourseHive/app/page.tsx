@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Hexagon, Menu, X, ArrowRight, Target, Brain, Trophy } from 'lucide-react'
 
-// Fixed particle positions — no Math.random() to avoid hydration mismatch
+
 const particles = [
   { x: 5,  y: 10, size: 3, dur: 3.2, delay: 0 },
   { x: 15, y: 25, size: 2, dur: 4.1, delay: 0.4 },
