@@ -5,6 +5,7 @@ interface HistoryEntry {
   title: string;
   url: string;
   watchedAt: Date;
+  search_query?: string;
   duration?: number;
   platform: string;
 }
@@ -26,21 +27,50 @@ const parseJsonHistory = (content: string): HistoryEntry[] => {
   const data = JSON.parse(content);
   const entries: HistoryEntry[] = [];
 
-  // Handle YouTube Takeout format
-  if (Array.isArray(data)) {
-    for (const item of data) {
-      if (item.title && item.titleUrl) {
-        entries.push({
-          title: item.title.replace('Watched ', ''),
-          url: item.titleUrl,
-          watchedAt: new Date(item.time),
-          platform: 'youtube',
-        });
+  const parseDate = (value: any): Date => {
+    const d = value ? new Date(value) : new Date();
+    return Number.isNaN(d.getTime()) ? new Date() : d;
+  };
+
+  const pushEntry = (item: any) => {
+    const title = String(item?.title || item?.name || item?.pageTitle || '').trim();
+    const searchQuery = String(item?.search_query || item?.searchQuery || item?.query || '').trim();
+    const url = String(item?.titleUrl || item?.url || item?.link || '').trim();
+
+    if (!title && !searchQuery && !url) return;
+
+    entries.push({
+      title: title || searchQuery || 'Search activity',
+      search_query: searchQuery || undefined,
+      url,
+      watchedAt: parseDate(item?.watchedAt || item?.time || item?.timestamp || item?.date || item?.visitedAt || item?.created_at),
+      duration: item?.duration ? parseInt(String(item.duration), 10) : undefined,
+      platform: String(item?.platform || item?.source || 'unknown'),
+    });
+  };
+
+  const walk = (node: any) => {
+    if (!node) return;
+    if (Array.isArray(node)) {
+      node.forEach(walk);
+      return;
+    }
+    if (typeof node !== 'object') return;
+
+    if (node.title || node.search_query || node.searchQuery || node.query || node.url || node.titleUrl || node.link) {
+      pushEntry(node);
+    }
+
+    for (const value of Object.values(node)) {
+      if (value && (Array.isArray(value) || typeof value === 'object')) {
+        walk(value);
       }
     }
-  }
+  };
 
-  return entries;
+  walk(data);
+
+  return entries.slice(0, 5000);
 };
 
 const parseCsvHistory = (content: string): HistoryEntry[] => {
@@ -50,7 +80,8 @@ const parseCsvHistory = (content: string): HistoryEntry[] => {
   });
 
   return records.map((record: any) => ({
-    title: record.title || record.Title || record.name,
+    title: record.title || record.Title || record.name || record.search_query || record.query || 'Search activity',
+    search_query: record.search_query || record.searchQuery || record.query || undefined,
     url: record.url || record.URL || record.link,
     watchedAt: new Date(record.watchedAt || record.date || record.timestamp),
     duration: record.duration ? parseInt(record.duration) : undefined,

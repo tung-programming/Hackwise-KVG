@@ -99,21 +99,28 @@ export const coursesService = {
       // Add bonus XP
       totalXpAwarded += XP_ALL_COURSES_BONUS;
 
-      // Mark interest as completed
-      await supabase
-        .from("interests")
-        .update({
-          is_completed: true,
-          progress_pct: 100,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", course.interest_id);
-
       // Unlock associated projects
       await supabase
         .from("projects")
         .update({ is_locked: false, updated_at: new Date().toISOString() })
         .eq("interest_id", course.interest_id);
+
+      // Interest is completed only after projects are completed too.
+      const { data: interestProjects } = await supabase
+        .from("projects")
+        .select("id")
+        .eq("interest_id", course.interest_id);
+
+      const hasProjects = !!interestProjects && interestProjects.length > 0;
+
+      await supabase
+        .from("interests")
+        .update({
+          is_completed: hasProjects ? false : true,
+          progress_pct: hasProjects ? 80 : 100,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", course.interest_id);
     } else {
       // Update interest progress
       const completedCount = allCourses?.filter((c) => c.is_completed).length || 0;
@@ -148,7 +155,7 @@ export const coursesService = {
       xp_awarded: totalXpAwarded,
       all_courses_completed: allCompleted,
       message: allCompleted
-        ? "All courses completed! Projects unlocked."
+        ? "All courses completed! Projects unlocked. Complete projects to finish this interest."
         : "Course completed!",
     };
   },

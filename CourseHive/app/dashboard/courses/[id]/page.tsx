@@ -1,723 +1,197 @@
 'use client'
 
-import { use, useState } from 'react'
+import { use, useMemo, useState } from 'react'
 import Link from 'next/link'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import {
-  ArrowLeft, X, PlayCircle, FileText, HelpCircle, Wrench,
-  ExternalLink, Clock, CheckCircle2, Lock, Users,
+  ArrowLeft,
+  ExternalLink,
+  Clock,
+  CheckCircle2,
+  Lock,
+  Loader2,
+  AlertCircle,
+  FolderOpen,
+  ArrowRight,
 } from 'lucide-react'
-import { mockCourseRoadmaps } from '@/lib/mock-data'
+import { useCourseCompletion, useInterestDetail } from '@/hooks/use-api'
 
-const ACCENT = '#f97316'
 const PRIMARY = '#172b44'
+const ACCENT = '#f97316'
 
-/* ─── Video recommendations per lesson ─────────────────────────────────── */
-type VideoRec = { title: string; channel: string; url: string; views: string }
-
-const VIDEO_RECS: Record<string, VideoRec[]> = {
-  /* TypeScript */
-  'ts-1-1': [
-    { title: 'TypeScript Compiler Options Explained', channel: 'Fireship', url: 'https://www.youtube.com/results?search_query=typescript+compiler+tsconfig', views: '1.2M' },
-    { title: 'tsconfig.json Deep Dive', channel: 'Matt Pocock', url: 'https://www.youtube.com/results?search_query=tsconfig+json+deep+dive', views: '450K' },
-  ],
-  'ts-1-2': [
-    { title: 'Advanced TypeScript Types Explained', channel: 'Jack Herrington', url: 'https://www.youtube.com/results?search_query=advanced+typescript+types+intersection', views: '567K' },
-    { title: 'TypeScript Intersection & Union Types', channel: 'The Net Ninja', url: 'https://www.youtube.com/results?search_query=typescript+union+intersection+types', views: '210K' },
-  ],
-  'ts-1-3': [
-    { title: 'TypeScript Generics Tutorial', channel: 'Fireship', url: 'https://www.youtube.com/results?search_query=typescript+generics+tutorial', views: '1.1M' },
-    { title: 'Generics & Constraints in TypeScript', channel: 'Matt Pocock', url: 'https://www.youtube.com/results?search_query=typescript+generics+constraints', views: '456K' },
-  ],
-  'ts-1-4': [
-    { title: 'TypeScript Type Narrowing Complete Guide', channel: 'Total TypeScript', url: 'https://www.youtube.com/results?search_query=typescript+type+narrowing', views: '234K' },
-    { title: 'Type Inference in TypeScript', channel: 'Jack Herrington', url: 'https://www.youtube.com/results?search_query=typescript+type+inference', views: '178K' },
-  ],
-  'ts-1-5': [
-    { title: 'TypeScript Module 1 Practice Questions', channel: 'Academind', url: 'https://www.youtube.com/results?search_query=typescript+beginner+quiz', views: '320K' },
-    { title: 'TypeScript Crash Course Quiz Review', channel: 'Traversy Media', url: 'https://www.youtube.com/results?search_query=typescript+crash+course', views: '890K' },
-  ],
-  'ts-2-1': [
-    { title: 'TypeScript Utility Types Crash Course', channel: 'Traversy Media', url: 'https://www.youtube.com/results?search_query=typescript+utility+types', views: '890K' },
-    { title: 'Partial, Pick, Omit & More', channel: 'Matt Pocock', url: 'https://www.youtube.com/results?search_query=typescript+partial+pick+omit', views: '340K' },
-  ],
-  'ts-2-2': [
-    { title: 'Custom Utility Types in TypeScript', channel: 'Jack Herrington', url: 'https://www.youtube.com/results?search_query=typescript+custom+utility+types', views: '450K' },
-    { title: 'Build Your Own TypeScript Utilities', channel: 'Matt Pocock', url: 'https://www.youtube.com/results?search_query=build+typescript+utilities', views: '280K' },
-  ],
-  'ts-2-3': [
-    { title: 'Mapped & Conditional Types in TypeScript', channel: 'Fireship', url: 'https://www.youtube.com/results?search_query=typescript+mapped+conditional+types', views: '670K' },
-    { title: 'TypeScript Conditional Types Deep Dive', channel: 'Total TypeScript', url: 'https://www.youtube.com/results?search_query=typescript+conditional+types+deep+dive', views: '320K' },
-  ],
-  'ts-2-4': [
-    { title: 'Template Literal Types in TypeScript', channel: 'Matt Pocock', url: 'https://www.youtube.com/results?search_query=typescript+template+literal+types', views: '290K' },
-    { title: 'String Manipulation with Template Types', channel: 'Jack Herrington', url: 'https://www.youtube.com/results?search_query=typescript+template+string+literal', views: '180K' },
-  ],
-  'ts-3-1': [
-    { title: 'TypeScript Decorators Explained', channel: 'Academind', url: 'https://www.youtube.com/results?search_query=typescript+decorators+tutorial', views: '780K' },
-    { title: 'Class & Method Decorators in TypeScript', channel: 'Fireship', url: 'https://www.youtube.com/results?search_query=typescript+class+method+decorators', views: '560K' },
-  ],
-  'ts-3-2': [
-    { title: 'Reflect Metadata API in TypeScript', channel: 'Academind', url: 'https://www.youtube.com/results?search_query=typescript+reflect+metadata', views: '230K' },
-    { title: 'Metaprogramming with Reflect Metadata', channel: 'Fireship', url: 'https://www.youtube.com/results?search_query=reflect+metadata+typescript', views: '190K' },
-  ],
-  /* React */
-  'r-1-1': [
-    { title: 'Compound Components Pattern in React', channel: 'Kent C. Dodds', url: 'https://www.youtube.com/results?search_query=react+compound+components+pattern', views: '890K' },
-    { title: 'Advanced React Patterns - Compound', channel: 'Jack Herrington', url: 'https://www.youtube.com/results?search_query=advanced+react+compound+pattern', views: '670K' },
-  ],
-  'r-1-2': [
-    { title: 'Higher-Order Components in React', channel: 'Traversy Media', url: 'https://www.youtube.com/results?search_query=react+higher+order+components', views: '540K' },
-    { title: 'Render Props Pattern Tutorial', channel: 'Fireship', url: 'https://www.youtube.com/results?search_query=react+render+props+pattern', views: '380K' },
-  ],
-  'r-1-3': [
-    { title: 'Controlled vs Uncontrolled Components', channel: 'The Net Ninja', url: 'https://www.youtube.com/results?search_query=react+controlled+uncontrolled+components', views: '430K' },
-    { title: 'React Forms Deep Dive', channel: 'Fireship', url: 'https://www.youtube.com/results?search_query=react+controlled+components+forms', views: '290K' },
-  ],
-  'r-2-1': [
-    { title: 'React Custom Hooks Masterclass', channel: 'Jack Herrington', url: 'https://www.youtube.com/results?search_query=react+custom+hooks+masterclass', views: '1.2M' },
-    { title: 'Building Reusable Custom Hooks', channel: 'Web Dev Simplified', url: 'https://www.youtube.com/results?search_query=react+reusable+custom+hooks', views: '890K' },
-  ],
-  'r-2-2': [
-    { title: 'useReducer Hook - Complete Guide', channel: 'Web Dev Simplified', url: 'https://www.youtube.com/results?search_query=react+useReducer+hook+tutorial', views: '1.1M' },
-    { title: 'State Management with useReducer', channel: 'Fireship', url: 'https://www.youtube.com/results?search_query=usereducer+react+state+management', views: '670K' },
-  ],
-  /* System Design */
-  'sd-1-1': [
-    { title: 'CAP Theorem Explained Simply', channel: 'ByteByteGo', url: 'https://www.youtube.com/results?search_query=cap+theorem+system+design+explained', views: '1.5M' },
-    { title: 'Scalability in System Design', channel: 'Gaurav Sen', url: 'https://www.youtube.com/results?search_query=scalability+system+design', views: '890K' },
-  ],
-  'sd-1-2': [
-    { title: 'Load Balancing Algorithms Explained', channel: 'ByteByteGo', url: 'https://www.youtube.com/results?search_query=load+balancing+algorithms+system+design', views: '1.2M' },
-    { title: 'Load Balancers in System Design', channel: 'Gaurav Sen', url: 'https://www.youtube.com/results?search_query=load+balancer+system+design', views: '780K' },
-  ],
-  'sd-1-3': [
-    { title: 'Caching Strategies Explained', channel: 'ByteByteGo', url: 'https://www.youtube.com/results?search_query=caching+strategies+system+design', views: '980K' },
-    { title: 'CDN Explained - Content Delivery', channel: 'Fireship', url: 'https://www.youtube.com/results?search_query=cdn+content+delivery+network+explained', views: '670K' },
-  ],
-  'sd-2-1': [
-    { title: 'SQL vs NoSQL - When to Use Which', channel: 'Fireship', url: 'https://www.youtube.com/results?search_query=sql+vs+nosql+system+design', views: '1.8M' },
-    { title: 'Database Selection in System Design', channel: 'ByteByteGo', url: 'https://www.youtube.com/results?search_query=database+selection+system+design', views: '890K' },
-  ],
-  'sd-2-2': [
-    { title: 'Database Sharding Explained', channel: 'ByteByteGo', url: 'https://www.youtube.com/results?search_query=database+sharding+replication+explained', views: '1.1M' },
-    { title: 'Horizontal vs Vertical Scaling', channel: 'Gaurav Sen', url: 'https://www.youtube.com/results?search_query=horizontal+vertical+scaling+database', views: '760K' },
-  ],
-  /* DS&A */
-  'ds-1-1': [
-    { title: 'Sliding Window Technique Explained', channel: 'NeetCode', url: 'https://www.youtube.com/results?search_query=sliding+window+technique+arrays', views: '2.1M' },
-    { title: 'Array Problems - Blind 75 Walkthrough', channel: 'NeetCode', url: 'https://www.youtube.com/results?search_query=neetcode+array+problems+blind+75', views: '1.5M' },
-  ],
-  'ds-1-2': [
-    { title: 'Linked List Complete Guide', channel: 'NeetCode', url: 'https://www.youtube.com/results?search_query=linked+list+two+pointers', views: '1.8M' },
-    { title: 'Two Pointer Technique Explained', channel: 'Back To Back SWE', url: 'https://www.youtube.com/results?search_query=two+pointer+technique+algorithm', views: '890K' },
-  ],
-  'ds-1-3': [
-    { title: 'Stacks & Queues - Complete Guide', channel: 'NeetCode', url: 'https://www.youtube.com/results?search_query=stacks+queues+monotonic+stack', views: '1.3M' },
-    { title: 'Monotonic Stack Problems', channel: 'Back To Back SWE', url: 'https://www.youtube.com/results?search_query=monotonic+stack+algorithm', views: '750K' },
-  ],
-  'ds-2-1': [
-    { title: 'Binary Tree DFS & BFS Complete Guide', channel: 'NeetCode', url: 'https://www.youtube.com/results?search_query=binary+tree+dfs+bfs', views: '2.3M' },
-    { title: 'Tree Traversal Algorithms Explained', channel: 'Back To Back SWE', url: 'https://www.youtube.com/results?search_query=tree+traversal+dfs+bfs+algorithm', views: '1.2M' },
-  ],
-  'ds-3-1': [
-    { title: 'Dynamic Programming - Made Simple', channel: 'NeetCode', url: 'https://www.youtube.com/results?search_query=dynamic+programming+tutorial', views: '3.2M' },
-    { title: 'Intro to DP - Memoization & Tabulation', channel: 'Back To Back SWE', url: 'https://www.youtube.com/results?search_query=dynamic+programming+memoization+tabulation', views: '1.8M' },
-  ],
+const fade = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' as const } },
 }
 
-function getVideos(lesson: LessonNode): VideoRec[] {
-  if (VIDEO_RECS[lesson.id]) return VIDEO_RECS[lesson.id]
-  const q = encodeURIComponent(lesson.title)
-  return [
-    { title: `${lesson.title} - Full Tutorial`, channel: 'Traversy Media', url: `https://www.youtube.com/results?search_query=${q}`, views: '500K' },
-    { title: `${lesson.title} Explained`, channel: 'Fireship', url: `https://www.youtube.com/results?search_query=${q}+explained`, views: '320K' },
-  ]
+const stagger = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.07 } },
 }
 
-/* ─── Types ─────────────────────────────────────────────────────────────── */
-type LessonNode = {
-  id: string
-  title: string
-  type: 'video' | 'article' | 'quiz' | 'project'
-  duration: string
-  status: 'completed' | 'in-progress' | 'todo'
-  phaseNum: number
-  phaseTitle: string
-}
-
-const typeConfig = {
-  video:   { label: 'Video',   Icon: PlayCircle, color: '#6366f1' },
-  article: { label: 'Article', Icon: FileText,   color: '#0891b2' },
-  quiz:    { label: 'Quiz',    Icon: HelpCircle,  color: ACCENT },
-  project: { label: 'Project', Icon: Wrench,      color: '#0d9488' },
-}
-
-const phaseColors = ['#4f46e5', '#0891b2', '#0d9488']
-
-/* ─── Road path builder ─────────────────────────────────────────────────── */
-function buildPath(
-  positions: { x: number; y: number }[],
-  cx: number,
-  startY: number,
-  endY: number,
-): string {
-  if (!positions.length) return ''
-  const first = positions[0]
-  let dy = first.y - startY
-  let d = `M ${cx} ${startY} C ${cx} ${startY + dy * 0.6}, ${first.x} ${first.y - dy * 0.4}, ${first.x} ${first.y}`
-  for (let i = 0; i < positions.length - 1; i++) {
-    const a = positions[i], b = positions[i + 1]
-    dy = b.y - a.y
-    d += ` C ${a.x} ${a.y + dy * 0.55}, ${b.x} ${b.y - dy * 0.55}, ${b.x} ${b.y}`
-  }
-  const last = positions[positions.length - 1]
-  dy = endY - last.y
-  d += ` C ${last.x} ${last.y + dy * 0.5}, ${cx} ${endY - dy * 0.35}, ${cx} ${endY}`
-  return d
-}
-
-/* ─── Page ──────────────────────────────────────────────────────────────── */
 export default function CourseRoadmapPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
-  const roadmap = mockCourseRoadmaps[id]
-  const [activeLesson, setActiveLesson] = useState<LessonNode | null>(null)
+  const { data, loading, error, refetch } = useInterestDetail(id)
+  const { complete, loading: completing } = useCourseCompletion(refetch)
+  const [feedback, setFeedback] = useState<string | null>(null)
 
-  if (!roadmap) {
+  const sortedCourses = useMemo(() => {
+    if (!data?.courses) return []
+    return [...data.courses].sort((a, b) => a.node_order - b.node_order)
+  }, [data?.courses])
+
+  const completedCourses = sortedCourses.filter((c) => c.is_completed).length
+  const totalCourses = sortedCourses.length
+  const progressPct = totalCourses > 0 ? Math.round((completedCourses / totalCourses) * 100) : 0
+  const projectsUnlocked = totalCourses > 0 && sortedCourses.every((c) => c.is_completed)
+
+  const handleComplete = async (courseId: string) => {
+    const result = await complete(courseId)
+    if (result.success) {
+      setFeedback(`Course completed. +${result.xpAwarded || 0} XP`)
+      setTimeout(() => setFeedback(null), 2500)
+    }
+  }
+
+  if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 gap-4">
-        <p className="text-muted-foreground text-sm">Course not found.</p>
-        <Link href="/dashboard/courses">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white" style={{ background: ACCENT }}>
-            <ArrowLeft className="w-4 h-4" /> Back
-          </button>
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[#f97316]" />
+      </div>
+    )
+  }
+
+  if (error || !data) {
+    return (
+      <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
+        <AlertCircle className="h-10 w-10 text-red-500" />
+        <p className="text-sm text-muted-foreground">{error || 'Roadmap not found'}</p>
+        <Link href="/dashboard/interests" className="text-sm font-semibold" style={{ color: ACCENT }}>
+          Back to Interests
         </Link>
       </div>
     )
   }
 
-  /* flatten all lessons */
-  const allNodes: LessonNode[] = roadmap.phases.flatMap(phase =>
-    phase.lessons.map(lesson => ({ ...lesson, phaseNum: phase.phase, phaseTitle: phase.title }))
-  )
-  const doneCount = allNodes.filter(n => n.status === 'completed').length
-  const pct = Math.round((doneCount / allNodes.length) * 100)
-
-  /* SVG layout */
-  const VIEW_W = 560
-  const LEFT_X = 128
-  const RIGHT_X = 432
-  const CX = VIEW_W / 2          // 280
-  const SPACING = 145
-  const START_Y = 70
-  const END_PAD = 90
-  const SVG_H = START_Y + (allNodes.length - 1) * SPACING + END_PAD + 80
-
-  const positions = allNodes.map((_, i) => ({
-    x: i % 2 === 0 ? RIGHT_X : LEFT_X,
-    y: START_Y + i * SPACING,
-  }))
-
-  const endY = START_Y + (allNodes.length - 1) * SPACING + END_PAD
-  const pathD = buildPath(positions, CX, START_Y - 48, endY)
-
-  /* phase checkpoint indices */
-  const phaseStartIdx: number[] = []
-  let acc = 0
-  roadmap.phases.forEach(p => { phaseStartIdx.push(acc); acc += p.lessons.length })
-
-  const LABEL_W = 148
-  const LABEL_H = 84
-  const NODE_R  = 25
-  const INNER_R = 16
-
   return (
-    <div className="max-w-[1200px] mx-auto pb-24">
-      {/* ── Minimal Breadcrumb / Top UI ── */}
-      <motion.div 
-        initial={{ opacity: 0, y: -10 }} 
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-center justify-between mb-8 pb-6 border-b border-border/40"
-      >
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <h1 className="text-4xl font-black tracking-tight" style={{ color: PRIMARY }}>{roadmap.title}</h1>
-            <span className="bg-orange-100 text-orange-600 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider shadow-sm flex items-center gap-1">
-              Active Path
-            </span>
-          </div>
-          <div className="flex items-center gap-4 text-slate-500 text-sm font-medium">
-            <Users className="w-3.5 h-3.5" />
-            <span>{roadmap.instructor}</span>
-            <span className="mx-1">·</span>
-            <Clock className="w-3.5 h-3.5" />
-            <span>{roadmap.totalDuration}</span>
-          </div>
-          <p className="text-slate-500 text-sm mt-3 max-w-xl mb-4 leading-relaxed">{roadmap.description}</p>
+    <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
+      <motion.div variants={fade} className="flex items-center justify-between">
+        <Link href="/dashboard/interests" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-4 w-4" /> Back to Interests
+        </Link>
+        <Link href="/dashboard/projects" className="text-sm font-semibold" style={{ color: ACCENT }}>
+          View Projects
+        </Link>
+      </motion.div>
+
+      <motion.div variants={fade} className="rounded-3xl border border-white/10 p-6 text-white shadow-xl" style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}>
+        <h1 className="text-3xl font-black tracking-tight">{data.interest.name}</h1>
+        <p className="mt-2 text-sm text-white/70 max-w-2xl">{data.interest.description}</p>
+        <div className="mt-5 flex items-center gap-6 text-sm text-white/80">
+          <span>{completedCourses} / {totalCourses} courses completed</span>
+          <span>{data.projects.length} projects</span>
+        </div>
+        <div className="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-white/20">
+          <div className="h-full rounded-full" style={{ width: `${progressPct}%`, background: ACCENT }} />
         </div>
       </motion.div>
 
-      <div className="max-w-[1200px] mx-auto space-y-12 pb-24">
-        {/* Progress hero */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="rounded-3xl p-6 text-white relative overflow-hidden shadow-xl border border-white/10"
-          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #213c5e 100%)` }}
-        >
-          <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full bg-orange-500/10 blur-3xl pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-          
-          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center gap-8 justify-between">
-            <div>
-              <p className="text-white/60 font-bold text-xs uppercase tracking-widest mb-1 shadow-sm">Your Progress</p>
-              <p className="text-5xl font-black drop-shadow-md text-white">{pct}%</p>
-              <p className="text-white/70 font-semibold text-xs mt-2 bg-white/10 w-fit px-3 py-1 rounded-full">{doneCount} / {allNodes.length} lessons completed</p>
-            </div>
-            
-            <div className="flex-1 max-w-sm space-y-4">
-              <div className="h-3 bg-black/40 rounded-full overflow-hidden shadow-inner p-0.5 border border-white/5">
-                <motion.div
-                  initial={{ width: 0 }} animate={{ width: `${pct}%` }}
-                  transition={{ duration: 1.5, type: 'spring', bounce: 0.25, delay: 0.4 }}
-                  className="h-full rounded-full relative overflow-hidden"
-                  style={{ background: `linear-gradient(90deg, #ea580c 0%, ${ACCENT} 100%)` }}
-                >
-                  <div className="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-white/30 to-transparent animate-pulse" />
-                </motion.div>
-              </div>
-              <div className="flex gap-4 text-[11px] font-bold uppercase tracking-wider text-white/60">
-                {(['completed', 'in-progress', 'todo'] as const).map(s => {
-                  const cnt = allNodes.filter(n => n.status === s).length
-                  const col = s === 'completed' ? '#10b981' : s === 'in-progress' ? ACCENT : '#475569'
-                  return (
-                    <span key={s} className="flex items-center gap-2 bg-black/20 px-2.5 py-1 rounded-md border border-white/5">
-                      <span className="w-2 h-2 rounded-full shadow-sm" style={{ background: col, boxShadow: `0 0 10px ${col}` }} />
-                      {cnt} {s === 'completed' ? 'Done' : s === 'in-progress' ? 'Active' : 'Locked'}
-                    </span>
-                  )
-                })}
-              </div>
-            </div>
-          </div>
+      {feedback && (
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+          {feedback}
         </motion.div>
+      )}
 
-        {/* ─── Winding Road 3D Map ─────────────────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-          className="rounded-3xl overflow-hidden select-none border border-slate-200/60 shadow-2xl relative mt-8"
-          style={{ 
-            background: 'linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)',
-            perspective: '1000px'
-          }}
-        >
-          {/* scroll container */}
-          <div style={{ maxHeight: '75vh', overflowY: 'auto', overflowX: 'hidden' }} className="custom-scrollbar">
-            <svg
-              viewBox={`0 0 ${VIEW_W} ${SVG_H}`}
-              width="100%"
-              style={{ display: 'block' }}
-            >
-              {/* ── Grid Pattern Backing ─────────────────────────────────── */}
-              <defs>
-                <pattern id="isometricGrid" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="scale(1, 0.5) rotate(45)">
-                  <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#cbd5e1" strokeWidth="1" strokeOpacity="0.4" />
-                </pattern>
-                <linearGradient id="roadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#e2e8f0" />
-                  <stop offset="100%" stopColor="#cbd5e1" />
-                </linearGradient>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#isometricGrid)" />
+      <motion.div variants={stagger} className="space-y-4">
+        <motion.h2 variants={fade} className="text-lg font-extrabold" style={{ color: PRIMARY }}>
+          Course Roadmap
+        </motion.h2>
 
-              {/* ── Road layers ───────────────────────────── */}
-              {/* drop shadow */}
-              <path d={pathD} stroke="rgba(15, 23, 42, 0.15)" strokeWidth="80" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ filter: 'blur(10px)', transform: 'translateY(12px)' }} />
-              {/* darker bottom edge / 3d extrude */}
-              <path d={pathD} stroke="#94a3b8" strokeWidth="66" fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'translateY(6px)' }} />
-              {/* main asphalt surface */}
-              <path d={pathD} stroke="url(#roadGradient)" strokeWidth="64" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              {/* highlight rim */}
-              <path d={pathD} stroke="#ffffff" strokeWidth="60" fill="none" strokeLinecap="round" strokeLinejoin="round" opacity="0.6" />
-              {/* inner track main */}
-              <path d={pathD} stroke="#f1f5f9" strokeWidth="58" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              {/* dashes */}
-              <path d={pathD} stroke="#cbd5e1" strokeWidth="4" fill="none" strokeDasharray="16 20" strokeLinecap="round" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {sortedCourses.map((course, index) => {
+            const isCompleted = course.is_completed
+            const isLocked = course.is_locked
+            const isActive = !isCompleted && !isLocked
 
-              {/* ── START ─────────────────────────────────── */}
-              {/* flag pole */}
-              <line x1={CX} y1={START_Y - 48} x2={CX} y2={START_Y - 12} stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
-              {/* flag */}
-              <polygon points={`${CX},${START_Y - 48} ${CX + 22},${START_Y - 41} ${CX},${START_Y - 34}`} fill={ACCENT} opacity="0.85" />
-              <text x={CX} y={START_Y - 54} textAnchor="middle" fill="white" fontSize="10" fontWeight="700" fontFamily="system-ui,sans-serif" letterSpacing="3" opacity="0.8">
-                START
-              </text>
+            return (
+              <motion.div
+                key={course.id}
+                variants={fade}
+                className={`rounded-2xl border p-5 ${
+                  isLocked
+                    ? 'border-slate-200 bg-slate-50 opacity-70'
+                    : isCompleted
+                    ? 'border-emerald-200 bg-emerald-50'
+                    : 'border-orange-200 bg-white shadow-sm'
+                }`}
+              >
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="text-xs font-bold text-muted-foreground">Course {index + 1}</span>
+                  {isCompleted && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-700"><CheckCircle2 className="h-3 w-3" /> Completed</span>}
+                  {isLocked && <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-600"><Lock className="h-3 w-3" /> Locked</span>}
+                  {isActive && <span className="rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-700">Active</span>}
+                </div>
 
-              {/* ── Phase checkpoint banners ───────────────── */}
-              {phaseStartIdx.slice(1).map((startIdx, pi) => {
-                if (startIdx <= 0 || startIdx >= positions.length) return null
-                const prevY = positions[startIdx - 1].y
-                const currY = positions[startIdx].y
-                const my = (prevY + currY) / 2
-                const col = phaseColors[(pi + 1) % phaseColors.length]
-                const label = `PHASE ${roadmap.phases[pi + 1].phase}: ${roadmap.phases[pi + 1].title.toUpperCase().substring(0, 18)}`
-                return (
-                  <g key={pi}>
-                    <rect x={CX - 62} y={my - 13} width={124} height={22} rx={11} fill={col} opacity="0.18" />
-                    <rect x={CX - 62} y={my - 13} width={124} height={22} rx={11} fill="none" stroke={col} strokeWidth="0.8" opacity="0.35" />
-                    <text x={CX} y={my + 3} textAnchor="middle" fill={col} fontSize="8" fontWeight="700" fontFamily="system-ui,sans-serif" letterSpacing="1.2" opacity="0.9">
-                      {label}
-                    </text>
-                  </g>
-                )
-              })}
+                <h3 className="text-base font-bold" style={{ color: PRIMARY }}>{course.name}</h3>
+                <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{course.description}</p>
 
-              {/* ── Nodes ─────────────────────────────────── */}
-              {positions.map((pos, i) => {
-                const node  = allNodes[i]
-                const isRight = pos.x > CX
-                const done    = node.status === 'completed'
-                const active  = node.status === 'in-progress'
-                const locked  = node.status === 'todo'
+                <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span>{course.roadmap_data?.duration || '1-2 hours'}</span>
+                  <span>·</span>
+                  <span>{course.roadmap_data?.difficulty || 'beginner'}</span>
+                </div>
 
-                /* node colours */
-                const ringFill  = done ? '#92400e' : active ? '#c2410c' : '#2d3748'
-                const nodeFill  = done ? '#d97706' : active ? ACCENT    : '#374151'
-                const innerFill = done ? '#fbbf24' : active ? '#fdba74' : '#4b5563'
-
-                /* label position */
-                const labelX  = isRight ? 12 : VIEW_W - LABEL_W - 12
-                const labelY  = pos.y - LABEL_H / 2
-
-                /* connector endpoints */
-                const lineX1  = isRight ? labelX + LABEL_W + 5 : pos.x + NODE_R + 8
-                const lineX2  = isRight ? pos.x - NODE_R - 8  : labelX - 5
-
-                return (
-                  <g
-                    key={node.id}
-                    onClick={() => setActiveLesson(node)}
-                    style={{ cursor: locked ? 'not-allowed' : 'pointer' }}
+                {course.resource_url ? (
+                  <a
+                    href={course.resource_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-4 inline-flex items-center gap-2 text-sm font-semibold hover:underline"
+                    style={{ color: ACCENT }}
                   >
-                    {/* dashed connector */}
-                    <line
-                      x1={lineX1} y1={pos.y} x2={lineX2} y2={pos.y}
-                      stroke={done ? '#d97706' : active ? ACCENT : '#3d4a5c'}
-                      strokeWidth="1.5"
-                      strokeDasharray="5 4"
-                      opacity="0.5"
-                    />
+                    <ExternalLink className="h-4 w-4" />
+                    Open Course Link
+                  </a>
+                ) : (
+                  <p className="mt-4 text-sm text-red-600">Missing course link</p>
+                )}
 
-                    {/* label card (foreignObject) */}
-                    <foreignObject x={labelX} y={labelY} width={LABEL_W} height={LABEL_H}>
-                      <div
-                        style={{
-                          height: '100%',
-                          boxSizing: 'border-box',
-                          background: done   ? 'rgba(217,119,6,0.14)'
-                                    : active ? 'rgba(249,115,22,0.14)'
-                                    :          'rgba(45,55,72,0.35)',
-                          border: `1px solid ${done   ? 'rgba(217,119,6,0.4)'
-                                              : active ? 'rgba(249,115,22,0.4)'
-                                              :          'rgba(63,78,99,0.35)'}`,
-                          borderRadius: '10px',
-                          padding: '8px 10px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'center',
-                          gap: '3px',
-                        }}
-                      >
-                        <div style={{ fontSize: '8px', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.08em', color: done ? '#fbbf24' : active ? ACCENT : '#5a6a80', fontFamily: 'system-ui,sans-serif', whiteSpace: 'nowrap' }}>
-                          {node.type} · {node.duration}
-                        </div>
-                        <div style={{ fontSize: '10.5px', fontWeight: '700', color: locked ? '#5a6a80' : '#f1f5f9', lineHeight: '1.35', fontFamily: 'system-ui,sans-serif' }}>
-                          {node.title}
-                        </div>
-                        {!locked && (
-                          <div style={{ fontSize: '9px', fontWeight: '600', color: done ? '#d97706' : ACCENT, fontFamily: 'system-ui,sans-serif' }}>
-                            {done ? '✓ Done  ·  Tap to review' : '▶ Tap to continue'}
-                          </div>
-                        )}
-                      </div>
-                    </foreignObject>
+                {isActive && (
+                  <button
+                    onClick={() => handleComplete(course.id)}
+                    disabled={completing}
+                    className="mt-4 w-full rounded-xl py-2.5 text-sm font-bold text-white disabled:opacity-60"
+                    style={{ background: ACCENT }}
+                  >
+                    {completing ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : 'Mark as Complete'}
+                  </button>
+                )}
+              </motion.div>
+            )
+          })}
+        </div>
+      </motion.div>
 
-                    {/* glow for in-progress */}
-                    {active && (
-                      <>
-                        <motion.circle
-                          cx={pos.x} cy={pos.y} r={44} fill={ACCENT}
-                          animate={{ r: [42, 53, 42], opacity: [0.07, 0.02, 0.07] }}
-                          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                        />
-                        <motion.circle
-                          cx={pos.x} cy={pos.y} r={33} fill={ACCENT}
-                          animate={{ r: [31, 39, 31], opacity: [0.13, 0.04, 0.13] }}
-                          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.45 }}
-                        />
-                      </>
-                    )}
-
-                    {/* gold stars above completed */}
-                    {done && (
-                      <>
-                        <text x={pos.x - 14} y={pos.y - NODE_R - 8}  fontSize="8"  textAnchor="middle" fill="#fbbf24" opacity="0.65">&#9733;</text>
-                        <text x={pos.x}       y={pos.y - NODE_R - 16} fontSize="11" textAnchor="middle" fill="#fbbf24" opacity="0.9">&#9733;</text>
-                        <text x={pos.x + 14}  y={pos.y - NODE_R - 8}  fontSize="8"  textAnchor="middle" fill="#fbbf24" opacity="0.65">&#9733;</text>
-                      </>
-                    )}
-
-                    {/* outer ring */}
-                    <circle cx={pos.x} cy={pos.y} r={NODE_R + 5} fill={ringFill} opacity={locked ? 0.45 : 1} />
-                    {/* main disc */}
-                    <circle cx={pos.x} cy={pos.y} r={NODE_R}     fill={nodeFill} opacity={locked ? 0.55 : 1} />
-                    {/* inner highlight */}
-                    <circle cx={pos.x} cy={pos.y} r={INNER_R}    fill={innerFill} opacity={locked ? 0.45 : 0.82} />
-
-                    {/* centre icon */}
-                    {done   && <text x={pos.x} y={pos.y + 5} textAnchor="middle" fontSize="14" fill="#7c2d12" fontWeight="900" fontFamily="system-ui">&#10003;</text>}
-                    {active && <text x={pos.x} y={pos.y + 5} textAnchor="middle" fontSize="12" fill="white"   fontWeight="900" fontFamily="system-ui">{i + 1}</text>}
-                    {locked && <text x={pos.x} y={pos.y + 5} textAnchor="middle" fontSize="11" fill="#64748b" fontFamily="system-ui">&#9632;</text>}
-
-                    {/* step number ring badge (active only) */}
-                    {active && (
-                      <>
-                        <circle cx={pos.x + NODE_R - 2} cy={pos.y - NODE_R + 2} r="9" fill="#0a1628" stroke={ACCENT} strokeWidth="1.5" />
-                        <text x={pos.x + NODE_R - 2} y={pos.y - NODE_R + 6} textAnchor="middle" fontSize="8" fill={ACCENT} fontWeight="800" fontFamily="system-ui">{i + 1}</text>
-                      </>
-                    )}
-                  </g>
-                )
-              })}
-
-              {/* ── GOAL ──────────────────────────────────── */}
-              {/* flag pole */}
-              <line x1={CX} y1={endY + 8} x2={CX} y2={endY + 40} stroke="rgba(255,255,255,0.25)" strokeWidth="1.5" />
-              {/* flag */}
-              <polygon points={`${CX},${endY + 8} ${CX + 22},${endY + 16} ${CX},${endY + 24}`} fill="#22c55e" opacity="0.85" />
-              <text x={CX} y={endY + 58} textAnchor="middle" fill="white" fontSize="10" fontWeight="700" fontFamily="system-ui,sans-serif" letterSpacing="3" opacity="0.8">
-                GOAL
-              </text>
-            </svg>
+      <motion.div variants={fade} className="rounded-2xl border border-white/50 bg-white/70 p-5 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-base font-bold" style={{ color: PRIMARY }}>Projects</h3>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {projectsUnlocked ? 'Projects unlocked. Submit them from the Projects page.' : 'Projects unlock after all courses are completed.'}
+            </p>
           </div>
-        </motion.div>
-
-        {/* Legend */}
-        <motion.div
-          initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
-          className="flex items-center gap-5 text-xs text-muted-foreground px-1"
-        >
-          {[
-            { col: '#fbbf24', label: 'Completed' },
-            { col: ACCENT,    label: 'In Progress — click to continue' },
-            { col: '#4b5563', label: 'Locked' },
-          ].map(({ col, label }) => (
-            <span key={label} className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: col }} />
-              {label}
-            </span>
-          ))}
-        </motion.div>
-
-      </div>
-
-      {/* ─── Lesson Modal ─────────────────────────────────────────────────── */}
-      <AnimatePresence>
-        {activeLesson && (
-          <LessonModal
-            lesson={activeLesson}
-            videos={getVideos(activeLesson)}
-            onClose={() => setActiveLesson(null)}
-          />
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
-
-/* ─── Modal component ───────────────────────────────────────────────────── */
-function LessonModal({ lesson, videos, onClose }: {
-  lesson: LessonNode
-  videos: VideoRec[]
-  onClose: () => void
-}) {
-  const done   = lesson.status === 'completed'
-  const active = lesson.status === 'in-progress'
-  const locked = lesson.status === 'todo'
-  const cfg    = typeConfig[lesson.type]
-  const { Icon } = cfg
-
-  const statusBadge = done
-    ? { bg: '#f0fdf4', color: '#059669', border: '#bbf7d0', label: 'Completed' }
-    : active
-    ? { bg: ACCENT + '12', color: ACCENT, border: ACCENT + '35', label: 'In Progress' }
-    : { bg: '#f8fafc', color: '#64748b', border: '#e2e8f0', label: 'Locked' }
-
-  return (
-    <>
-      {/* soft backdrop — matches dashboard feel */}
-      <motion.div
-        className="fixed inset-0 z-50 bg-black/25 backdrop-blur-md"
-        initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-        onClick={onClose}
-      />
-
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-        <motion.div
-          className="pointer-events-auto w-full max-w-md rounded-3xl overflow-hidden"
-          initial={{ opacity: 0, scale: 0.92, y: 28 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.92, y: 18 }}
-          transition={{ type: 'spring', damping: 24, stiffness: 280 }}
-          style={{
-            background: 'rgba(255,255,255,0.82)',
-            backdropFilter: 'blur(20px)',
-            border: '1px solid rgba(255,255,255,0.7)',
-            boxShadow: '0 24px 64px rgba(23,43,68,0.18), 0 4px 16px rgba(23,43,68,0.08)',
-          }}
-        >
-          {/* ── Header ───────────────────────────────────────────────── */}
-          <div
-            className="p-6 relative"
-            style={{ borderBottom: '1px solid rgba(23,43,68,0.07)' }}
+          <Link
+            href="/dashboard/projects"
+            className="inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold transition-colors hover:bg-slate-50"
+            style={{ borderColor: PRIMARY, color: PRIMARY }}
           >
-            {/* close */}
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:bg-black/8 hover:-translate-y-0.5"
-              style={{ background: 'rgba(23,43,68,0.06)' }}
-            >
-              <X className="w-4 h-4 text-muted-foreground" />
-            </button>
-
-            {/* phase pill + type pill */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              <span
-                className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
-                style={{ background: 'rgba(23,43,68,0.06)', color: '#3d5f80' }}
-              >
-                Phase {lesson.phaseNum} · {lesson.phaseTitle}
-              </span>
-              <span
-                className="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
-                style={{ background: cfg.color + '15', color: cfg.color }}
-              >
-                {cfg.label}
-              </span>
-            </div>
-
-            {/* icon + title */}
-            <div className="flex items-start gap-3.5">
-              <div
-                className="w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm"
-                style={{ background: cfg.color + '15', border: `1px solid ${cfg.color}25` }}
-              >
-                <Icon className="w-5 h-5" style={{ color: cfg.color }} />
-              </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-black leading-tight" style={{ color: PRIMARY }}>{lesson.title}</h2>
-                <div className="flex items-center gap-2.5 mt-2 flex-wrap">
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Clock className="w-3 h-3" /> {lesson.duration}
-                  </span>
-                  <span
-                    className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full border"
-                    style={{ background: statusBadge.bg, color: statusBadge.color, borderColor: statusBadge.border }}
-                  >
-                    {done ? '✓ ' : active ? '▶ ' : ''}{statusBadge.label}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ── Body ─────────────────────────────────────────────────── */}
-          <div className="p-6 space-y-4">
-            {locked ? (
-              /* locked state */
-              <div className="flex flex-col items-center justify-center py-8 gap-3 text-center">
-                <div
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm"
-                  style={{ background: 'rgba(23,43,68,0.05)', border: '1px solid rgba(23,43,68,0.08)' }}
-                >
-                  <Lock className="w-6 h-6 text-muted-foreground opacity-40" />
-                </div>
-                <div>
-                  <p className="font-bold text-sm" style={{ color: PRIMARY }}>Lesson Locked</p>
-                  <p className="text-muted-foreground text-sm mt-0.5 leading-relaxed max-w-xs">
-                    Complete the previous lessons to unlock this content.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <>
-                {/* section label */}
-                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  Recommended Resources
-                </p>
-
-                {/* video cards */}
-                <div className="space-y-2.5">
-                  {videos.map((v, i) => {
-                    const cols = [cfg.color, ACCENT, '#0891b2']
-                    const c = cols[i % cols.length]
-                    return (
-                      <a
-                        key={i}
-                        href={v.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-3.5 p-3.5 rounded-2xl border transition-all hover:-translate-y-0.5 hover:shadow-md group"
-                        style={{
-                          background: 'rgba(255,255,255,0.7)',
-                          borderColor: 'rgba(23,43,68,0.09)',
-                          backdropFilter: 'blur(8px)',
-                        }}
-                      >
-                        {/* thumb */}
-                        <div
-                          className="w-16 h-11 rounded-xl flex items-center justify-center shrink-0"
-                          style={{ background: c + '18', border: `1px solid ${c}20` }}
-                        >
-                          <PlayCircle className="w-5 h-5 transition-transform group-hover:scale-110" style={{ color: c }} />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold leading-snug" style={{ color: PRIMARY }}>{v.title}</p>
-                          <p className="text-[10px] text-muted-foreground mt-0.5">{v.channel} · {v.views} views</p>
-                        </div>
-
-                        <div
-                          className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-all group-hover:scale-110"
-                          style={{ background: c + '15' }}
-                        >
-                          <ExternalLink className="w-3.5 h-3.5" style={{ color: c }} />
-                        </div>
-                      </a>
-                    )
-                  })}
-                </div>
-
-                {/* CTA */}
-                <button
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-bold text-white transition-all hover:-translate-y-0.5 hover:shadow-lg mt-1"
-                  style={{
-                    background: done
-                      ? 'linear-gradient(135deg,#059669,#047857)'
-                      : `linear-gradient(135deg,${ACCENT},#ea580c)`,
-                    boxShadow: done
-                      ? '0 4px 14px rgba(5,150,105,0.35)'
-                      : '0 4px 14px rgba(249,115,22,0.35)',
-                  }}
-                >
-                  {done
-                    ? <><CheckCircle2 className="w-4 h-4" /> Review Lesson</>
-                    : <><PlayCircle className="w-4 h-4" /> Continue Learning</>}
-                </button>
-              </>
-            )}
-          </div>
-        </motion.div>
-      </div>
-    </>
+            <FolderOpen className="h-4 w-4" />
+            Go to Projects
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </motion.div>
+    </motion.div>
   )
 }

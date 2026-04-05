@@ -6,10 +6,11 @@ import confetti from 'canvas-confetti'
 import { useRouter } from 'next/navigation'
 import { useAppStore } from '@/lib/store'
 import { Button } from '@/components/ui/button'
-import { Upload, X, CheckCircle2, Loader2, ArrowRight } from 'lucide-react'
+import { Upload, X, CheckCircle2, Loader2, ArrowRight, AlertCircle } from 'lucide-react'
 import Link from 'next/link'
+import { useHistoryUpload } from '@/hooks/use-api'
 
-type UploadStep = 'idle' | 'uploading' | 'processing' | 'success'
+type UploadStep = 'idle' | 'uploading' | 'processing' | 'success' | 'error'
 
 export function UploadHistoryModal() {
   const router = useRouter()
@@ -18,46 +19,49 @@ export function UploadHistoryModal() {
   const [step, setStep] = useState<UploadStep>('idle')
   const [fileName, setFileName] = useState('')
   const [mounted, setMounted] = useState(false)
+  const [interestsCount, setInterestsCount] = useState(0)
+  
+  const { upload, uploading, progress, error: uploadError } = useHistoryUpload()
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  if (!mounted) return null
-
   const isOpen = modalOpen.uploadHistory
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Validate file
-    const validTypes = ['text/csv', 'application/json']
-    const maxSize = 5 * 1024 * 1024 // 5MB
-
-    if (!validTypes.includes(file.type)) {
-      alert('Please upload a CSV or JSON file')
+    // Validate file type
+    const validExtensions = ['.json']
+    const fileExt = file.name.toLowerCase().slice(file.name.lastIndexOf('.'))
+    
+    if (!validExtensions.includes(fileExt)) {
+      alert('Please upload a JSON file')
       return
     }
 
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024
     if (file.size > maxSize) {
       alert('File size must be less than 5MB')
       return
     }
 
     setFileName(file.name)
-    simulateUpload()
+    await handleUpload(file)
   }
 
-  const simulateUpload = () => {
+  const handleUpload = async (file: File) => {
     setStep('uploading')
 
-    // Simulate upload
-    setTimeout(() => {
-      setStep('processing')
-
-      // Simulate processing
-      setTimeout(() => {
+    try {
+      // Start upload and poll for completion
+      const interests = await upload(file)
+      
+      if (interests && interests.length > 0) {
+        setInterestsCount(interests.length)
         setStep('success')
         setUploadedHistory(true)
 
@@ -68,18 +72,42 @@ export function UploadHistoryModal() {
           origin: { y: 0.6 },
         })
 
-        // Auto-redirect to interests page after showing success for 1.5 seconds
+        // Auto-redirect to interests page after showing success
         setTimeout(() => {
           handleReset()
           router.push('/dashboard/interests')
-        }, 1500)
-      }, 1500)
-    }, 1500)
+        }, 2000)
+      } else if (interests && interests.length === 0) {
+        // No interests found from history
+        setStep('success')
+        setUploadedHistory(true)
+        setInterestsCount(0)
+        
+        setTimeout(() => {
+          handleReset()
+          router.push('/dashboard/interests')
+        }, 2000)
+      } else {
+        // Upload failed
+        setStep('error')
+      }
+    } catch (err) {
+      console.error('Upload error:', err)
+      setStep('error')
+    }
   }
+
+  // Update step based on progress
+  useEffect(() => {
+    if (progress.includes('Processing') || progress.includes('Analyzing')) {
+      setStep('processing')
+    }
+  }, [progress])
 
   const handleReset = () => {
     setStep('idle')
     setFileName('')
+    setInterestsCount(0)
     setModalOpen('uploadHistory', false)
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
@@ -87,12 +115,14 @@ export function UploadHistoryModal() {
   }
 
   const handleClose = () => {
-    if (step !== 'success') {
+    if (step !== 'success' && step !== 'uploading' && step !== 'processing') {
       setModalOpen('uploadHistory', false)
       setStep('idle')
       setFileName('')
     }
   }
+
+  if (!mounted) return null
 
   return (
     <AnimatePresence>
@@ -116,7 +146,7 @@ export function UploadHistoryModal() {
           >
             <div className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-2xl p-6 space-y-6 shadow-xl">
               {/* Close Button */}
-              {step !== 'success' && (
+              {step !== 'success' && step !== 'uploading' && step !== 'processing' && (
                 <button
                   onClick={handleClose}
                   className="absolute top-4 right-4 p-1 hover:bg-white/80 rounded-lg transition-colors"
@@ -128,11 +158,15 @@ export function UploadHistoryModal() {
               {/* Header */}
               <div className="space-y-2">
                 <h2 className="text-2xl font-bold" style={{ color: '#172b44' }}>Upload Your History</h2>
-                <p className="text-sm text-muted-foreground">
-                  {step === 'success'
-                    ? 'Your history has been processed successfully!'
-                    : 'Upload a CSV or JSON file to get personalized recommendations'}
-                </p>
+                  <p className="text-sm text-muted-foreground">
+                    {step === 'success'
+                      ? interestsCount > 0 
+                        ? `Found ${interestsCount} interest${interestsCount > 1 ? 's' : ''} based on your history!`
+                        : 'Your history has been processed. No matching interests found.'
+                      : step === 'error'
+                      ? 'Something went wrong. Please try again.'
+                      : 'Upload a JSON history file to get personalized recommendations'}
+                  </p>
               </div>
 
               {/* Content */}
@@ -155,7 +189,7 @@ export function UploadHistoryModal() {
                     </button>
 
                     <p className="text-xs text-muted-foreground text-center">
-                      Supported formats: CSV, JSON (Max 5MB)
+                      Supported format: JSON (Max 5MB)
                     </p>
                   </div>
 
@@ -190,8 +224,8 @@ export function UploadHistoryModal() {
                     <motion.div
                       className="h-full bg-[#f97316]"
                       initial={{ width: 0 }}
-                      animate={{ width: '100%' }}
-                      transition={{ duration: 1.5 }}
+                      animate={{ width: '60%' }}
+                      transition={{ duration: 2 }}
                     />
                   </div>
                 </div>
@@ -204,16 +238,49 @@ export function UploadHistoryModal() {
                     <Loader2 className="w-8 h-8 text-[#f97316] animate-spin" />
                   </div>
                   <div className="text-center space-y-2">
-                    <p className="font-semibold" style={{ color: '#172b44' }}>Processing your data...</p>
-                    <p className="text-sm text-muted-foreground">Analyzing learning patterns</p>
+                    <p className="font-semibold" style={{ color: '#172b44' }}>Analyzing with AI...</p>
+                    <p className="text-sm text-muted-foreground">{progress || 'Finding interests based on your history'}</p>
                   </div>
                   <div className="w-full h-2 bg-white/80 rounded-full overflow-hidden">
                     <motion.div
                       className="h-full bg-[#f97316]"
-                      initial={{ width: 0 }}
-                      animate={{ width: '100%' }}
-                      transition={{ duration: 1.5 }}
+                      initial={{ width: '60%' }}
+                      animate={{ width: '95%' }}
+                      transition={{ duration: 10 }}
                     />
+                  </div>
+                </div>
+              )}
+
+              {/* Error State */}
+              {step === 'error' && (
+                <div className="py-6 space-y-6">
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: 'spring', duration: 0.5 }}
+                    className="flex justify-center"
+                  >
+                    <AlertCircle className="w-12 h-12 text-red-500" />
+                  </motion.div>
+
+                  <div className="text-center space-y-2">
+                    <p className="font-semibold text-lg" style={{ color: '#172b44' }}>Upload Failed</p>
+                    <p className="text-sm text-muted-foreground">
+                      {uploadError || 'Something went wrong while processing your file.'}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Button 
+                      onClick={() => setStep('idle')} 
+                      className="w-full bg-[#f97316] hover:bg-[#ea6c0a] text-white"
+                    >
+                      Try Again
+                    </Button>
+                    <Button variant="outline" onClick={handleReset} className="w-full">
+                      Close
+                    </Button>
                   </div>
                 </div>
               )}
@@ -233,7 +300,9 @@ export function UploadHistoryModal() {
                   <div className="text-center space-y-2">
                     <p className="font-semibold text-lg" style={{ color: '#172b44' }}>Success!</p>
                     <p className="text-sm text-muted-foreground">
-                      Your learning history has been analyzed. Check your recommendations.
+                      {interestsCount > 0 
+                        ? `We found ${interestsCount} interest${interestsCount > 1 ? 's' : ''} for you. Check your recommendations.`
+                        : 'Your history was processed but no matching interests were found for your field.'}
                     </p>
                   </div>
 
@@ -255,7 +324,7 @@ export function UploadHistoryModal() {
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".csv,.json"
+                accept=".json,application/json,text/json"
                 onChange={handleFileSelect}
                 className="hidden"
               />
