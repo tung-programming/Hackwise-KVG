@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { Sidebar } from '@/components/sidebar'
 import { TopBar } from '@/components/top-bar'
 import { UploadHistoryModal } from '@/components/upload-history-modal'
+import OnboardingTour from '@/components/onboarding-tour'
+import { authFetch } from '@/lib/auth'
 import { useAppStore } from '@/lib/store'
 
 export default function DashboardLayout({
@@ -13,11 +15,34 @@ export default function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const { } = useAppStore()
+  const [showTour, setShowTour] = useState(false)
+  const { hasSeenTour, setHasSeenTour, setModalOpen } = useAppStore()
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+    setShowTour(!hasSeenTour)
+  }, [mounted, hasSeenTour])
+
+  const handleTourComplete = async () => {
+    setShowTour(false)
+    setHasSeenTour(true)
+
+    try {
+      await authFetch('/api/users/tour-complete', {
+        method: 'PATCH',
+      })
+    } catch (error) {
+      console.error('Failed to persist tour completion:', error)
+    }
+  }
+
+  const handleOpenUpload = () => {
+    setModalOpen('uploadHistory', true)
+  }
 
   if (!mounted) return null
 
@@ -61,6 +86,9 @@ export default function DashboardLayout({
       </div>
 
       <UploadHistoryModal />
+      {showTour && (
+        <OnboardingTour onComplete={handleTourComplete} onOpenUpload={handleOpenUpload} />
+      )}
 
       {/* Dark mode gradient override */}
       <style jsx global>{`

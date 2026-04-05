@@ -2,8 +2,9 @@
 import { config } from "dotenv";
 import { z } from "zod";
 
-// Load .env file
-config();
+// Load .env.local file (fallback to .env)
+config({ path: ".env.local" });
+config(); // Also try .env as fallback
 
 const envSchema = z.object({
   NODE_ENV: z
@@ -24,6 +25,10 @@ const envSchema = z.object({
 
   // Gemini Key Pool (comma-separated, 20-30 keys)
   GEMINI_KEYS: z.string(),
+
+  // OCR & Resume Analysis
+  GEMINI_OCR_KEYS: z.string().optional(), // Optional - falls back to GEMINI_KEYS
+  GROQ_API_KEY: z.string(), // Groq for ATS analysis
 
   // App
   FRONTEND_URL: z.string().default("http://localhost:3000"),

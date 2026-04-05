@@ -1,4 +1,4 @@
-.env
+.env.local
 backend.txt
 prompt.txt
 see.sql

@@ -234,6 +234,7 @@ export default function DashboardPage() {
         <div className="flex items-center gap-2 shrink-0">
           <button 
             onClick={() => setModalOpen('uploadHistory', true)}
+            data-tour="upload-history"
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:shadow-lg hover:-translate-y-0.5 shadow-md"
             style={{ background: ACCENT, boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)' }}
           >
