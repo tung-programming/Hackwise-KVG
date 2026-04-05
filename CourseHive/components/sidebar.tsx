@@ -35,8 +35,8 @@ const menuItems = [
 const generalItems = [
   { label: 'Resume', icon: FileText, href: '/dashboard/resume', dataTour: 'resume' },
   { label: 'Profile', icon: User, href: '/dashboard/profile' },
-  { label: 'Settings', icon: Settings, href: '#', disabled: true },
-  { label: 'Help', icon: HelpCircle, href: '#', disabled: true },
+  { label: 'Settings', icon: Settings, href: '/dashboard/settings' },
+  { label: 'Help', icon: HelpCircle, href: '/dashboard/help' },
 ]
 
 interface SidebarProps {
