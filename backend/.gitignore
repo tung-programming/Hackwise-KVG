@@ -3,3 +3,4 @@ backend.txt
 prompt.txt
 see.sql
 node_modules
+.env

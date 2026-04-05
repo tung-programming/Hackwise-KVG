@@ -27,10 +27,35 @@ type HookState<T> = {
   error: string | null
 }
 
+type InterestDetailShape = { interest: Interest; courses: Course[]; projects: Project[] }
+
 function getErrorMessage(error: unknown): string {
   if (error instanceof ApiError) return error.message
   if (error instanceof Error) return error.message
   return 'Something went wrong'
+}
+
+function normalizeInterestDetailPayload(payload: unknown): InterestDetailShape | null {
+  if (!payload || typeof payload !== 'object') return null
+  const obj = payload as Record<string, unknown>
+
+  if (obj.interest && typeof obj.interest === 'object') {
+    return {
+      interest: obj.interest as Interest,
+      courses: Array.isArray(obj.courses) ? (obj.courses as Course[]) : [],
+      projects: Array.isArray(obj.projects) ? (obj.projects as Project[]) : [],
+    }
+  }
+
+  // Backend may return flattened interest object with courses/projects attached.
+  if ('id' in obj && 'name' in obj) {
+    const courses = Array.isArray(obj.courses) ? (obj.courses as Course[]) : []
+    const projects = Array.isArray(obj.projects) ? (obj.projects as Project[]) : []
+    const interest = obj as unknown as Interest
+    return { interest, courses, projects }
+  }
+
+  return null
 }
 
 export function useInterests() {
@@ -126,7 +151,7 @@ export function useInterestActions(onDone?: () => void | Promise<void>) {
 
 export function useInterestDetail(interestId: string | null | undefined) {
   const [state, setState] = useState<
-    HookState<{ interest: Interest; courses: Course[]; projects: Project[] } | null>
+    HookState<InterestDetailShape | null>
   >({
     data: null,
     loading: true,
@@ -140,7 +165,12 @@ export function useInterestDetail(interestId: string | null | undefined) {
     }
     setState((prev) => ({ ...prev, loading: true, error: null }))
     try {
-      const data = await interestsApi.getById(interestId)
+      const raw = await interestsApi.getById(interestId)
+      const data = normalizeInterestDetailPayload(raw)
+      if (!data) {
+        setState({ data: null, loading: false, error: 'Invalid interest payload from server' })
+        return
+      }
       setState({ data, loading: false, error: null })
     } catch (error) {
       setState({ data: null, loading: false, error: getErrorMessage(error) })

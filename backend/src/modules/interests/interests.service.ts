@@ -1,7 +1,11 @@
 // Interests service
 import { supabase } from "../../config/database";
 import { NotFoundError, BadRequestError } from "../../utils/errors";
-import geminiPool from "../../config/gemini";
+import {
+  generateCourseRoadmap,
+  toCourseRow,
+  toProjectRow,
+} from "../courses/roadmap.generator";
 
 type HistoryEntry = {
   title?: string;
@@ -146,6 +150,19 @@ export const interestsService = {
       );
     }
 
+    const { data: firstPending } = await supabase
+      .from("interests")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("status", "pending")
+      .order("rank", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (firstPending?.id && firstPending.id !== interestId) {
+      throw new BadRequestError("Only the currently unlocked recommendation can be accepted.");
+    }
+
     const { data: interest, error } = await supabase
       .from("interests")
       .update({ status: "accepted", updated_at: new Date().toISOString() })
@@ -170,6 +187,29 @@ export const interestsService = {
   },
 
   rejectInterest: async (userId: string, interestId: string) => {
+    const { data: interestToReject, error: fetchError } = await supabase
+      .from("interests")
+      .select("id, rank, status")
+      .eq("id", interestId)
+      .eq("user_id", userId)
+      .single();
+
+    if (fetchError || !interestToReject) throw new NotFoundError("Interest not found");
+
+    // Sequential rule: only the currently unlocked pending interest can be rejected.
+    const { data: firstPending } = await supabase
+      .from("interests")
+      .select("id, rank")
+      .eq("user_id", userId)
+      .eq("status", "pending")
+      .order("rank", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (interestToReject.status === "pending" && firstPending?.id && firstPending.id !== interestId) {
+      throw new BadRequestError("You can reject only the currently unlocked recommendation.");
+    }
+
     const { data: interest, error } = await supabase
       .from("interests")
       .update({ status: "rejected", updated_at: new Date().toISOString() })
@@ -261,163 +301,47 @@ async function generateRoadmapAsync(userId: string, interest: any) {
     }
 
     const historySignals = extractHistorySignals(historyRawData);
-    const historyContext = historySignals.hasHistoryContext
-      ? `
-History evidence from uploaded file:
-- Frequent topics/queries: ${historySignals.sampleTopics.join(" | ")}
-- Top keywords: ${historySignals.topKeywords.join(", ")}
-- Frequent platforms/domains: ${historySignals.topDomains.join(", ")}`
-      : `
-History evidence: Not available. Use interest name and field/type only.`;
-
-    const prompt = `Create a learning roadmap for "${interest.name}" (${field}/${type}).
-
-Goal: Use browsing history evidence to create specific, personalized course names.
-Avoid generic names like "Basics", "Module 1", "Introduction to ${interest.name}".
-${historyContext}
-
-IMPORTANT: Each course MUST have a real resource_url (YouTube, Coursera, Udemy, freeCodeCamp, MDN, official docs, etc.).
-${historySignals.hasHistoryContext ? "At least 70% of course titles should map to detected topics/keywords." : ""}
-
-Return ONLY valid JSON (no markdown):
-{
-  "courses":[
-    {"name":"Specific Course Name","description":"brief what you learn","resource_url":"https://real-url.com","duration":"2h","difficulty":"beginner|intermediate|advanced"}
-  ],
-  "projects":[
-    {"name":"Project Name","description":"what to build","difficulty":"easy|medium|hard"}
-  ]
-}
-
-Requirements:
-- 5-7 courses, progressive difficulty
-- 2-3 projects
-- REAL URLs only (YouTube search URLs are acceptable fallbacks: https://youtube.com/results?search_query=...)
-- Course names must be specific (e.g. "React useReducer & Context API", not "React Advanced")`;
-
-    let roadmap;
-    try {
-      roadmap = await geminiPool.generateJSON<{
-        courses: Array<{
-          name: string;
-          description: string;
-          resource_url: string;
-          duration?: string;
-          difficulty?: string;
-        }>;
-        projects: Array<{
-          name: string;
-          description: string;
-          difficulty?: string;
-        }>;
-      }>(prompt, 1200);
-    } catch (parseError) {
-      console.error("JSON parse error in roadmap generation, using fallback:", parseError);
-      const fallbackResponse = await geminiPool.generateWithFlash(
-        `For a ${field}/${type} student learning "${interest.name}", list 5 specific courses as JSON array only: [{"name":"","description":"","resource_url":"https://youtube.com/results?search_query=...","duration":"2h","difficulty":"beginner"}]`,
-        800
-      );
-      const cleaned = fallbackResponse.replace(/```json\n?|\n?```/g, "").trim();
-      roadmap = {
-        courses: JSON.parse(cleaned),
-        projects: [
-          {
-            name: `Build a ${interest.name} Project`,
-            description: "Apply your learning in a real project",
-            difficulty: "medium",
-          },
-        ],
-      };
-    }
-
-    if (roadmap.courses && Array.isArray(roadmap.courses)) {
-      const validCourses = roadmap.courses.filter((c) => c.name && c.name.length > 0);
-
-      for (let i = 0; i < Math.min(validCourses.length, 7); i++) {
-        const course = validCourses[i];
-        let resourceUrl = course.resource_url;
-        if (!resourceUrl || resourceUrl === "null" || !resourceUrl.startsWith("http")) {
-          resourceUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(
-            course.name + " tutorial"
-          )}`;
-        }
-
-        await supabase.from("courses").insert({
-          interest_id: interest.id,
-          user_id: userId,
-          name: course.name,
-          description: course.description || `Learn ${course.name}`,
-          resource_url: resourceUrl,
-          node_order: i + 1,
-          is_locked: i !== 0,
-          is_completed: false,
-          roadmap_data: {
-            duration: course.duration || "1-2 hours",
-            difficulty: course.difficulty || "beginner",
-          },
-        });
-      }
-    }
-
-    if (roadmap.projects && Array.isArray(roadmap.projects)) {
-      for (const project of roadmap.projects.slice(0, 3)) {
-        if (!project.name) continue;
-        await supabase.from("projects").insert({
-          interest_id: interest.id,
-          user_id: userId,
-          name: project.name,
-          description: project.description || `Build a ${project.name} project`,
-          difficulty: project.difficulty || "medium",
-          is_locked: true,
-          is_completed: false,
-          is_validated: false,
-        });
-      }
-    }
-
-    console.log(
-      `✅ Roadmap generated for "${interest.name}": ${roadmap.courses?.length || 0} courses, ${roadmap.projects?.length || 0} projects`
+    const roadmap = await generateCourseRoadmap(
+      interest.name,
+      field,
+      type,
+      historySignals.topKeywords.slice(0, 12)
     );
+
+    // Idempotency: clear older generated roadmap artifacts for this interest before insert.
+    await supabase.from("courses").delete().eq("interest_id", interest.id).eq("user_id", userId);
+    await supabase.from("projects").delete().eq("interest_id", interest.id).eq("user_id", userId);
+
+    const courseRows = roadmap.courses.map((node, index) =>
+      toCourseRow(node, index, userId, interest.id)
+    );
+    const projectRows = roadmap.projects.map((project) =>
+      toProjectRow(project, userId, interest.id)
+    );
+
+    if (courseRows.length !== 5) {
+      throw new Error(`Expected 5 generated course nodes, received ${courseRows.length}.`);
+    }
+    if (projectRows.length !== 2) {
+      throw new Error(`Expected 2 generated projects, received ${projectRows.length}.`);
+    }
+
+    const { error: courseInsertError } = await supabase.from("courses").insert(courseRows);
+    if (courseInsertError) throw courseInsertError;
+
+    const { error: projectInsertError } = await supabase.from("projects").insert(projectRows);
+    if (projectInsertError) throw projectInsertError;
+
+    console.log(`✅ Roadmap generated for "${interest.name}": 5 courses, 2 projects`);
   } catch (error) {
     console.error("Error generating roadmap:", error);
-
-    // Fallback courses
-    const fallbackCourses = [
-      { name: `${interest.name} Fundamentals`, description: "Core concepts and foundations", difficulty: "beginner" },
-      { name: `${interest.name} in Practice`, description: "Hands-on practical exercises", difficulty: "beginner" },
-      { name: `Intermediate ${interest.name}`, description: "Building on the basics", difficulty: "intermediate" },
-      { name: `${interest.name} Projects`, description: "Real-world project-based learning", difficulty: "intermediate" },
-      { name: `Advanced ${interest.name}`, description: "Expert techniques and patterns", difficulty: "advanced" },
-    ];
-
-    for (let i = 0; i < fallbackCourses.length; i++) {
-      const course = fallbackCourses[i];
-      await supabase.from("courses").insert({
-        interest_id: interest.id,
-        user_id: userId,
-        name: course.name,
-        description: course.description,
-        resource_url: `https://www.youtube.com/results?search_query=${encodeURIComponent(
-          course.name + " tutorial"
-        )}`,
-        node_order: i + 1,
-        is_locked: i !== 0,
-        is_completed: false,
-        roadmap_data: { duration: "1-2 hours", difficulty: course.difficulty },
-      });
-    }
-
-    await supabase.from("projects").insert({
-      interest_id: interest.id,
-      user_id: userId,
-      name: `${interest.name} Portfolio Project`,
-      description: `Build a complete ${interest.name} project for your portfolio`,
-      difficulty: "medium",
-      is_locked: true,
-      is_completed: false,
-      is_validated: false,
-    });
-
-    console.log(`⚠️ Fallback roadmap created for: ${interest.name}`);
+    await supabase
+      .from("interests")
+      .update({
+        status: "pending",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", interest.id)
+      .eq("user_id", userId);
   }
 }

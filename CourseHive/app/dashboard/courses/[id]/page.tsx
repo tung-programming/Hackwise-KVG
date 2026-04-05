@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { use, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
@@ -29,8 +29,9 @@ const stagger = {
   show: { opacity: 1, transition: { staggerChildren: 0.07 } },
 }
 
-export default function CourseRoadmapPage({ params }: { params: { id: string } }) {
-  const { data, loading, error, refetch } = useInterestDetail(params.id)
+export default function CourseRoadmapPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params)
+  const { data, loading, error, refetch } = useInterestDetail(id)
   const { complete, loading: completing } = useCourseCompletion(refetch)
   const [feedback, setFeedback] = useState<string | null>(null)
 
