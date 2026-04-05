@@ -129,6 +129,14 @@ export const interestsService = {
       .select("*")
       .eq("interest_id", interestId);
 
+    // Self-heal: if interest is accepted but roadmap rows are missing, re-trigger generation.
+    if (interest.status === "accepted" && (!courses || courses.length === 0)) {
+      console.warn(`Accepted interest ${interestId} has no courses. Re-triggering roadmap generation.`);
+      generateRoadmapAsync(userId, interest).catch((err) => {
+        console.error("Auto-regeneration of roadmap failed:", err);
+      });
+    }
+
     return {
       ...interest,
       courses: courses || [],

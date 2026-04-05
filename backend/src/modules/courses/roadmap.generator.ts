@@ -204,20 +204,66 @@ export async function generateCourseRoadmap(
   type: string,
   matchedKeywords: string[]
 ): Promise<GeneratedRoadmap> {
-  const rawNodes = await geminiPool.generateJSON<unknown>(
-    coursePrompt(field, type, interestName, matchedKeywords),
-    2200
-  );
+  const baseCoursePrompt = coursePrompt(field, type, interestName, matchedKeywords);
+  const compactCoursePrompt = `${baseCoursePrompt}
+
+IMPORTANT COMPACTNESS MODE:
+- Keep each description to exactly 2 short sentences.
+- Keep each sentence under 16 words.
+- Output strictly 5 objects only.`;
+
+  let rawNodes: unknown;
+  try {
+    rawNodes = await geminiPool.generateJSON<unknown>(baseCoursePrompt, 4200);
+  } catch (e) {
+    console.warn("Course roadmap parse failed, retrying with compact prompt:", e);
+    rawNodes = await geminiPool.generateJSON<unknown>(compactCoursePrompt, 5000);
+  }
 
   const courses = sanitizeCourseNodes(rawNodes);
   if (courses.length !== 5) {
-    throw new Error(`Gemini returned ${courses.length} valid course nodes. Expected exactly 5.`);
+    // One more focused retry if parsing/sanitization still resulted in less nodes.
+    const finalRetryPrompt = `${compactCoursePrompt}
+
+FINAL RETRY RULES:
+- Exactly 5 items.
+- No extra keys beyond: name, description, resourceUrl, resourceTitle, estimatedHours.
+- Do not include line breaks inside values unless necessary.`;
+
+    const retryNodes = await geminiPool.generateJSON<unknown>(finalRetryPrompt, 5000);
+    const retriedCourses = sanitizeCourseNodes(retryNodes);
+    if (retriedCourses.length !== 5) {
+      throw new Error(`Gemini returned ${retriedCourses.length} valid course nodes. Expected exactly 5.`);
+    }
+
+    const rawProjects = await geminiPool.generateJSON<unknown>(
+      projectPrompt(field, type, interestName, retriedCourses.map((c) => c.name)),
+      2600
+    );
+
+    const projects = sanitizeProjects(rawProjects);
+    if (projects.length !== 2) {
+      throw new Error(`Gemini returned ${projects.length} valid projects. Expected exactly 2.`);
+    }
+
+    return { courses: retriedCourses, projects };
   }
 
-  const rawProjects = await geminiPool.generateJSON<unknown>(
-    projectPrompt(field, type, interestName, courses.map((c) => c.name)),
-    1400
-  );
+  const baseProjectPrompt = projectPrompt(field, type, interestName, courses.map((c) => c.name));
+  const compactProjectPrompt = `${baseProjectPrompt}
+
+IMPORTANT COMPACTNESS MODE:
+- Keep description to 3 short sentences.
+- Keep evaluationCriteria to 2 short sentences.
+- Output exactly 2 objects.`;
+
+  let rawProjects: unknown;
+  try {
+    rawProjects = await geminiPool.generateJSON<unknown>(baseProjectPrompt, 2200);
+  } catch (e) {
+    console.warn("Project generation parse failed, retrying with compact prompt:", e);
+    rawProjects = await geminiPool.generateJSON<unknown>(compactProjectPrompt, 2600);
+  }
 
   const projects = sanitizeProjects(rawProjects);
   if (projects.length !== 2) {

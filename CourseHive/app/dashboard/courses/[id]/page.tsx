@@ -54,6 +54,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
   const [feedback, setFeedback] = useState<string | null>(null)
   const [activeNoteNodeId, setActiveNoteNodeId] = useState<string | null>(null)
   const [notes, setNotes] = useState<Record<string, string>>({})
+  const [generationAttempts, setGenerationAttempts] = useState(0)
 
   const sortedCourses = useMemo(() => {
     if (!data?.courses) return []
@@ -79,6 +80,12 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
   const lockedCount = nodes.filter((n) => n.status === 'locked').length
   const progressPct = nodes.length ? Math.round((completedCount / nodes.length) * 100) : 0
   const projectsUnlocked = nodes.length > 0 && completedCount === nodes.length
+  const shouldWaitForRoadmap =
+    !loading &&
+    !!data?.interest &&
+    data.interest.status === 'accepted' &&
+    nodes.length === 0 &&
+    generationAttempts < 15
 
   const canvasWidth = 1100
   const startY = 120
@@ -112,6 +119,17 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
     localStorage.setItem(`course-node-notes:${id}`, JSON.stringify(notes))
   }, [id, notes])
 
+  useEffect(() => {
+    if (!shouldWaitForRoadmap) return
+
+    const timer = setTimeout(async () => {
+      await refetch()
+      setGenerationAttempts((prev) => prev + 1)
+    }, 1500)
+
+    return () => clearTimeout(timer)
+  }, [refetch, shouldWaitForRoadmap, generationAttempts])
+
   const handleComplete = async (courseId: string) => {
     const result = await complete(courseId)
     if (result.success && 'xpAwarded' in result) {
@@ -136,6 +154,18 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
         <Link href="/dashboard/interests" className="text-sm font-semibold" style={{ color: ACCENT }}>
           Back to Interests
         </Link>
+      </div>
+    )
+  }
+
+  if (shouldWaitForRoadmap) {
+    return (
+      <div className="flex min-h-[55vh] flex-col items-center justify-center gap-4">
+        <Loader2 className="h-10 w-10 animate-spin text-[#f97316]" />
+        <p className="text-base font-semibold text-[#172b44]">Generating your roadmap...</p>
+        <p className="max-w-md text-center text-sm text-muted-foreground">
+          We are building your course nodes and projects. This can take 10-20 seconds.
+        </p>
       </div>
     )
   }
