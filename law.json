@@ -1,0 +1,177 @@
+{
+  "user_profile": {
+    "id": "user_law_001",
+    "role": "Law Student",
+    "specialization": "Constitutional Law & Criminal Law / Judiciary Aspirant",
+    "history_period": "2026-03-29 to 2026-04-04"
+  },
+  "browsing_history": [
+    {
+      "day": "2026-03-29",
+      "day_label": "Day 1 - Sunday",
+      "entries": [
+        { "id": "l001", "timestamp": "2026-03-29T08:00:00", "url": "https://www.indiankanoon.org/doc/fundamental-rights/", "title": "Fundamental Rights - Articles 14 to 32 | Indian Kanoon", "domain": "indiankanoon.org", "category": "Constitutional Law", "duration_seconds": 2400, "tags": ["fundamental rights", "article 14", "article 19", "article 21", "constitution"] },
+        { "id": "l002", "timestamp": "2026-03-29T08:50:00", "url": "https://www.legalserviceindia.com/legal/article-right-to-equality.html", "title": "Right to Equality - Article 14 Explained | Legal Service India", "domain": "legalserviceindia.com", "category": "Constitutional Law", "duration_seconds": 1200, "tags": ["article 14", "equality", "reasonable classification", "constitution"] },
+        { "id": "l003", "timestamp": "2026-03-29T09:30:00", "url": "https://www.youtube.com/watch?v=indian-constitution-basics", "title": "Indian Constitution - Complete Overview for Law Students 2026", "domain": "youtube.com", "category": "Constitutional Law", "duration_seconds": 3600, "tags": ["indian constitution", "preamble", "fundamental rights", "dpsp"] },
+        { "id": "l004", "timestamp": "2026-03-29T10:45:00", "url": "https://legislative.gov.in/constitution-of-india/", "title": "Constitution of India - Full Text | Legislative Department", "domain": "legislative.gov.in", "category": "Constitutional Law", "duration_seconds": 1800, "tags": ["constitution", "full text", "official", "government"] },
+        { "id": "l005", "timestamp": "2026-03-29T12:00:00", "url": "https://www.scobserver.in/cases/recent-judgments", "title": "Recent Supreme Court Judgments | SC Observer", "domain": "scobserver.in", "category": "Case Law & Judgments", "duration_seconds": 1500, "tags": ["supreme court", "judgments", "recent", "landmark"] },
+        { "id": "l006", "timestamp": "2026-03-29T12:45:00", "url": "https://www.swiggy.com/", "title": "Swiggy - Order Food Online", "domain": "swiggy.com", "category": "Food & Lifestyle", "duration_seconds": 180, "tags": ["food", "order"] },
+        { "id": "l007", "timestamp": "2026-03-29T13:30:00", "url": "https://www.latestlaws.com/bare-acts/central-acts/indian-penal-code-1860/", "title": "Indian Penal Code 1860 - Bare Act | Latest Laws", "domain": "latestlaws.com", "category": "Criminal Law", "duration_seconds": 2100, "tags": ["ipc", "penal code", "criminal law", "bare act"] },
+        { "id": "l008", "timestamp": "2026-03-29T14:30:00", "url": "https://www.youtube.com/watch?v=ipc-important-sections", "title": "IPC Important Sections Explained - Murder, Theft, Assault", "domain": "youtube.com", "category": "Criminal Law", "duration_seconds": 2400, "tags": ["ipc", "section 302", "section 376", "murder", "criminal law"] },
+        { "id": "l009", "timestamp": "2026-03-29T15:30:00", "url": "https://www.instagram.com/", "title": "Instagram", "domain": "instagram.com", "category": "Social Media", "duration_seconds": 900, "tags": ["social", "entertainment"] },
+        { "id": "l010", "timestamp": "2026-03-29T17:00:00", "url": "https://www.coursera.org/learn/international-law", "title": "International Law | Coursera - University of Leiden", "domain": "coursera.org", "category": "Course Discovery", "duration_seconds": 600, "tags": ["international law", "course", "coursera", "leiden"] },
+        { "id": "l011", "timestamp": "2026-03-29T18:00:00", "url": "https://www.barandbench.com/news", "title": "Latest Legal News India | Bar and Bench", "domain": "barandbench.com", "category": "Legal News", "duration_seconds": 900, "tags": ["legal news", "bar and bench", "courts", "india"] },
+        { "id": "l012", "timestamp": "2026-03-29T20:00:00", "url": "https://www.netflix.com/browse", "title": "Netflix - Home", "domain": "netflix.com", "category": "Entertainment", "duration_seconds": 5400, "tags": ["streaming", "entertainment"] }
+      ]
+    },
+    {
+      "day": "2026-03-30",
+      "day_label": "Day 2 - Monday",
+      "entries": [
+        { "id": "l013", "timestamp": "2026-03-30T07:30:00", "url": "https://www.indiankanoon.org/doc/crpc-code-of-criminal-procedure/", "title": "Code of Criminal Procedure (CrPC) - Full Text | Indian Kanoon", "domain": "indiankanoon.org", "category": "Criminal Law", "duration_seconds": 2100, "tags": ["crpc", "criminal procedure", "fir", "arrest", "bail"] },
+        { "id": "l014", "timestamp": "2026-03-30T08:30:00", "url": "https://www.youtube.com/watch?v=crpc-bail-provisions", "title": "Bail Provisions under CrPC - Section 436, 437, 438, 439 Explained", "domain": "youtube.com", "category": "Criminal Law", "duration_seconds": 2400, "tags": ["bail", "crpc", "anticipatory bail", "section 438"] },
+        { "id": "l015", "timestamp": "2026-03-30T09:30:00", "url": "https://www.livelaw.in/top-stories", "title": "Top Legal Stories Today | Live Law", "domain": "livelaw.in", "category": "Legal News", "duration_seconds": 1200, "tags": ["live law", "legal news", "supreme court", "high court"] },
+        { "id": "l016", "timestamp": "2026-03-30T10:30:00", "url": "https://www.latestlaws.com/bare-acts/central-acts/code-of-civil-procedure-1908/", "title": "Code of Civil Procedure 1908 - CPC Bare Act | Latest Laws", "domain": "latestlaws.com", "category": "Civil Law", "duration_seconds": 1800, "tags": ["cpc", "civil procedure", "suit", "decree", "appeal"] },
+        { "id": "l017", "timestamp": "2026-03-30T11:30:00", "url": "https://www.youtube.com/watch?v=cpc-overview-law-students", "title": "CPC Overview for Law Students - Suits, Appeals, Execution", "domain": "youtube.com", "category": "Civil Law", "duration_seconds": 3000, "tags": ["cpc", "civil", "order", "rule", "jurisdiction"] },
+        { "id": "l018", "timestamp": "2026-03-30T12:30:00", "url": "https://www.zomato.com/bangalore", "title": "Zomato - Food Delivery Bangalore", "domain": "zomato.com", "category": "Food & Lifestyle", "duration_seconds": 240, "tags": ["food", "bangalore"] },
+        { "id": "l019", "timestamp": "2026-03-30T13:30:00", "url": "https://www.lawctopus.com/clat-preparation-guide-2026/", "title": "CLAT 2026 Preparation Guide - Strategy, Syllabus, Resources | Lawctopus", "domain": "lawctopus.com", "category": "Career / Exam Prep", "duration_seconds": 1200, "tags": ["clat", "entrance exam", "law", "preparation"] },
+        { "id": "l020", "timestamp": "2026-03-30T14:30:00", "url": "https://www.udemy.com/course/contract-law-fundamentals/", "title": "Contract Law Fundamentals - From Basics to Advanced | Udemy", "domain": "udemy.com", "category": "Course Discovery", "duration_seconds": 480, "tags": ["contract law", "course", "udemy", "agreement"] },
+        { "id": "l021", "timestamp": "2026-03-30T15:00:00", "url": "https://www.lawteacher.net/free-law-essays/contract-law/", "title": "Free Contract Law Essays | LawTeacher", "domain": "lawteacher.net", "category": "Contract Law", "duration_seconds": 1500, "tags": ["contract law", "essays", "offer", "acceptance", "consideration"] },
+        { "id": "l022", "timestamp": "2026-03-30T16:30:00", "url": "https://www.indiankanoon.org/search/?formInput=kesavananda+bharati", "title": "Kesavananda Bharati v. State of Kerala | Indian Kanoon", "domain": "indiankanoon.org", "category": "Case Law & Judgments", "duration_seconds": 2400, "tags": ["kesavananda bharati", "basic structure", "landmark case", "constitutional"] },
+        { "id": "l023", "timestamp": "2026-03-30T18:00:00", "url": "https://twitter.com/home", "title": "Twitter / X - Home", "domain": "twitter.com", "category": "Social Media", "duration_seconds": 720, "tags": ["social", "news", "trending"] },
+        { "id": "l024", "timestamp": "2026-03-30T19:30:00", "url": "https://www.youtube.com/watch?v=landmark-supreme-court-cases", "title": "10 Most Important Landmark Supreme Court Cases of India", "domain": "youtube.com", "category": "Case Law & Judgments", "duration_seconds": 3000, "tags": ["landmark cases", "supreme court", "maneka gandhi", "vishaka"] },
+        { "id": "l025", "timestamp": "2026-03-30T21:00:00", "url": "https://www.youtube.com/watch?v=legal-drama-series", "title": "Suits Best Moments - Harvey Specter Compilation", "domain": "youtube.com", "category": "Entertainment", "duration_seconds": 2400, "tags": ["suits", "legal drama", "entertainment", "harvey specter"] }
+      ]
+    },
+    {
+      "day": "2026-03-31",
+      "day_label": "Day 3 - Tuesday",
+      "entries": [
+        { "id": "l026", "timestamp": "2026-03-31T08:00:00", "url": "https://www.indiacode.nic.in/handle/123456789/1362", "title": "Indian Evidence Act 1872 - Full Text | India Code", "domain": "indiacode.nic.in", "category": "Evidence Law", "duration_seconds": 1800, "tags": ["evidence act", "relevant fact", "admissibility", "witness"] },
+        { "id": "l027", "timestamp": "2026-03-31T09:00:00", "url": "https://www.youtube.com/watch?v=indian-evidence-act-explained", "title": "Indian Evidence Act - Key Concepts Explained for Law Exams", "domain": "youtube.com", "category": "Evidence Law", "duration_seconds": 3000, "tags": ["evidence act", "fact in issue", "oral evidence", "documentary"] },
+        { "id": "l028", "timestamp": "2026-03-31T10:15:00", "url": "https://www.legalserviceindia.com/legal/article-types-of-evidence.html", "title": "Types of Evidence in Indian Law - Direct, Circumstantial, Hearsay", "domain": "legalserviceindia.com", "category": "Evidence Law", "duration_seconds": 1200, "tags": ["direct evidence", "circumstantial", "hearsay", "evidence law"] },
+        { "id": "l029", "timestamp": "2026-03-31T11:15:00", "url": "https://www.scobserver.in/cases/navtej-johar-v-union-of-india", "title": "Navtej Singh Johar v. Union of India - Section 377 | SC Observer", "domain": "scobserver.in", "category": "Case Law & Judgments", "duration_seconds": 1800, "tags": ["section 377", "lgbtq rights", "landmark", "decriminalization"] },
+        { "id": "l030", "timestamp": "2026-03-31T12:30:00", "url": "https://news.ycombinator.com/", "title": "Hacker News", "domain": "news.ycombinator.com", "category": "General Browsing", "duration_seconds": 420, "tags": ["tech", "news"] },
+        { "id": "l031", "timestamp": "2026-03-31T13:00:00", "url": "https://www.latestlaws.com/bare-acts/central-acts/specific-relief-act-1963/", "title": "Specific Relief Act 1963 - Bare Act | Latest Laws", "domain": "latestlaws.com", "category": "Civil Law", "duration_seconds": 1500, "tags": ["specific relief", "injunction", "specific performance", "civil"] },
+        { "id": "l032", "timestamp": "2026-03-31T14:00:00", "url": "https://www.lawctopus.com/judiciary-exam-preparation-2026/", "title": "Judiciary Exam Preparation Guide 2026 | Lawctopus", "domain": "lawctopus.com", "category": "Career / Exam Prep", "duration_seconds": 1200, "tags": ["judiciary exam", "preparation", "civil judge", "magistrate"] },
+        { "id": "l033", "timestamp": "2026-03-31T15:00:00", "url": "https://unacademy.com/course/judiciary-preparation-complete-course/", "title": "Judiciary Preparation Complete Course | Unacademy", "domain": "unacademy.com", "category": "Course Discovery", "duration_seconds": 600, "tags": ["judiciary", "course", "unacademy", "exam prep"] },
+        { "id": "l034", "timestamp": "2026-03-31T15:45:00", "url": "https://www.coursera.org/learn/international-criminal-law", "title": "International Criminal Law | Coursera - Case Western Reserve", "domain": "coursera.org", "category": "Course Discovery", "duration_seconds": 540, "tags": ["international criminal law", "course", "war crimes", "icc"] },
+        { "id": "l035", "timestamp": "2026-03-31T16:30:00", "url": "https://www.bookmyshow.com/", "title": "BookMyShow - Movies & Events", "domain": "bookmyshow.com", "category": "Entertainment", "duration_seconds": 300, "tags": ["movies", "entertainment"] },
+        { "id": "l036", "timestamp": "2026-03-31T17:00:00", "url": "https://www.jstor.org/stable/jurisprudence-natural-law-theory", "title": "Natural Law Theory and Jurisprudence | JSTOR", "domain": "jstor.org", "category": "Jurisprudence", "duration_seconds": 1800, "tags": ["jurisprudence", "natural law", "positivism", "legal theory"] },
+        { "id": "l037", "timestamp": "2026-03-31T18:30:00", "url": "https://www.youtube.com/watch?v=jurisprudence-schools-of-thought", "title": "Schools of Jurisprudence - Natural, Positivist, Realist, Sociological", "domain": "youtube.com", "category": "Jurisprudence", "duration_seconds": 2400, "tags": ["jurisprudence", "austin", "bentham", "kelsen", "legal philosophy"] },
+        { "id": "l038", "timestamp": "2026-03-31T21:00:00", "url": "https://www.spotify.com/", "title": "Spotify - Music Streaming", "domain": "spotify.com", "category": "Entertainment", "duration_seconds": 5400, "tags": ["music", "streaming"] }
+      ]
+    },
+    {
+      "day": "2026-04-01",
+      "day_label": "Day 4 - Wednesday",
+      "entries": [
+        { "id": "l039", "timestamp": "2026-04-01T08:00:00", "url": "https://www.indiacode.nic.in/handle/123456789/indian-contract-act-1872", "title": "Indian Contract Act 1872 - Full Text | India Code", "domain": "indiacode.nic.in", "category": "Contract Law", "duration_seconds": 2100, "tags": ["contract act", "offer", "acceptance", "consideration", "agreement"] },
+        { "id": "l040", "timestamp": "2026-04-01T09:00:00", "url": "https://www.youtube.com/watch?v=indian-contract-act-full", "title": "Indian Contract Act 1872 - Complete Course for Law Students", "domain": "youtube.com", "category": "Contract Law", "duration_seconds": 5400, "tags": ["contract act", "void agreement", "voidable", "quasi contract"] },
+        { "id": "l041", "timestamp": "2026-04-01T10:45:00", "url": "https://www.legalserviceindia.com/legal/article-breach-of-contract-remedies.html", "title": "Breach of Contract - Types and Remedies | Legal Service India", "domain": "legalserviceindia.com", "category": "Contract Law", "duration_seconds": 1200, "tags": ["breach", "damages", "specific performance", "remedies"] },
+        { "id": "l042", "timestamp": "2026-04-01T11:30:00", "url": "https://www.indiankanoon.org/search/?formInput=mohori+bibee+v+dharmodas+ghose", "title": "Mohori Bibee v. Dharmodas Ghose - Minor's Agreement | Indian Kanoon", "domain": "indiankanoon.org", "category": "Case Law & Judgments", "duration_seconds": 1500, "tags": ["mohori bibee", "minor agreement", "void ab initio", "contract"] },
+        { "id": "l043", "timestamp": "2026-04-01T12:30:00", "url": "https://www.amazon.in/", "title": "Amazon.in - Shopping", "domain": "amazon.in", "category": "Shopping", "duration_seconds": 600, "tags": ["shopping", "books", "ecommerce"] },
+        { "id": "l044", "timestamp": "2026-04-01T13:30:00", "url": "https://www.latestlaws.com/bare-acts/central-acts/transfer-of-property-act-1882/", "title": "Transfer of Property Act 1882 - Bare Act | Latest Laws", "domain": "latestlaws.com", "category": "Property Law", "duration_seconds": 1800, "tags": ["property law", "transfer", "sale", "mortgage", "lease"] },
+        { "id": "l045", "timestamp": "2026-04-01T14:30:00", "url": "https://www.youtube.com/watch?v=transfer-of-property-act", "title": "Transfer of Property Act - Sale, Mortgage, Lease, Gift Explained", "domain": "youtube.com", "category": "Property Law", "duration_seconds": 2400, "tags": ["tpa", "sale", "mortgage", "lease", "gift", "property"] },
+        { "id": "l046", "timestamp": "2026-04-01T15:30:00", "url": "https://www.edx.org/learn/law/human-rights-law", "title": "Human Rights Law Courses | edX", "domain": "edx.org", "category": "Course Discovery", "duration_seconds": 480, "tags": ["human rights", "course", "edx", "international law"] },
+        { "id": "l047", "timestamp": "2026-04-01T16:00:00", "url": "https://www.udemy.com/course/intellectual-property-law-basics/", "title": "Intellectual Property Law - Patents, Trademarks, Copyrights | Udemy", "domain": "udemy.com", "category": "Course Discovery", "duration_seconds": 540, "tags": ["ip law", "patents", "trademarks", "copyright", "course"] },
+        { "id": "l048", "timestamp": "2026-04-01T17:00:00", "url": "https://www.wipo.int/about-ip/en/", "title": "What is Intellectual Property? | WIPO", "domain": "wipo.int", "category": "Intellectual Property Law", "duration_seconds": 900, "tags": ["wipo", "intellectual property", "patents", "global"] },
+        { "id": "l049", "timestamp": "2026-04-01T18:00:00", "url": "https://www.linkedin.com/jobs/legal-internship", "title": "Legal Internships India 2026 | LinkedIn Jobs", "domain": "linkedin.com", "category": "Career / Exam Prep", "duration_seconds": 900, "tags": ["internship", "legal", "jobs", "career"] },
+        { "id": "l050", "timestamp": "2026-04-01T19:30:00", "url": "https://www.reddit.com/r/LawStudents/", "title": "r/LawStudents - Law School Discussion", "domain": "reddit.com", "category": "General Browsing", "duration_seconds": 600, "tags": ["law students", "discussion", "advice"] },
+        { "id": "l051", "timestamp": "2026-04-01T21:00:00", "url": "https://www.youtube.com/watch?v=making-a-murderer-trailer", "title": "Top Legal Documentaries to Watch in 2026", "domain": "youtube.com", "category": "Entertainment", "duration_seconds": 1800, "tags": ["documentary", "crime", "legal", "entertainment"] }
+      ]
+    },
+    {
+      "day": "2026-04-02",
+      "day_label": "Day 5 - Thursday",
+      "entries": [
+        { "id": "l052", "timestamp": "2026-04-02T08:00:00", "url": "https://www.indiacode.nic.in/handle/123456789/companies-act-2013", "title": "Companies Act 2013 - Full Text | India Code", "domain": "indiacode.nic.in", "category": "Corporate Law", "duration_seconds": 2100, "tags": ["companies act", "corporate law", "director", "shareholder", "incorporation"] },
+        { "id": "l053", "timestamp": "2026-04-02T09:00:00", "url": "https://www.youtube.com/watch?v=companies-act-2013-overview", "title": "Companies Act 2013 - Complete Overview for CS & Law Students", "domain": "youtube.com", "category": "Corporate Law", "duration_seconds": 3600, "tags": ["companies act", "moa", "aoa", "winding up", "corporate"] },
+        { "id": "l054", "timestamp": "2026-04-02T10:30:00", "url": "https://www.mca.gov.in/content/mca/global/en/home.html", "title": "Ministry of Corporate Affairs | Government of India", "domain": "mca.gov.in", "category": "Corporate Law", "duration_seconds": 600, "tags": ["mca", "corporate affairs", "government", "compliance"] },
+        { "id": "l055", "timestamp": "2026-04-02T11:00:00", "url": "https://www.barandbench.com/columns/understanding-corporate-governance-india", "title": "Understanding Corporate Governance in India | Bar and Bench", "domain": "barandbench.com", "category": "Corporate Law", "duration_seconds": 1200, "tags": ["corporate governance", "board", "sebi", "compliance"] },
+        { "id": "l056", "timestamp": "2026-04-02T12:00:00", "url": "https://www.weather.com/", "title": "Weather - Current Conditions", "domain": "weather.com", "category": "General Browsing", "duration_seconds": 90, "tags": ["weather"] },
+        { "id": "l057", "timestamp": "2026-04-02T12:30:00", "url": "https://www.latestlaws.com/bare-acts/central-acts/arbitration-and-conciliation-act-1996/", "title": "Arbitration and Conciliation Act 1996 - Bare Act | Latest Laws", "domain": "latestlaws.com", "category": "Alternative Dispute Resolution", "duration_seconds": 1500, "tags": ["arbitration", "adr", "conciliation", "mediation", "dispute resolution"] },
+        { "id": "l058", "timestamp": "2026-04-02T13:30:00", "url": "https://www.youtube.com/watch?v=adr-arbitration-mediation", "title": "ADR - Arbitration, Mediation, Conciliation Explained for Law Students", "domain": "youtube.com", "category": "Alternative Dispute Resolution", "duration_seconds": 2400, "tags": ["adr", "arbitration", "mediation", "conciliation"] },
+        { "id": "l059", "timestamp": "2026-04-02T14:30:00", "url": "https://www.coursera.org/learn/law-and-technology", "title": "Law and Technology | Coursera - Hong Kong University", "domain": "coursera.org", "category": "Course Discovery", "duration_seconds": 480, "tags": ["cyber law", "technology", "course", "data privacy"] },
+        { "id": "l060", "timestamp": "2026-04-02T15:00:00", "url": "https://www.meity.gov.in/content/information-technology-act", "title": "Information Technology Act 2000 | MeitY - Government of India", "domain": "meity.gov.in", "category": "Cyber Law", "duration_seconds": 1200, "tags": ["it act", "cyber law", "digital", "data protection", "section 66"] },
+        { "id": "l061", "timestamp": "2026-04-02T16:00:00", "url": "https://www.livelaw.in/know-the-law/data-protection-act-india-2023", "title": "Digital Personal Data Protection Act 2023 Explained | Live Law", "domain": "livelaw.in", "category": "Cyber Law", "duration_seconds": 1500, "tags": ["data protection", "privacy", "dpdp act", "consent"] },
+        { "id": "l062", "timestamp": "2026-04-02T17:30:00", "url": "https://www.flipkart.com/", "title": "Flipkart - Online Shopping India", "domain": "flipkart.com", "category": "Shopping", "duration_seconds": 360, "tags": ["shopping", "electronics"] },
+        { "id": "l063", "timestamp": "2026-04-02T18:30:00", "url": "https://www.lawctopus.com/top-law-firms-india-2026/", "title": "Top Law Firms in India to Work at in 2026 | Lawctopus", "domain": "lawctopus.com", "category": "Career / Exam Prep", "duration_seconds": 900, "tags": ["law firms", "career", "india", "tier 1"] },
+        { "id": "l064", "timestamp": "2026-04-02T20:00:00", "url": "https://www.ipl.com/schedule", "title": "IPL 2026 Schedule & Results", "domain": "ipl.com", "category": "Sports", "duration_seconds": 300, "tags": ["ipl", "cricket", "sports"] },
+        { "id": "l065", "timestamp": "2026-04-02T20:30:00", "url": "https://www.quora.com/Is-litigation-or-corporate-law-better-for-career-in-India", "title": "Litigation vs Corporate Law Career in India | Quora", "domain": "quora.com", "category": "Career / Exam Prep", "duration_seconds": 720, "tags": ["litigation", "corporate law", "career", "comparison"] }
+      ]
+    },
+    {
+      "day": "2026-04-03",
+      "day_label": "Day 6 - Friday",
+      "entries": [
+        { "id": "l066", "timestamp": "2026-04-03T08:00:00", "url": "https://www.indiacode.nic.in/handle/123456789/labour-laws-india", "title": "Labour Laws in India - Overview | India Code", "domain": "indiacode.nic.in", "category": "Labour Law", "duration_seconds": 1500, "tags": ["labour law", "industrial disputes", "minimum wages", "factories act"] },
+        { "id": "l067", "timestamp": "2026-04-03T09:00:00", "url": "https://www.youtube.com/watch?v=labour-law-india-2026", "title": "Labour Law Reforms 2026 - New Labour Codes Explained", "domain": "youtube.com", "category": "Labour Law", "duration_seconds": 2400, "tags": ["labour codes", "wages code", "industrial relations", "social security"] },
+        { "id": "l068", "timestamp": "2026-04-03T10:00:00", "url": "https://www.legalserviceindia.com/legal/article-environmental-law-india.html", "title": "Environmental Law in India - Principles and Acts | Legal Service India", "domain": "legalserviceindia.com", "category": "Environmental Law", "duration_seconds": 1200, "tags": ["environmental law", "pollution", "ngt", "epa"] },
+        { "id": "l069", "timestamp": "2026-04-03T11:00:00", "url": "https://www.scobserver.in/cases/mc-mehta-v-union-of-india", "title": "M.C. Mehta v. Union of India - Environmental Cases | SC Observer", "domain": "scobserver.in", "category": "Case Law & Judgments", "duration_seconds": 1500, "tags": ["mc mehta", "environment", "pollution", "pil", "landmark"] },
+        { "id": "l070", "timestamp": "2026-04-03T12:00:00", "url": "https://www.amazon.in/law-books-bestsellers", "title": "Best Selling Law Books India | Amazon.in", "domain": "amazon.in", "category": "Shopping", "duration_seconds": 600, "tags": ["books", "law", "reference", "shopping"] },
+        { "id": "l071", "timestamp": "2026-04-03T13:00:00", "url": "https://www.udemy.com/course/cyber-law-and-information-technology/", "title": "Cyber Law and IT Act - Complete Course | Udemy", "domain": "udemy.com", "category": "Course Discovery", "duration_seconds": 420, "tags": ["cyber law", "it act", "course", "udemy"] },
+        { "id": "l072", "timestamp": "2026-04-03T13:30:00", "url": "https://www.coursera.org/learn/privacy-law-data-protection", "title": "Privacy Law and Data Protection | Coursera", "domain": "coursera.org", "category": "Course Discovery", "duration_seconds": 540, "tags": ["privacy", "data protection", "gdpr", "course"] },
+        { "id": "l073", "timestamp": "2026-04-03T14:30:00", "url": "https://www.latestlaws.com/bare-acts/central-acts/hindu-succession-act-1956/", "title": "Hindu Succession Act 1956 - Bare Act | Latest Laws", "domain": "latestlaws.com", "category": "Family Law", "duration_seconds": 1200, "tags": ["hindu succession", "family law", "inheritance", "coparcenary"] },
+        { "id": "l074", "timestamp": "2026-04-03T15:30:00", "url": "https://www.youtube.com/watch?v=family-law-india-overview", "title": "Family Law in India - Marriage, Divorce, Succession, Adoption Overview", "domain": "youtube.com", "category": "Family Law", "duration_seconds": 3000, "tags": ["family law", "hindu marriage act", "divorce", "maintenance", "custody"] },
+        { "id": "l075", "timestamp": "2026-04-03T17:00:00", "url": "https://www.indiankanoon.org/search/?formInput=shah+bano+case", "title": "Mohd. Ahmed Khan v. Shah Bano Begum - Maintenance Case | Indian Kanoon", "domain": "indiankanoon.org", "category": "Case Law & Judgments", "duration_seconds": 1500, "tags": ["shah bano", "maintenance", "muslim women", "landmark case"] },
+        { "id": "l076", "timestamp": "2026-04-03T18:30:00", "url": "https://www.internshala.com/internships/legal-internship", "title": "Legal Internships in India | Internshala", "domain": "internshala.com", "category": "Career / Exam Prep", "duration_seconds": 720, "tags": ["legal internship", "summer", "law firm", "internshala"] },
+        { "id": "l077", "timestamp": "2026-04-03T20:00:00", "url": "https://www.youtube.com/watch?v=ipl-rcb-vs-csk-highlights", "title": "IPL 2026 - RCB vs CSK Match Highlights", "domain": "youtube.com", "category": "Sports", "duration_seconds": 1800, "tags": ["ipl", "cricket", "highlights", "sports"] },
+        { "id": "l078", "timestamp": "2026-04-03T21:30:00", "url": "https://www.youtube.com/watch?v=law-school-study-tips", "title": "How to Study Law Effectively - Tips from Top Law Students", "domain": "youtube.com", "category": "General Browsing", "duration_seconds": 1200, "tags": ["study tips", "law school", "exam preparation"] }
+      ]
+    },
+    {
+      "day": "2026-04-04",
+      "day_label": "Day 7 - Saturday",
+      "entries": [
+        { "id": "l079", "timestamp": "2026-04-04T09:00:00", "url": "https://www.indiankanoon.org/search/?formInput=vishaka+v+state+of+rajasthan", "title": "Vishaka v. State of Rajasthan - Sexual Harassment Guidelines | Indian Kanoon", "domain": "indiankanoon.org", "category": "Case Law & Judgments", "duration_seconds": 1800, "tags": ["vishaka", "sexual harassment", "workplace", "guidelines", "landmark"] },
+        { "id": "l080", "timestamp": "2026-04-04T10:00:00", "url": "https://www.livelaw.in/know-the-law/posh-act-2013-explained", "title": "POSH Act 2013 - Prevention of Sexual Harassment at Workplace | Live Law", "domain": "livelaw.in", "category": "Labour Law", "duration_seconds": 1200, "tags": ["posh act", "sexual harassment", "workplace", "icc"] },
+        { "id": "l081", "timestamp": "2026-04-04T11:00:00", "url": "https://www.youtube.com/watch?v=constitutional-law-amendments", "title": "Important Constitutional Amendments Every Law Student Must Know", "domain": "youtube.com", "category": "Constitutional Law", "duration_seconds": 2400, "tags": ["amendments", "42nd", "44th", "73rd", "constitution"] },
+        { "id": "l082", "timestamp": "2026-04-04T12:00:00", "url": "https://www.coursera.org/learn/child-protection-law", "title": "Child Protection: Children's Rights in Theory and Practice | Coursera", "domain": "coursera.org", "category": "Course Discovery", "duration_seconds": 540, "tags": ["child rights", "protection", "juvenile justice", "course"] },
+        { "id": "l083", "timestamp": "2026-04-04T12:45:00", "url": "https://www.udemy.com/course/legal-drafting-and-conveyancing/", "title": "Legal Drafting and Conveyancing - Practical Course | Udemy", "domain": "udemy.com", "category": "Course Discovery", "duration_seconds": 420, "tags": ["legal drafting", "conveyancing", "agreements", "practical"] },
+        { "id": "l084", "timestamp": "2026-04-04T13:30:00", "url": "https://www.myntra.com/", "title": "Myntra - Fashion & Lifestyle", "domain": "myntra.com", "category": "Shopping", "duration_seconds": 480, "tags": ["shopping", "fashion"] },
+        { "id": "l085", "timestamp": "2026-04-04T14:30:00", "url": "https://www.barandbench.com/columns/moot-court-preparation-tips", "title": "Moot Court Preparation Tips for Law Students | Bar and Bench", "domain": "barandbench.com", "category": "Legal Skills", "duration_seconds": 900, "tags": ["moot court", "advocacy", "oral arguments", "memorial"] },
+        { "id": "l086", "timestamp": "2026-04-04T15:30:00", "url": "https://www.youtube.com/watch?v=legal-writing-skills", "title": "Legal Writing and Research Skills - Complete Guide", "domain": "youtube.com", "category": "Legal Skills", "duration_seconds": 2400, "tags": ["legal writing", "research", "citation", "analysis"] },
+        { "id": "l087", "timestamp": "2026-04-04T17:00:00", "url": "https://www.latestlaws.com/bare-acts/central-acts/consumer-protection-act-2019/", "title": "Consumer Protection Act 2019 - Bare Act | Latest Laws", "domain": "latestlaws.com", "category": "Consumer Law", "duration_seconds": 1200, "tags": ["consumer protection", "complaint", "e-commerce", "unfair trade"] },
+        { "id": "l088", "timestamp": "2026-04-04T18:00:00", "url": "https://www.lawctopus.com/opportunities/", "title": "Legal Opportunities - Competitions, Internships, Jobs | Lawctopus", "domain": "lawctopus.com", "category": "Career / Exam Prep", "duration_seconds": 720, "tags": ["moot court", "essay competition", "opportunities", "law"] },
+        { "id": "l089", "timestamp": "2026-04-04T19:00:00", "url": "https://www.indiatimes.com/news/india", "title": "India News Today | India Times", "domain": "indiatimes.com", "category": "General News", "duration_seconds": 480, "tags": ["news", "india", "current affairs"] },
+        { "id": "l090", "timestamp": "2026-04-04T20:00:00", "url": "https://www.youtube.com/watch?v=criminal-justice-documentary", "title": "Inside India's Criminal Justice System - Documentary 2026", "domain": "youtube.com", "category": "Entertainment", "duration_seconds": 3600, "tags": ["documentary", "criminal justice", "prison", "legal"] },
+        { "id": "l091", "timestamp": "2026-04-04T22:00:00", "url": "https://www.goodreads.com/list/show/best-legal-thrillers", "title": "Best Legal Thrillers of All Time | Goodreads", "domain": "goodreads.com", "category": "General Browsing", "duration_seconds": 600, "tags": ["books", "legal thriller", "john grisham", "fiction"] }
+      ]
+    }
+  ],
+  "summary": {
+    "total_entries": 91,
+    "category_breakdown": {
+      "Constitutional Law": 6,
+      "Criminal Law": 5,
+      "Civil Law": 3,
+      "Contract Law": 4,
+      "Corporate Law": 4,
+      "Property Law": 2,
+      "Family Law": 3,
+      "Evidence Law": 3,
+      "Labour Law": 3,
+      "Cyber Law": 3,
+      "Environmental Law": 2,
+      "Consumer Law": 1,
+      "Intellectual Property Law": 1,
+      "Jurisprudence": 2,
+      "Alternative Dispute Resolution": 2,
+      "Case Law & Judgments": 8,
+      "Legal Skills": 2,
+      "Legal News": 2,
+      "Course Discovery": 10,
+      "Career / Exam Prep": 7,
+      "Entertainment": 5,
+      "Social Media": 2,
+      "Shopping": 3,
+      "Food & Lifestyle": 2,
+      "Sports": 2,
+      "General Browsing": 4,
+      "General News": 1
+    },
+    "top_domains": ["youtube.com", "indiankanoon.org", "latestlaws.com", "legalserviceindia.com", "coursera.org", "lawctopus.com", "livelaw.in", "scobserver.in", "udemy.com", "indiacode.nic.in"],
+    "top_tags": ["constitution", "criminal law", "contract", "landmark case", "bare act", "judiciary", "course", "ipc", "crpc", "corporate law", "family law", "cyber law", "evidence"]
+  }
+}
