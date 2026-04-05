@@ -19,6 +19,7 @@ import {
   Hexagon,
 } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
+import { BrandLogo } from '@/components/brand-logo'
 import { useState, useEffect } from 'react'
 
 const PRIMARY = '#172b44'
@@ -117,13 +118,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       {/* Logo */}
       <div className="flex items-center justify-between px-5 pt-6 pb-5">
         <div className="flex items-center gap-2.5">
-          <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center shadow-md"
-            style={{ background: PRIMARY }}
-          >
-            <Hexagon className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-bold text-lg tracking-tight" style={{ color: PRIMARY }}>CourseHive</span>
+          <BrandLogo href="/dashboard" width={210} height={62} />
         </div>
         {isMobile && (
           <button
