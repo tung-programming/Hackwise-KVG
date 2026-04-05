@@ -1,17 +1,16 @@
-// Gemini OCR extraction with fallback
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { env } from "../../config/env";
 
-// Resume-analysis OCR must use only GEMINI_OCR_KEYS from env
 const ocrKeys = (env.GEMINI_OCR_KEYS || "")
   .split(",")
   .map((k) => k.trim())
   .filter((k) => k.length > 0);
-const ocrClients = ocrKeys.map((key) => new GoogleGenAI({ apiKey: key }));
+const ocrClients = ocrKeys.map((key) => new GoogleGenerativeAI(key));
 
-console.log(
-  `✅ Gemini OCR initialized with ${ocrClients.length} key(s) from GEMINI_OCR_KEYS`
-);
+console.log(`✅ Gemini OCR initialized with ${ocrClients.length} key(s) from GEMINI_OCR_KEYS`);
+if (ocrClients.length === 0) {
+  console.error("⚠️ WARNING: No GEMINI_OCR_KEYS configured - OCR will fail!");
+}
 
 interface OCRResult {
   text: string;
@@ -29,93 +28,6 @@ const safeRequire = (moduleName: string): any | null => {
   }
 };
 
-const decodePdfLiteralString = (input: string): string => {
-  let out = "";
-
-  for (let i = 0; i < input.length; i++) {
-    const ch = input[i];
-
-    if (ch !== "\\") {
-      out += ch;
-      continue;
-    }
-
-    const next = input[i + 1];
-    if (!next) break;
-
-    if (next === "n") {
-      out += "\n";
-      i++;
-      continue;
-    }
-    if (next === "r") {
-      out += "\r";
-      i++;
-      continue;
-    }
-    if (next === "t") {
-      out += "\t";
-      i++;
-      continue;
-    }
-    if (next === "b") {
-      out += "\b";
-      i++;
-      continue;
-    }
-    if (next === "f") {
-      out += "\f";
-      i++;
-      continue;
-    }
-    if (next === "(" || next === ")" || next === "\\") {
-      out += next;
-      i++;
-      continue;
-    }
-
-    if (/[0-7]/.test(next)) {
-      const octal = input.slice(i + 1, i + 4).match(/^[0-7]{1,3}/)?.[0];
-      if (octal) {
-        out += String.fromCharCode(parseInt(octal, 8));
-        i += octal.length;
-        continue;
-      }
-    }
-
-    out += next;
-    i++;
-  }
-
-  return out;
-};
-
-const extractTextFromPdfBuffer = (fileBuffer: Buffer): string => {
-  const raw = fileBuffer.toString("latin1");
-  const chunks: string[] = [];
-
-  // Capture simple PDF text operators: (...) Tj and [ ... ] TJ
-  const tjRegex = /\((?:\\.|[^\\()])*\)\s*Tj/g;
-  const tjArrayRegex = /\[(.*?)\]\s*TJ/gs;
-
-  const tjMatches = raw.match(tjRegex) || [];
-  for (const m of tjMatches) {
-    const literal = m.replace(/\)\s*Tj$/, "").replace(/^\(/, "");
-    chunks.push(decodePdfLiteralString(literal));
-  }
-
-  let arrayMatch: RegExpExecArray | null = null;
-  while ((arrayMatch = tjArrayRegex.exec(raw)) !== null) {
-    const block = arrayMatch[1];
-    const stringParts = block.match(/\((?:\\.|[^\\()])*\)/g) || [];
-    for (const part of stringParts) {
-      chunks.push(decodePdfLiteralString(part.slice(1, -1)));
-    }
-  }
-
-  return chunks.join(" ").replace(/\s+/g, " ").trim();
-};
-
 const extractTextWithPdfParse = async (fileBuffer: Buffer): Promise<string> => {
   const pdfParseModule = safeRequire("pdf-parse");
   if (!pdfParseModule) return "";
@@ -129,64 +41,33 @@ const extractTextWithPdfParse = async (fileBuffer: Buffer): Promise<string> => {
   }
 };
 
-const extractTextWithTesseract = async (fileBuffer: Buffer): Promise<string> => {
-  const tesseractModule = safeRequire("tesseract.js");
-  if (!tesseractModule?.recognize) return "";
-
-  try {
-    const result = await tesseractModule.recognize(fileBuffer, "eng");
-    return (result?.data?.text || "").replace(/\s+/g, " ").trim();
-  } catch {
-    return "";
-  }
-};
-
-/**
- * Extract text from PDF/image using Gemini Vision
- */
 export const extractTextFromResume = async (
   fileBuffer: Buffer,
   mimeType: string
 ): Promise<OCRResult> => {
-  // 1) Local PDF text extraction (no API)
+  // 1) For PDFs: Try local text extraction first (no API needed)
   if (mimeType === "application/pdf") {
     const parsedPdfText = await extractTextWithPdfParse(fileBuffer);
     if (parsedPdfText.length > 80) {
       console.log("✅ PDF text extracted locally via pdf-parse");
       return { text: parsedPdfText, success: true };
     }
-
-    const localPdfText = extractTextFromPdfBuffer(fileBuffer);
-    if (localPdfText.length > 80) {
-      console.log("✅ PDF text extracted locally without OCR API");
-      return { text: localPdfText, success: true };
-    }
   }
 
-  // 2) Local image OCR with Tesseract (no API)
-  if (mimeType.startsWith("image/")) {
-    const imageText = await extractTextWithTesseract(fileBuffer);
-    if (imageText.length > 80) {
-      console.log("✅ Image text extracted locally via Tesseract");
-      return { text: imageText, success: true };
-    }
-  }
-
-  // 3) Gemini OCR path when local extraction fails
+  // 2) Gemini OCR ONLY - for images and scanned PDFs
   if (ocrClients.length === 0) {
+    console.error("❌ GEMINI_OCR_KEYS not configured!");
     return {
       text: "",
       success: false,
-      error:
-        mimeType === "application/pdf"
-          ? "Local PDF extraction could not read this file and GEMINI_OCR_KEYS is missing."
-          : "Local image OCR unavailable and GEMINI_OCR_KEYS is missing.",
+      error: "GEMINI_OCR_KEYS is missing. Add your Gemini API keys to backend .env file.",
     };
   }
 
-  const base64Data = fileBuffer.toString("base64");
+  console.log(`🔍 Starting Gemini OCR with ${ocrClients.length} key(s)...`);
 
-  const prompt = `Extract ALL text content from this resume document. 
+  const base64Data = fileBuffer.toString("base64");
+  const prompt = `Extract ALL text content from this resume document.
 Return the complete text exactly as it appears, preserving:
 - All sections (Contact, Experience, Education, Skills, etc.)
 - All dates, titles, company names
@@ -199,49 +80,43 @@ Return ONLY the extracted text content, no additional commentary.`;
   const imagePart = {
     inlineData: {
       data: base64Data,
-      mimeType: mimeType,
+      mimeType,
     },
   };
 
   let sawRateLimit = false;
   let sawNetworkError = false;
+  let saw403 = false;
   let lastError = "Unknown OCR error";
+  const errorDetails: string[] = [];
 
-  // Try all OCR keys with rotation until one works
   for (let i = 0; i < ocrClients.length; i++) {
     const client = ocrClients[i];
-    const models = ["gemini-1.5-flash", "gemini-2.0-flash-exp"];
-    
+    const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-001"];
+
     for (const modelName of models) {
       try {
         console.log(`🔄 Trying OCR key ${i + 1}/${ocrClients.length} with model ${modelName}...`);
-        const result = await client.models.generateContent({
-          model: modelName,
-          contents: [{ text: prompt }, imagePart],
-          config: {
-            maxOutputTokens: 8192,
-            temperature: 0.1,
-          },
-        });
-        const text = result.text ?? "";
+        const model = client.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent([prompt, imagePart]);
+        const text = result.response.text();
 
         if (text && text.length > 50) {
-          console.log(`✅ OCR extraction successful with key ${i + 1} and model ${modelName}`);
+          console.log(`✅ OCR SUCCESS with key ${i + 1} and model ${modelName}`);
           return { text, success: true };
-        } else {
-          console.warn(`⚠️ Key ${i + 1} model ${modelName} returned empty/short response`);
         }
       } catch (error: any) {
         const errMsg = error?.message || String(error);
-        lastError = errMsg.substring(0, 300);
-        console.error(
-          `❌ OCR key ${i + 1} model ${modelName} failed:`,
-          errMsg.substring(0, 300)
-        );
+        lastError = errMsg;
+        const shortErr = errMsg.substring(0, 200);
+        errorDetails.push(`Key ${i + 1}/${modelName}: ${shortErr}`);
+        
+        console.error(`❌ Key ${i + 1} model ${modelName} failed:`, shortErr);
 
-        if (error?.status === 403 || errMsg.includes("403")) {
-          lastError = "OCR model access is blocked for this key.";
-          break;
+        // Detect error types
+        if (error?.status === 403 || errMsg.includes("403") || errMsg.includes("Forbidden")) {
+          saw403 = true;
+          console.error(`   ⚠️ 403 Forbidden - API may be blocked or key lacks permissions`);
         }
 
         if (
@@ -251,42 +126,46 @@ Return ONLY the extracted text content, no additional commentary.`;
           errMsg.toLowerCase().includes("rate")
         ) {
           sawRateLimit = true;
+          console.error(`   ⚠️ Rate limit hit - waiting 3 seconds...`);
+          await new Promise((resolve) => setTimeout(resolve, 3000));
         }
 
         if (
           errMsg.includes("Error fetching from https://generativelanguage.googleapis.com") ||
           errMsg.toLowerCase().includes("fetch failed") ||
-          errMsg.toLowerCase().includes("network")
+          errMsg.toLowerCase().includes("network") ||
+          errMsg.includes("ENOTFOUND") ||
+          errMsg.includes("ECONNREFUSED")
         ) {
           sawNetworkError = true;
+          console.error(`   ⚠️ Network connectivity issue detected`);
         }
-        
-        // If rate limited, wait briefly before trying next
-        if (error?.status === 429 || errMsg.includes("429") || errMsg.includes("quota")) {
-          console.log(`⏳ Rate limited, waiting 3s...`);
-          await new Promise((resolve) => setTimeout(resolve, 3000));
-        }
-        continue;
       }
     }
+  }
+
+  // All Gemini attempts failed
+  console.error("❌ ALL GEMINI OCR ATTEMPTS FAILED");
+  console.error("Error summary:", errorDetails.join(" | "));
+
+  let finalError = "";
+  if (saw403) {
+    finalError = "Gemini API returned 403 Forbidden. Your API key(s) may lack permissions or the Generative Language API is not enabled. Visit https://aistudio.google.com/app/apikey to verify.";
+  } else if (sawNetworkError) {
+    finalError = "Cannot reach Gemini API (generativelanguage.googleapis.com). Check your internet connection, firewall, or proxy settings.";
+  } else if (sawRateLimit) {
+    finalError = "Gemini API rate limit exceeded. Wait a few minutes and try again, or add more API keys to GEMINI_OCR_KEYS.";
+  } else {
+    finalError = `Gemini OCR failed: ${lastError.substring(0, 200)}`;
   }
 
   return {
     text: "",
     success: false,
-    error: sawNetworkError
-      ? mimeType === "application/pdf"
-        ? "PDF appears scanned/image-based and OCR API is unreachable. Please verify GEMINI_OCR_KEYS and internet access, then retry."
-        : "Image OCR requires Gemini API connectivity. Please verify GEMINI_OCR_KEYS and internet access, then retry."
-      : sawRateLimit
-        ? "OCR rate limit reached for configured resume-analysis key(s). Please retry after a short wait."
-        : `OCR failed: ${lastError}`,
+    error: finalError,
   };
 };
 
-/**
- * Check if file type is supported for OCR
- */
 export const isSupportedForOCR = (mimeType: string): boolean => {
   const supportedTypes = [
     "application/pdf",
@@ -300,9 +179,6 @@ export const isSupportedForOCR = (mimeType: string): boolean => {
   return supportedTypes.includes(mimeType);
 };
 
-/**
- * Get appropriate mime type for Gemini
- */
 export const getGeminiMimeType = (originalMime: string): string => {
   const mimeMap: Record<string, string> = {
     "application/pdf": "application/pdf",
