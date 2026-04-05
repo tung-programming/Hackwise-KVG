@@ -35,6 +35,7 @@ export interface DashboardState {
     field: string
     type: string
   } | null
+  hasSeenTour: boolean
 }
 
 interface AppStore extends OnboardingState, DashboardState {
@@ -52,6 +53,7 @@ interface AppStore extends OnboardingState, DashboardState {
   addInterest: (interest: Interest) => void
   updateInterest: (id: string, status: Interest['status']) => void
   setCurrentUser: (user: DashboardState['currentUser']) => void
+  setHasSeenTour: (seen: boolean) => void
   clearStore: () => void
 }
 
@@ -63,6 +65,7 @@ const initialDashboardState: DashboardState = {
   uploadedHistory: false,
   interests: [],
   currentUser: null,
+  hasSeenTour: false,
 }
 
 const initialOnboardingState: OnboardingState = {
@@ -117,6 +120,8 @@ export const useAppStore = create<AppStore>()(
           })),
         setCurrentUser: (user: DashboardState['currentUser']) =>
           set({ currentUser: user }),
+        setHasSeenTour: (seen: boolean) =>
+          set({ hasSeenTour: seen }),
         clearStore: () =>
           set({
             ...initialOnboardingState,

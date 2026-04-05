@@ -2,6 +2,7 @@
 import { Request, Response, NextFunction } from "express";
 import { usersService } from "./users.service";
 import { ApiResponse } from "../../utils/api-response";
+import { supabase } from "../../config/database";
 
 export const usersController = {
   getProfile: async (req: Request, res: Response, next: NextFunction) => {
@@ -49,6 +50,21 @@ export const usersController = {
       const userId = (req as any).userId;
       await usersService.deleteAccount(userId);
       res.json(ApiResponse.success({ message: "Account deleted successfully" }));
+    } catch (error) {
+      next(error);
+    }
+  },
+
+  completeTour: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = (req as any).userId;
+      const { error } = await supabase
+        .from("users")
+        .update({ has_seen_tour: true, updated_at: new Date().toISOString() })
+        .eq("id", userId);
+      
+      if (error) throw error;
+      return res.status(200).json(ApiResponse.success({ message: "Tour completed" }));
     } catch (error) {
       next(error);
     }

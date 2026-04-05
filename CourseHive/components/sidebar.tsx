@@ -20,21 +20,20 @@ import {
 } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
 import { useState, useEffect } from 'react'
-import { BrandLogo } from '@/components/brand-logo'
 
 const PRIMARY = '#172b44'
 const ACCENT = '#f97316'
 
 const menuItems = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-  { label: 'Interests', icon: Heart, href: '/dashboard/interests', badge: '5+' },
-  { label: 'Courses', icon: BookOpen, href: '/dashboard/courses' },
-  { label: 'Projects', icon: FolderOpen, href: '/dashboard/projects' },
-  { label: 'Leaderboard', icon: Trophy, href: '/dashboard/leaderboard' },
+  { label: 'Interests', icon: Heart, href: '/dashboard/interests', badge: '5+', dataTour: 'interests' },
+  { label: 'Courses', icon: BookOpen, href: '/dashboard/courses', dataTour: 'courses' },
+  { label: 'Projects', icon: FolderOpen, href: '/dashboard/projects', dataTour: 'projects' },
+  { label: 'Leaderboard', icon: Trophy, href: '/dashboard/leaderboard', dataTour: 'leaderboard' },
 ]
 
 const generalItems = [
-  { label: 'Resume', icon: FileText, href: '/dashboard/resume' },
+  { label: 'Resume', icon: FileText, href: '/dashboard/resume', dataTour: 'resume' },
   { label: 'Profile', icon: User, href: '/dashboard/profile' },
   { label: 'Settings', icon: Settings, href: '#', disabled: true },
   { label: 'Help', icon: HelpCircle, href: '#', disabled: true },
@@ -71,7 +70,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const NavLink = ({
     item,
   }: {
-    item: { label: string; icon: React.ElementType; href: string; badge?: string; disabled?: boolean }
+    item: { label: string; icon: React.ElementType; href: string; badge?: string; disabled?: boolean; dataTour?: string }
   }) => {
     const active = isActive(item.href)
     const Icon = item.icon
@@ -107,7 +106,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     )
     if (item.disabled) return <div>{inner}</div>
     return (
-      <Link href={item.href} onClick={() => isMobile && onClose?.()}>
+      <Link href={item.href} onClick={() => isMobile && onClose?.()} data-tour={item.dataTour}>
         {inner}
       </Link>
     )
@@ -117,7 +116,15 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
     <div className="h-full flex flex-col">
       {/* Logo */}
       <div className="flex items-center justify-between px-5 pt-6 pb-5">
-        <BrandLogo href="/dashboard" width={168} height={49} className="rounded-lg" />
+        <div className="flex items-center gap-2.5">
+          <div
+            className="w-9 h-9 rounded-xl flex items-center justify-center shadow-md"
+            style={{ background: PRIMARY }}
+          >
+            <Hexagon className="w-4 h-4 text-white" />
+          </div>
+          <span className="font-bold text-lg tracking-tight" style={{ color: PRIMARY }}>CourseHive</span>
+        </div>
         {isMobile && (
           <button
             onClick={onClose}
