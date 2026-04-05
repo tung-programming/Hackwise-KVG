@@ -10,6 +10,8 @@ declare const envSchema: z.ZodObject<{
     JWT_ACCESS_EXPIRY: z.ZodDefault<z.ZodString>;
     JWT_REFRESH_EXPIRY: z.ZodDefault<z.ZodString>;
     GEMINI_KEYS: z.ZodString;
+    GEMINI_OCR_KEYS: z.ZodOptional<z.ZodString>;
+    GROQ_API_KEY: z.ZodString;
     FRONTEND_URL: z.ZodDefault<z.ZodString>;
     BACKEND_URL: z.ZodDefault<z.ZodString>;
 }, "strip", z.ZodTypeAny, {
@@ -23,19 +25,23 @@ declare const envSchema: z.ZodObject<{
     JWT_ACCESS_EXPIRY: string;
     JWT_REFRESH_EXPIRY: string;
     GEMINI_KEYS: string;
+    GROQ_API_KEY: string;
     FRONTEND_URL: string;
     BACKEND_URL: string;
+    GEMINI_OCR_KEYS?: string | undefined;
 }, {
     SUPABASE_URL: string;
     SUPABASE_SERVICE_KEY: string;
     SUPABASE_ANON_KEY: string;
     JWT_SECRET: string;
     GEMINI_KEYS: string;
+    GROQ_API_KEY: string;
     NODE_ENV?: "production" | "development" | "test" | undefined;
     PORT?: string | undefined;
     STORAGE_BUCKET?: string | undefined;
     JWT_ACCESS_EXPIRY?: string | undefined;
     JWT_REFRESH_EXPIRY?: string | undefined;
+    GEMINI_OCR_KEYS?: string | undefined;
     FRONTEND_URL?: string | undefined;
     BACKEND_URL?: string | undefined;
 }>;
@@ -50,8 +56,10 @@ export declare const env: {
     JWT_ACCESS_EXPIRY: string;
     JWT_REFRESH_EXPIRY: string;
     GEMINI_KEYS: string;
+    GROQ_API_KEY: string;
     FRONTEND_URL: string;
     BACKEND_URL: string;
+    GEMINI_OCR_KEYS?: string | undefined;
 };
 export type Env = z.infer<typeof envSchema>;
 export {};

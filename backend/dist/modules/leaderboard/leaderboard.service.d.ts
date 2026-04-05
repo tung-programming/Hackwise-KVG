@@ -9,21 +9,22 @@ export declare const leaderboardService: {
         };
     }>;
     getTopByXP: (limit?: number) => Promise<{
-        id: any;
+        rank: any;
+        user_id: any;
         username: any;
         avatar_url: any;
+        field: any;
         xp: any;
         streak: any;
-        rank: number;
     }[]>;
     getStreakLeaderboard: (page: number, limit: number) => Promise<{
         entries: {
-            id: any;
+            rank: number;
+            user_id: any;
             username: any;
             avatar_url: any;
             xp: any;
             streak: any;
-            rank: number;
         }[];
         pagination: {
             page: number;
@@ -36,6 +37,7 @@ export declare const leaderboardService: {
         rank: any;
         xp: any;
         streak: any;
+        totalUsers: number;
     }>;
     refreshLeaderboard: () => Promise<{
         refreshed: boolean;

@@ -1,11 +1,11 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { env } from "../../config/env";
 
 const ocrKeys = (env.GEMINI_OCR_KEYS || "")
   .split(",")
   .map((k) => k.trim())
   .filter((k) => k.length > 0);
-const ocrClients = ocrKeys.map((key) => new GoogleGenerativeAI(key));
+const ocrClients = ocrKeys.map((key) => new GoogleGenAI({ apiKey: key }));
 
 console.log(`✅ Gemini OCR initialized with ${ocrClients.length} key(s) from GEMINI_OCR_KEYS`);
 if (ocrClients.length === 0) {
@@ -97,9 +97,24 @@ Return ONLY the extracted text content, no additional commentary.`;
     for (const modelName of models) {
       try {
         console.log(`🔄 Trying OCR key ${i + 1}/${ocrClients.length} with model ${modelName}...`);
-        const model = client.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent([prompt, imagePart]);
-        const text = result.response.text();
+        const result = await client.models.generateContent({
+          model: modelName,
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: prompt },
+                imagePart,
+              ],
+            },
+          ],
+          config: {
+            temperature: 0.1,
+            maxOutputTokens: 4096,
+          },
+        });
+
+        const text = result.text ?? "";
 
         if (text && text.length > 50) {
           console.log(`✅ OCR SUCCESS with key ${i + 1} and model ${modelName}`);
