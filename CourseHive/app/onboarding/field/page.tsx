@@ -101,7 +101,7 @@ export default function FieldSelectionPage() {
       {particles.map((p, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full bg-white/60 pointer-events-none"
+          className="absolute rounded-full bg-card/50 pointer-events-none"
           style={{ width: p.size, height: p.size, left: `${p.x}%`, top: `${p.y}%` }}
           animate={{ opacity: [0.25, 0.75, 0.25], y: [0, -12, 0] }}
           transition={{ duration: p.dur, repeat: Infinity, delay: p.delay, ease: 'easeInOut' }}
@@ -135,7 +135,7 @@ export default function FieldSelectionPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-2 bg-white/65 backdrop-blur-sm text-[#172b44] text-xs font-semibold px-4 py-2 rounded-full border border-white/50 shadow-sm mb-6"
+              className="inline-flex items-center gap-2 bg-card/50 backdrop-blur-sm text-foreground text-xs font-semibold px-4 py-2 rounded-full border border-border/ shadow-sm mb-6"
             >
               <span className="w-1.5 h-1.5 bg-[#f97316] rounded-full animate-pulse" />
               Step 1 of 2
@@ -145,7 +145,7 @@ export default function FieldSelectionPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.5 }}
-              className="text-4xl sm:text-5xl font-extrabold text-[#172b44] tracking-tight mb-4"
+              className="text-4xl sm:text-5xl font-extrabold text-foreground tracking-tight mb-4"
             >
               Choose Your Field
             </motion.h1>
@@ -177,8 +177,8 @@ export default function FieldSelectionPage() {
                   onClick={() => handleSelect(f.id)}
                   className={`relative p-6 rounded-2xl border-2 transition-all duration-300 flex items-center gap-5 text-left group ${
                     selected === f.id
-                      ? 'bg-white/90 border-[#172b44] shadow-xl shadow-black/10'
-                      : 'bg-white/60 backdrop-blur-sm border-white/60 hover:bg-white/80 hover:border-white/80 hover:shadow-lg'
+                      ? 'bg-card/50 border-[#172b44] shadow-xl shadow-black/10'
+                      : 'bg-card/50 backdrop-blur-sm border-border/ hover:bg-card/50 hover:border-border/ hover:shadow-lg'
                   }`}
                 >
                   {/* Icon */}
@@ -193,7 +193,7 @@ export default function FieldSelectionPage() {
                   
                   {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <span className="font-bold text-[#172b44] text-lg block mb-1">{f.label}</span>
+                    <span className="font-bold text-foreground text-lg block mb-1">{f.label}</span>
                     <span className="text-sm text-[#3d5f80]">{f.description}</span>
                   </div>
 
@@ -220,7 +220,7 @@ export default function FieldSelectionPage() {
             className="flex flex-col sm:flex-row gap-3"
           >
             <Link href="/" className="sm:w-auto">
-              <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/60 backdrop-blur-sm hover:bg-white/80 text-[#172b44] font-semibold py-4 px-6 rounded-2xl border border-white/60 transition-all hover:-translate-y-0.5">
+              <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-card/50 backdrop-blur-sm hover:bg-card/50 text-foreground font-semibold py-4 px-6 rounded-2xl border border-border/ transition-all hover:-translate-y-0.5">
                 <ArrowLeft className="w-4 h-4" />
                 Back
               </button>
@@ -232,7 +232,7 @@ export default function FieldSelectionPage() {
               className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 font-semibold py-4 px-8 rounded-2xl transition-all ${
                 selected
                   ? 'bg-[#f97316] hover:bg-[#ea6c0a] text-white shadow-lg shadow-orange-300/40 hover:-translate-y-0.5 hover:shadow-xl'
-                  : 'bg-[#172b44]/20 text-[#172b44]/40 cursor-not-allowed'
+                  : 'bg-[#172b44]/20 text-foreground/40 cursor-not-allowed'
               }`}
             >
               Continue

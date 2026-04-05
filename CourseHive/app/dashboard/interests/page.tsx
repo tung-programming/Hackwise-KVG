@@ -9,9 +9,9 @@ import { useAppStore } from '@/lib/store'
 import { useInterests, useActiveInterest, useInterestActions } from '@/hooks/use-api'
 import type { Interest as ApiInterest } from '@/lib/api'
 
-const PRIMARY = '#172b44'
-const ACCENT = '#f97316'
-const PRIMARY_LIGHT = '#e8f1f8'
+const PRIMARY = 'var(--primary)'
+const ACCENT = 'var(--accent)'
+const PRIMARY_LIGHT = 'var(--background)'
 
 const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } } }
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } }
@@ -102,7 +102,7 @@ export default function InterestsPage() {
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: PRIMARY }}>Your Interests</h1>
             {uploadedHistory && (
-              <span className="flex items-center gap-1 bg-orange-100 text-orange-600 text-[10px] font-bold px-2 py-1 rounded-full">
+              <span className="flex items-center gap-1 bg-orange-100 text-orange-600 dark:text--400 text-[10px] font-bold px-2 py-1 rounded-full">
                 <Sparkles className="w-3 h-3" /> Personalized
               </span>
             )}
@@ -121,53 +121,53 @@ export default function InterestsPage() {
         <motion.div
           variants={fade}
           className="rounded-2xl p-5 relative overflow-hidden col-span-1 shadow-lg"
-          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
+          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, var(--primary) 100%)` }}
         >
-          <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-white/10" />
-          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
+          <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-card/50 " />
+          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-card/50 flex items-center justify-center">
             <Target className="w-3.5 h-3.5 text-white" />
           </div>
           <p className="text-white/70 text-xs font-medium mt-1">Total Interests</p>
           <p className="text-white text-4xl font-black mt-1">{interests.length}</p>
           <div className="flex items-center gap-1.5 mt-3">
-            <span className="flex items-center gap-1 bg-white/15 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+            <span className="flex items-center gap-1 bg-card/50 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
               Tracked Topics
             </span>
           </div>
         </motion.div>
 
         {/* Card 2 */}
-        <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
+        <motion.div variants={fade} className="bg-card/50 backdrop-blur-sm rounded-2xl p-5 border border-border/ relative shadow-sm hover:shadow-md transition-shadow">
           <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center">
-            <Flame className="w-3.5 h-3.5 text-orange-600" />
+            <Flame className="w-3.5 h-3.5 text-orange-600 dark:text--400" />
           </div>
           <p className="text-muted-foreground text-xs font-medium mt-1">Active Paths</p>
           <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>{accepted.length}</p>
           <div className="flex items-center gap-1.5 mt-3">
-            <span className="flex items-center gap-1 text-emerald-600 text-[10px] font-semibold">
+            <span className="flex items-center gap-1 text-emerald-600 dark:text--400 text-[10px] font-semibold">
               <TrendingUp className="w-2.5 h-2.5" /> Getting started
             </span>
           </div>
         </motion.div>
 
         {/* Card 3 */}
-        <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
-          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center">
-            <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+        <motion.div variants={fade} className="bg-card/50 backdrop-blur-sm rounded-2xl p-5 border border-border/ relative shadow-sm hover:shadow-md transition-shadow">
+          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-blue-50 dark:bg--900/20 flex items-center justify-center">
+            <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text--400" />
           </div>
           <p className="text-muted-foreground text-xs font-medium mt-1">Recommended</p>
           <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>{pending.length}</p>
           <div className="flex items-center gap-1.5 mt-3">
-            <span className="flex items-center gap-1 text-blue-600 text-[10px] font-semibold">
+            <span className="flex items-center gap-1 text-blue-600 dark:text--400 text-[10px] font-semibold">
               New suggestions
             </span>
           </div>
         </motion.div>
         
         {/* Card 4 */}
-        <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
-          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+        <motion.div variants={fade} className="bg-card/50 backdrop-blur-sm rounded-2xl p-5 border border-border/ relative shadow-sm hover:shadow-md transition-shadow">
+          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-50 dark:bg--900/20 flex items-center justify-center">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text--400" />
           </div>
           <p className="text-muted-foreground text-xs font-medium mt-1">Completed</p>
           <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>{completed.length}</p>
@@ -185,11 +185,11 @@ export default function InterestsPage() {
 
       {/* ── Error State ── */}
       {error && (
-        <motion.div variants={fade} className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+        <motion.div variants={fade} className="bg-red-50 dark:bg--900/20 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 dark:text--400 shrink-0" />
           <div>
             <p className="font-semibold text-red-700">Failed to load interests</p>
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-sm text-red-600 dark:text--400">{error}</p>
           </div>
         </motion.div>
       )}
@@ -214,7 +214,7 @@ export default function InterestsPage() {
 
       {/* ── Active Learning Paths ── */}
       {accepted.length > 0 && (
-        <motion.div variants={stagger} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm">
+        <motion.div variants={stagger} className="bg-card/50 backdrop-blur-sm rounded-2xl p-5 border border-border/ shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Active Learning Paths</h2>
@@ -234,7 +234,7 @@ export default function InterestsPage() {
                 <Link key={interest.id} href={`/dashboard/courses/${interest.id}`}>
                   <motion.div
                     variants={fade}
-                    className="group relative rounded-xl border border-emerald-200 bg-emerald-50/50 shadow-sm p-4 flex flex-col transition-all hover:shadow-md cursor-pointer"
+                    className="group relative rounded-xl border border-emerald-200 bg-emerald-50 dark:bg--900/20/50 shadow-sm p-4 flex flex-col transition-all hover:shadow-md cursor-pointer"
                   >
                     <div className="flex items-start justify-between mb-3">
                       <div 
@@ -243,13 +243,13 @@ export default function InterestsPage() {
                       >
                         <Icon className="w-4 h-4" style={{ color }} />
                       </div>
-                      <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                      <span className="text-[10px] bg-emerald-100 text-emerald-700 dark:text--400 font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
                         <Flame className="w-3 h-3" /> Active
                       </span>
                     </div>
                     
                     <div className="mb-3 flex-1">
-                      <h3 className="font-bold text-sm text-[#172b44] mb-1">{interest.name}</h3>
+                      <h3 className="font-bold text-sm text-foreground mb-1">{interest.name}</h3>
                       <p className="text-xs text-muted-foreground line-clamp-2">{interest.description}</p>
                     </div>
                     
@@ -261,7 +261,7 @@ export default function InterestsPage() {
                       </div>
                       <div className="w-full h-2 bg-emerald-100 rounded-full overflow-hidden">
                         <div 
-                          className="h-full bg-emerald-500 transition-all"
+                          className="h-full bg-emerald-50 dark:bg--900/200 transition-all"
                           style={{ width: `${interest.progress_pct}%` }}
                         />
                       </div>
@@ -276,7 +276,7 @@ export default function InterestsPage() {
 
       {/* ── Curated for You ── */}
       {!loading && pending.length > 0 && (
-        <motion.div variants={stagger} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm">
+        <motion.div variants={stagger} className="bg-card/50 backdrop-blur-sm rounded-2xl p-5 border border-border/ shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Curated for You</h2>
@@ -302,7 +302,7 @@ export default function InterestsPage() {
                 <motion.div
                   key={interest.id}
                   variants={fade}
-                  className={`group relative rounded-xl border border-border/50 bg-white shadow-sm p-4 flex flex-col transition-all ${
+                  className={`group relative rounded-xl border border-border/50 bg-card shadow-sm p-4 flex flex-col transition-all ${
                     isUnlocked ? 'hover:shadow-md border-orange-200' : 'opacity-50 grayscale select-none pointer-events-none scale-95'
                   }`}
                 >
@@ -317,14 +317,14 @@ export default function InterestsPage() {
                     {!isUnlocked ? (
                       <Lock className="w-4 h-4 text-slate-400" />
                     ) : (
-                      <span className="text-[10px] bg-orange-50 text-orange-600 font-bold px-2.5 py-0.5 rounded-full border border-orange-100 flex items-center gap-1 shadow-sm">
+                      <span className="text-[10px] bg-orange-50 dark:bg--900/20 text-orange-600 dark:text--400 font-bold px-2.5 py-0.5 rounded-full border border-orange-100 flex items-center gap-1 shadow-sm">
                         <Sparkles className="w-3 h-3" /> Unlocked
                       </span>
                     )}
                   </div>
                   
                   <div className="mb-4 flex-1">
-                    <h3 className={`font-bold text-sm mb-1 ${isUnlocked ? 'text-[#172b44]' : 'text-slate-500'}`}>{interest.name}</h3>
+                    <h3 className={`font-bold text-sm mb-1 ${isUnlocked ? 'text-foreground' : 'text-slate-500'}`}>{interest.name}</h3>
                     <p className="text-xs text-muted-foreground line-clamp-2">{interest.description}</p>
                   </div>
                   
@@ -332,12 +332,12 @@ export default function InterestsPage() {
                   <div className="mt-auto border-t border-slate-100 pt-3">
                     {isUnlocked ? (
                       <div className="flex flex-col gap-2">
-                        <p className="text-[11px] font-extrabold text-center text-[#172b44] mb-0.5">Is this your correct interest?</p>
+                        <p className="text-[11px] font-extrabold text-center text-foreground mb-0.5">Is this your correct interest?</p>
                         <div className="grid grid-cols-2 gap-2">
                           <button
                             onClick={() => handleAccept(interest)}
                             disabled={actionLoading}
-                            className="py-1.5 flex items-center justify-center rounded-lg text-xs font-black text-emerald-700 bg-emerald-50 border border-emerald-200 transition-all hover:bg-emerald-500 hover:text-white shadow-sm disabled:opacity-50"
+                            className="py-1.5 flex items-center justify-center rounded-lg text-xs font-black text-emerald-700 dark:text--400 bg-emerald-50 dark:bg--900/20 border border-emerald-200 transition-all hover:bg-emerald-50 dark:bg--900/200 hover:text-white shadow-sm disabled:opacity-50"
                           >
                             {actionLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'YES'}
                           </button>
@@ -367,7 +367,7 @@ export default function InterestsPage() {
       {!loading && (interests.length === 0 || pending.length === 0) && (
         <motion.div 
           variants={fade}
-          className="text-center py-12 px-5 bg-white/70 backdrop-blur-sm rounded-2xl border border-white/50 shadow-sm mt-8"
+          className="text-center py-12 px-5 bg-card/50 backdrop-blur-sm rounded-2xl border border-border/ shadow-sm mt-8"
         >
           <div className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{ background: ACCENT + '15' }}>
             <Sparkles className="w-8 h-8" style={{ color: ACCENT }} />
@@ -402,15 +402,15 @@ export default function InterestsPage() {
             <motion.div 
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
-              className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl relative overflow-hidden"
+              className="bg-card rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl relative overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-full h-1.5 bg-[#f97316] animate-pulse" />
-              <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-5 border border-emerald-100 shadow-inner">
+              <div className="w-20 h-20 bg-emerald-50 dark:bg--900/20 rounded-full flex items-center justify-center mx-auto mb-5 border border-emerald-100 shadow-inner">
                 <CheckCircle2 className="w-10 h-10 text-emerald-500" />
               </div>
-              <h3 className="text-xl font-black text-[#172b44] mb-3">Interest Confirmed!</h3>
+              <h3 className="text-xl font-black text-foreground mb-3">Interest Confirmed!</h3>
               <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-                We are generating an ultra-personalized learning path for <span className="font-bold text-[#f97316] px-1 bg-orange-50 rounded">{redirectingInterest}</span>...
+                We are generating an ultra-personalized learning path for <span className="font-bold text-[#f97316] px-1 bg-orange-50 dark:bg--900/20 rounded">{redirectingInterest}</span>...
               </p>
               <div className="flex justify-center">
                 <Loader2 className="w-8 h-8 text-[#f97316] animate-spin" />

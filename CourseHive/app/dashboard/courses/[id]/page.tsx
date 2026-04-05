@@ -19,8 +19,8 @@ import {
 } from 'lucide-react'
 import { useCourseCompletion, useInterestDetail } from '@/hooks/use-api'
 
-const PRIMARY = '#172b44'
-const ACCENT = '#f97316'
+const PRIMARY = 'var(--primary)'
+const ACCENT = 'var(--accent)'
 
 type RoadNode = {
   id: string
@@ -149,7 +149,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
   if (error || !data?.interest) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
-        <AlertCircle className="h-10 w-10 text-red-500" />
+        <AlertCircle className="h-10 w-10 text-red-500 dark:text--400" />
         <p className="text-sm text-muted-foreground">{error || 'Interest not found'}</p>
         <Link href="/dashboard/interests" className="text-sm font-semibold" style={{ color: ACCENT }}>
           Back to Interests
@@ -162,7 +162,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
     return (
       <div className="flex min-h-[55vh] flex-col items-center justify-center gap-4">
         <Loader2 className="h-10 w-10 animate-spin text-[#f97316]" />
-        <p className="text-base font-semibold text-[#172b44]">Generating your roadmap...</p>
+        <p className="text-base font-semibold text-foreground">Generating your roadmap...</p>
         <p className="max-w-md text-center text-sm text-muted-foreground">
           We are building your course nodes and projects. This can take 10-20 seconds.
         </p>
@@ -181,26 +181,26 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
         </Link>
       </div>
 
-      <div className="rounded-3xl border border-white/10 p-6 text-white shadow-xl" style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}>
+      <div className="rounded-3xl border border-border/ p-6 text-white shadow-xl" style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, var(--primary) 100%)` }}>
         <h1 className="text-4xl font-black tracking-tight">{data.interest.name}</h1>
         <p className="mt-2 max-w-3xl text-sm text-white/70">{data.interest.description}</p>
         <div className="mt-5 grid gap-3 sm:grid-cols-3">
-          <div className="rounded-xl bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider">{completedCount} done</div>
-          <div className="rounded-xl bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider">{activeCount} active</div>
-          <div className="rounded-xl bg-white/10 px-4 py-2 text-xs font-bold uppercase tracking-wider">{lockedCount} locked</div>
+          <div className="rounded-xl bg-card/50 px-4 py-2 text-xs font-bold uppercase tracking-wider">{completedCount} done</div>
+          <div className="rounded-xl bg-card/50 px-4 py-2 text-xs font-bold uppercase tracking-wider">{activeCount} active</div>
+          <div className="rounded-xl bg-card/50 px-4 py-2 text-xs font-bold uppercase tracking-wider">{lockedCount} locked</div>
         </div>
-        <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-white/20">
+        <div className="mt-4 h-2.5 w-full overflow-hidden rounded-full bg-card/50 ">
           <div className="h-full rounded-full" style={{ width: `${progressPct}%`, background: ACCENT }} />
         </div>
       </div>
 
       {feedback && (
-        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="rounded-xl border border-emerald-200 bg-emerald-50 dark:bg--900/20 px-4 py-2 text-sm font-semibold text-emerald-700 dark:text--400">
           {feedback}
         </motion.div>
       )}
 
-      <section className="rounded-3xl border border-slate-200/60 bg-white/70 p-4 shadow-xl backdrop-blur-sm sm:p-6">
+      <section className="rounded-3xl border border-slate-200/60 bg-card/50 p-4 shadow-xl backdrop-blur-sm sm:p-6">
         <div className="mb-5 flex items-end justify-between">
           <h2 className="text-xl font-black" style={{ color: PRIMARY }}>Course Roadmap</h2>
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{nodes.length} nodes</p>
@@ -261,7 +261,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
                       locked
                         ? 'border-slate-300 bg-slate-100/90'
                         : active
-                        ? 'border-orange-200 bg-white'
+                        ? 'border-orange-200 bg-card'
                         : 'border-amber-200 bg-amber-50/70'
                     }`}
                     style={{ left: `${cardLeft}px`, top: `${cardTop}px` }}
@@ -271,7 +271,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
                       <span
                         className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase ${
                           done
-                            ? 'bg-emerald-100 text-emerald-700'
+                            ? 'bg-emerald-100 text-emerald-700 dark:text--400'
                             : active
                             ? 'bg-orange-100 text-orange-700'
                             : 'bg-slate-200 text-slate-600'
@@ -281,7 +281,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
                       </span>
                     </div>
 
-                    <h3 className="text-2xl font-black leading-tight text-[#172b44]">{node.title}</h3>
+                    <h3 className="text-2xl font-black leading-tight text-foreground">{node.title}</h3>
                     <p className="mt-2 line-clamp-3 text-sm text-slate-600">{node.description}</p>
 
                     <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-slate-500">
@@ -296,7 +296,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
                         href={node.url || '#'}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`inline-flex items-center gap-1 text-sm font-bold ${locked ? 'pointer-events-none text-slate-400' : 'text-orange-600 hover:underline'}`}
+                        className={`inline-flex items-center gap-1 text-sm font-bold ${locked ? 'pointer-events-none text-slate-400' : 'text-orange-600 dark:text--400 hover:underline'}`}
                       >
                         <ExternalLink className="h-4 w-4" /> Open link
                       </a>
@@ -306,7 +306,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
                         className={`ml-auto inline-flex items-center gap-1 rounded-lg border px-2.5 py-1 text-xs font-bold ${
                           locked
                             ? 'border-slate-300 text-slate-500'
-                            : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                            : 'border-slate-300 bg-card text-slate-700 hover:bg-slate-50'
                         }`}
                       >
                         <FilePenLine className="h-3.5 w-3.5" /> Note
@@ -329,7 +329,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
                     <motion.div
                       initial={{ opacity: 0, x: 10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      className="absolute z-30 w-[300px] rounded-xl border border-slate-200 bg-white p-3 shadow-xl"
+                      className="absolute z-30 w-[300px] rounded-xl border border-slate-200 bg-card p-3 shadow-xl"
                       style={{
                         left: `${idx % 2 === 0 ? cardLeft + 392 : cardLeft - 312}px`,
                         top: `${cardTop + 14}px`,
@@ -372,12 +372,12 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
 
         <div className="mt-4 flex items-center gap-4 text-xs font-semibold text-slate-500">
           <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-amber-400" /> Completed</span>
-          <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-orange-500" /> In Progress</span>
+          <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-orange-50 dark:bg--900/200" /> In Progress</span>
           <span className="inline-flex items-center gap-1"><span className="h-2.5 w-2.5 rounded-full bg-slate-500" /> Locked</span>
         </div>
       </section>
 
-      <section className="rounded-2xl border border-white/50 bg-white/70 p-5 shadow-sm">
+      <section className="rounded-2xl border border-border/ bg-card/50 p-5 shadow-sm">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold" style={{ color: PRIMARY }}>Projects</h3>

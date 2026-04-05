@@ -5,8 +5,8 @@ import { motion } from 'framer-motion'
 import { FileText, Upload, Download, ArrowUpRight, CheckCircle2, History, MoreHorizontal, FileCheck, Sparkles, AlertCircle, Loader2, X } from 'lucide-react'
 import { authFetch } from '@/lib/auth'
 
-const PRIMARY = '#172b44'
-const ACCENT = '#f97316'
+const PRIMARY = 'var(--primary)'
+const ACCENT = 'var(--accent)'
 
 const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } } }
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } }
@@ -134,7 +134,7 @@ export default function ResumePage() {
       {/* Header */}
       <motion.div variants={fade} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-[#172b44]">Resume Analysis</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Resume Analysis</h1>
           <p className="text-muted-foreground text-sm mt-1">Upload your resume to get AI-powered career insights</p>
         </div>
       </motion.div>
@@ -145,11 +145,11 @@ export default function ResumePage() {
           <motion.div
             key={label}
             variants={fade}
-            className={`rounded-2xl p-5 border border-white/50 shadow-sm ${i === 0 ? 'text-white' : 'bg-white/70 backdrop-blur-sm'}`}
-            style={i === 0 ? { background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` } : {}}
+            className={`rounded-2xl p-5 border border-border/ shadow-sm ${i === 0 ? 'text-white' : 'bg-card/50 backdrop-blur-sm'}`}
+            style={i === 0 ? { background: `linear-gradient(135deg, ${PRIMARY} 0%, var(--primary) 100%)` } : {}}
           >
             {i !== 0 && (
-              <button className="float-right w-7 h-7 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors">
+              <button className="float-right w-7 h-7 rounded-full bg-card/50 flex items-center justify-center hover:bg-card transition-colors">
                 <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
             )}
@@ -163,7 +163,7 @@ export default function ResumePage() {
         {/* Upload Dropzone */}
         <motion.div 
           variants={fade} 
-          className="lg:col-span-2 bg-white/70 backdrop-blur-sm border border-white/50 rounded-[28px] p-2 shadow-sm"
+          className="lg:col-span-2 bg-card/50 backdrop-blur-sm border border-border/ rounded-[28px] p-2 shadow-sm"
         >
           <input
             ref={fileInputRef}
@@ -181,7 +181,7 @@ export default function ResumePage() {
               isDragging ? 'border-[#f97316] bg-[#f97316]/5 scale-[0.99]' : 'border-slate-200 hover:border-[#f97316]/50 hover:bg-slate-50/50'
             }`}
           >
-            <div className="w-20 h-20 rounded-full flex items-center justify-center bg-white shadow-sm border border-slate-100 mb-6 relative group">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center bg-card shadow-sm border border-slate-100 mb-6 relative group">
               <div className="absolute inset-0 rounded-full bg-[#f97316]/10 scale-0 group-hover:scale-150 transition-transform duration-500 ease-out" />
               <Upload className="w-8 h-8 text-[#f97316] relative z-10" />
             </div>
@@ -190,7 +190,7 @@ export default function ResumePage() {
               <>
                 <div className="flex items-center gap-2 mb-4">
                   <FileText className="w-5 h-5 text-[#f97316]" />
-                  <span className="text-sm font-medium text-[#172b44]">{selectedFile.name}</span>
+                  <span className="text-sm font-medium text-foreground">{selectedFile.name}</span>
                   <button 
                     onClick={(e) => { e.stopPropagation(); setSelectedFile(null) }}
                     className="p-1 hover:bg-slate-100 rounded-full"
@@ -204,7 +204,7 @@ export default function ResumePage() {
               </>
             ) : (
               <>
-                <h3 className="text-xl font-bold text-[#172b44] mb-2">
+                <h3 className="text-xl font-bold text-foreground mb-2">
                   {isDragging ? 'Drop it here!' : 'Click to upload or drag and drop'}
                 </h3>
                 <p className="text-muted-foreground text-sm max-w-[280px] leading-relaxed mb-8">
@@ -214,7 +214,7 @@ export default function ResumePage() {
             )}
 
             {error && (
-              <div className="mb-4 px-4 py-2 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+              <div className="mb-4 px-4 py-2 bg-red-50 dark:bg--900/20 border border-red-200 rounded-lg text-red-600 dark:text--400 text-sm">
                 {error}
               </div>
             )}
@@ -238,9 +238,9 @@ export default function ResumePage() {
         </motion.div>
 
         {/* Results Panel */}
-        <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm border border-white/50 rounded-[28px] p-6 shadow-sm flex flex-col min-h-[360px]">
+        <motion.div variants={fade} className="bg-card/50 backdrop-blur-sm border border-border/ rounded-[28px] p-6 shadow-sm flex flex-col min-h-[360px]">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="font-bold text-[#172b44] flex items-center gap-2">
+            <h2 className="font-bold text-foreground flex items-center gap-2">
               <History className="w-4 h-4 text-[#f97316]" /> Analysis Results
             </h2>
           </div>
@@ -250,11 +250,11 @@ export default function ResumePage() {
               <>
                 {/* Score Badge */}
                 <div className={`p-4 rounded-2xl text-center ${
-                  analysis.ats_score >= 80 ? 'bg-emerald-50' : analysis.ats_score >= 60 ? 'bg-yellow-50' : 'bg-rose-50'
+                  analysis.ats_score >= 80 ? 'bg-emerald-50 dark:bg--900/20' : analysis.ats_score >= 60 ? 'bg-yellow-50' : 'bg-rose-50'
                 }`}>
                   <p className="text-xs font-medium text-muted-foreground mb-1">ATS Score</p>
                   <p className={`text-4xl font-black ${
-                    analysis.ats_score >= 80 ? 'text-emerald-600' : analysis.ats_score >= 60 ? 'text-yellow-600' : 'text-rose-600'
+                    analysis.ats_score >= 80 ? 'text-emerald-600 dark:text--400' : analysis.ats_score >= 60 ? 'text-yellow-600' : 'text-rose-600'
                   }`}>
                     {analysis.ats_score}%
                   </p>
@@ -263,7 +263,7 @@ export default function ResumePage() {
                 {/* Suggestions */}
                 {analysis.suggestions && analysis.suggestions.length > 0 && (
                   <div className="mt-4">
-                    <h4 className="text-sm font-bold text-[#172b44] mb-2">Suggestions</h4>
+                    <h4 className="text-sm font-bold text-foreground mb-2">Suggestions</h4>
                     <ul className="space-y-2">
                       {analysis.suggestions.slice(0, 5).map((suggestion, i) => (
                         <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
@@ -278,7 +278,7 @@ export default function ResumePage() {
                 {/* Strengths */}
                 {analysis.feedback?.strengths && analysis.feedback.strengths.length > 0 && (
                   <div className="mt-4">
-                    <h4 className="text-sm font-bold text-emerald-600 mb-2">Strengths</h4>
+                    <h4 className="text-sm font-bold text-emerald-600 dark:text--400 mb-2">Strengths</h4>
                     <ul className="space-y-1">
                       {analysis.feedback.strengths.slice(0, 3).map((s, i) => (
                         <li key={i} className="text-xs text-muted-foreground">✓ {s}</li>

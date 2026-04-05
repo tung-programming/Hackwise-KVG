@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { AlertCircle, Loader2 } from 'lucide-react'
 import { useActiveInterest } from '@/hooks/use-api'
 
-const ACCENT = '#f97316'
+const ACCENT = 'var(--accent)'
 
 export default function CoursesPage() {
   const router = useRouter()
@@ -32,7 +32,7 @@ export default function CoursesPage() {
   if (!activeInterest) {
     return (
       <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4">
-        <AlertCircle className="h-10 w-10 text-red-500" />
+        <AlertCircle className="h-10 w-10 text-red-500 dark:text--400" />
         <p className="text-sm text-muted-foreground">{error || 'No active interest found.'}</p>
         <Link href="/dashboard/interests" className="text-sm font-semibold" style={{ color: ACCENT }}>
           Go to Interests

@@ -52,8 +52,8 @@ export default function TypeSelectionPage() {
           background: 'linear-gradient(180deg,#a8c8e8 0%,#c0d9f0 14%,#d8edf8 30%,#edf5fb 48%,#f3e9da 72%,#ecdcc8 100%)'
         }}
       >
-        <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-10 shadow-xl shadow-black/5 border border-white/60 text-center">
-          <p className="text-xl font-bold text-[#172b44] mb-4">Please select a field first</p>
+        <div className="bg-card/50 backdrop-blur-xl rounded-3xl p-10 shadow-xl shadow-black/5 border border-border/ text-center">
+          <p className="text-xl font-bold text-foreground mb-4">Please select a field first</p>
           <button 
             onClick={() => router.push('/onboarding/field')}
             className="flex items-center justify-center gap-2 bg-[#f97316] hover:bg-[#ea6c0a] text-white font-semibold py-3 px-6 rounded-2xl shadow-lg shadow-orange-300/40 transition-all hover:-translate-y-0.5"
@@ -100,7 +100,7 @@ export default function TypeSelectionPage() {
       {particles.map((p, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full bg-white/60 pointer-events-none"
+          className="absolute rounded-full bg-card/50 pointer-events-none"
           style={{ width: p.size, height: p.size, left: `${p.x}%`, top: `${p.y}%` }}
           animate={{ opacity: [0.25, 0.75, 0.25], y: [0, -12, 0] }}
           transition={{ duration: p.dur, repeat: Infinity, delay: p.delay, ease: 'easeInOut' }}
@@ -134,7 +134,7 @@ export default function TypeSelectionPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.5 }}
-              className="inline-flex items-center gap-2 bg-white/65 backdrop-blur-sm text-[#172b44] text-xs font-semibold px-4 py-2 rounded-full border border-white/50 shadow-sm mb-6"
+              className="inline-flex items-center gap-2 bg-card/50 backdrop-blur-sm text-foreground text-xs font-semibold px-4 py-2 rounded-full border border-border/ shadow-sm mb-6"
             >
               <span className="w-1.5 h-1.5 bg-[#f97316] rounded-full animate-pulse" />
               Step 2 of 2 · {field}
@@ -144,7 +144,7 @@ export default function TypeSelectionPage() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.5 }}
-              className="text-4xl sm:text-5xl font-extrabold text-[#172b44] tracking-tight mb-4"
+              className="text-4xl sm:text-5xl font-extrabold text-foreground tracking-tight mb-4"
             >
               Choose Your Specialization
             </motion.h1>
@@ -174,12 +174,12 @@ export default function TypeSelectionPage() {
                 onClick={() => handleSelect(t)}
                 className={`relative p-5 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[100px] group ${
                   selected === t
-                    ? 'bg-white/90 border-[#172b44] shadow-xl shadow-black/10'
-                    : 'bg-white/60 backdrop-blur-sm border-white/60 hover:bg-white/80 hover:border-white/80 hover:shadow-lg'
+                    ? 'bg-card/50 border-[#172b44] shadow-xl shadow-black/10'
+                    : 'bg-card/50 backdrop-blur-sm border-border/ hover:bg-card/50 hover:border-border/ hover:shadow-lg'
                 }`}
               >
                 <span className={`font-semibold text-sm text-center transition-colors ${
-                  selected === t ? 'text-[#172b44]' : 'text-[#3d5f80] group-hover:text-[#172b44]'
+                  selected === t ? 'text-foreground' : 'text-[#3d5f80] group-hover:text-foreground'
                 }`}>{t}</span>
 
                 {/* Checkmark */}
@@ -203,12 +203,12 @@ export default function TypeSelectionPage() {
               onClick={handleCustom}
               className={`relative p-5 rounded-2xl border-2 transition-all duration-300 flex flex-col items-center justify-center gap-2 min-h-[100px] group ${
                 selected === 'custom'
-                  ? 'bg-white/90 border-[#172b44] shadow-xl shadow-black/10'
-                  : 'bg-white/60 backdrop-blur-sm border-white/60 hover:bg-white/80 hover:border-white/80 hover:shadow-lg'
+                  ? 'bg-card/50 border-[#172b44] shadow-xl shadow-black/10'
+                  : 'bg-card/50 backdrop-blur-sm border-border/ hover:bg-card/50 hover:border-border/ hover:shadow-lg'
               }`}
             >
               <span className={`font-semibold text-sm transition-colors ${
-                selected === 'custom' ? 'text-[#172b44]' : 'text-[#3d5f80] group-hover:text-[#172b44]'
+                selected === 'custom' ? 'text-foreground' : 'text-[#3d5f80] group-hover:text-foreground'
               }`}>Other</span>
 
               {/* Checkmark */}
@@ -231,14 +231,14 @@ export default function TypeSelectionPage() {
               animate={{ opacity: 1, y: 0 }}
               className="mb-8"
             >
-              <label className="text-sm font-semibold text-[#172b44] block mb-3">Enter your specialization</label>
+              <label className="text-sm font-semibold text-foreground block mb-3">Enter your specialization</label>
               <input
                 type="text"
                 placeholder="e.g., Cybersecurity, DevOps, Quantum Computing..."
                 value={customOther}
                 onChange={(e) => setCustomOther(e.target.value)}
                 autoFocus
-                className="w-full px-5 py-4 rounded-2xl bg-white/70 backdrop-blur-sm border-2 border-white/60 text-[#172b44] placeholder-[#8aaac8] text-sm outline-none focus:bg-white/90 focus:border-[#172b44]/30 transition-all shadow-sm"
+                className="w-full px-5 py-4 rounded-2xl bg-card/50 backdrop-blur-sm border-2 border-border/ text-foreground placeholder-[#8aaac8] text-sm outline-none focus:bg-card/50 focus:border-[#172b44]/30 transition-all shadow-sm"
               />
             </motion.div>
           )}
@@ -252,7 +252,7 @@ export default function TypeSelectionPage() {
           >
             <button 
               onClick={() => router.push('/onboarding/field')}
-              className="sm:w-auto flex items-center justify-center gap-2 bg-white/60 backdrop-blur-sm hover:bg-white/80 text-[#172b44] font-semibold py-4 px-6 rounded-2xl border border-white/60 transition-all hover:-translate-y-0.5"
+              className="sm:w-auto flex items-center justify-center gap-2 bg-card/50 backdrop-blur-sm hover:bg-card/50 text-foreground font-semibold py-4 px-6 rounded-2xl border border-border/ transition-all hover:-translate-y-0.5"
             >
               <ArrowLeft className="w-4 h-4" />
               Back
@@ -264,7 +264,7 @@ export default function TypeSelectionPage() {
               className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 font-semibold py-4 px-8 rounded-2xl transition-all ${
                 selected && (selected !== 'custom' || customOther)
                   ? 'bg-[#f97316] hover:bg-[#ea6c0a] text-white shadow-lg shadow-orange-300/40 hover:-translate-y-0.5 hover:shadow-xl'
-                  : 'bg-[#172b44]/20 text-[#172b44]/40 cursor-not-allowed'
+                  : 'bg-[#172b44]/20 text-foreground/40 cursor-not-allowed'
               }`}
             >
               Complete Setup

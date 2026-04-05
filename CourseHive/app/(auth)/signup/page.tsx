@@ -72,7 +72,7 @@ export default function SignupPage() {
       {particles.map((p, i) => (
         <motion.div
           key={i}
-          className="absolute rounded-full bg-white/60 pointer-events-none"
+          className="absolute rounded-full bg-card/50 pointer-events-none"
           style={{ width: p.size, height: p.size, left: `${p.x}%`, top: `${p.y}%` }}
           animate={{ opacity: [0.25, 0.75, 0.25], y: [0, -12, 0] }}
           transition={{ duration: p.dur, repeat: Infinity, delay: p.delay, ease: 'easeInOut' }}
@@ -95,7 +95,7 @@ export default function SignupPage() {
           className="w-full max-w-md"
         >
           {/* Card */}
-          <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-8 sm:p-10 shadow-xl shadow-black/5 border border-white/60">
+          <div className="bg-card/50 backdrop-blur-xl rounded-3xl p-8 sm:p-10 shadow-xl shadow-black/5 border border-border/">
             
             {/* Badge */}
             <motion.div 
@@ -116,7 +116,7 @@ export default function SignupPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15, duration: 0.5 }}
-                className="text-3xl sm:text-4xl font-extrabold text-[#172b44] tracking-tight mb-3"
+                className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight mb-3"
               >
                 Create Account
               </motion.h1>
@@ -142,7 +142,7 @@ export default function SignupPage() {
                 <button 
                   onClick={handleGoogleSignup}
                   disabled={isLoading !== null}
-                  className="w-full flex items-center justify-center gap-3 bg-white hover:bg-gray-50 text-[#172b44] font-semibold py-4 px-5 rounded-2xl border border-[#172b44]/10 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full flex items-center justify-center gap-3 bg-card hover:bg-gray-50 text-foreground font-semibold py-4 px-5 rounded-2xl border border-[#172b44]/10 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading === 'google' ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -198,7 +198,7 @@ export default function SignupPage() {
                 Already have an account?
               </p>
               <Link href="/login">
-                <button className="w-full flex items-center justify-center gap-2 bg-white hover:bg-gray-50 text-[#172b44] font-semibold py-4 px-5 rounded-2xl border-2 border-[#172b44]/15 transition-all hover:-translate-y-0.5 hover:border-[#172b44]/30">
+                <button className="w-full flex items-center justify-center gap-2 bg-card hover:bg-gray-50 text-foreground font-semibold py-4 px-5 rounded-2xl border-2 border-[#172b44]/15 transition-all hover:-translate-y-0.5 hover:border-[#172b44]/30">
                   Sign In
                   <ArrowRight className="w-4 h-4" />
                 </button>
@@ -214,9 +214,9 @@ export default function SignupPage() {
             className="text-center text-sm text-[#3d5f80]/80 mt-6"
           >
             By signing up, you agree to our{' '}
-            <a href="#" className="text-[#172b44] hover:underline">Terms</a>
+            <a href="#" className="text-foreground hover:underline">Terms</a>
             {' '}and{' '}
-            <a href="#" className="text-[#172b44] hover:underline">Privacy Policy</a>
+            <a href="#" className="text-foreground hover:underline">Privacy Policy</a>
           </motion.p>
         </motion.div>
       </div>

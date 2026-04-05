@@ -144,12 +144,12 @@ export function UploadHistoryModal() {
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md"
           >
-            <div className="bg-white/90 backdrop-blur-xl border border-white/50 rounded-2xl p-6 space-y-6 shadow-xl">
+            <div className="bg-card/50 backdrop-blur-xl border border-border/ rounded-2xl p-6 space-y-6 shadow-xl">
               {/* Close Button */}
               {step !== 'success' && step !== 'uploading' && step !== 'processing' && (
                 <button
                   onClick={handleClose}
-                  className="absolute top-4 right-4 p-1 hover:bg-white/80 rounded-lg transition-colors"
+                  className="absolute top-4 right-4 p-1 hover:bg-card/50 rounded-lg transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -199,7 +199,7 @@ export function UploadHistoryModal() {
                       <div className="w-full border-t border-border/30" />
                     </div>
                     <div className="relative flex justify-center text-xs">
-                      <span className="px-2 bg-white/90 text-muted-foreground">or</span>
+                      <span className="px-2 bg-card/50 text-muted-foreground">or</span>
                     </div>
                   </div>
 
@@ -220,7 +220,7 @@ export function UploadHistoryModal() {
                     <p className="font-semibold" style={{ color: '#172b44' }}>Uploading file...</p>
                     <p className="text-sm text-muted-foreground">{fileName}</p>
                   </div>
-                  <div className="w-full h-2 bg-white/80 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-card/50 rounded-full overflow-hidden">
                     <motion.div
                       className="h-full bg-[#f97316]"
                       initial={{ width: 0 }}
@@ -241,7 +241,7 @@ export function UploadHistoryModal() {
                     <p className="font-semibold" style={{ color: '#172b44' }}>Analyzing with AI...</p>
                     <p className="text-sm text-muted-foreground">{progress || 'Finding interests based on your history'}</p>
                   </div>
-                  <div className="w-full h-2 bg-white/80 rounded-full overflow-hidden">
+                  <div className="w-full h-2 bg-card/50 rounded-full overflow-hidden">
                     <motion.div
                       className="h-full bg-[#f97316]"
                       initial={{ width: '60%' }}
@@ -261,7 +261,7 @@ export function UploadHistoryModal() {
                     transition={{ type: 'spring', duration: 0.5 }}
                     className="flex justify-center"
                   >
-                    <AlertCircle className="w-12 h-12 text-red-500" />
+                    <AlertCircle className="w-12 h-12 text-red-500 dark:text-red-400" />
                   </motion.div>
 
                   <div className="text-center space-y-2">

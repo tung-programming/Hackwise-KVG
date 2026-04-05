@@ -22,8 +22,8 @@ import {
   User,
 } from 'lucide-react'
 
-const PRIMARY = '#172b44'
-const ACCENT = '#f97316'
+const PRIMARY = 'var(--primary)'
+const ACCENT = 'var(--accent)'
 
 const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } } }
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } }
@@ -120,8 +120,8 @@ export default function HelpPage() {
                 href={link.href}
                 className="flex items-start gap-3 p-4 rounded-xl bg-card border border-border hover:border-orange-200 dark:hover:border-orange-900/30 hover:shadow-md transition-all group"
               >
-                <div className="w-10 h-10 rounded-lg bg-orange-50 dark:bg-orange-950/30 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                  <Icon className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                <div className="w-10 h-10 rounded-lg bg-orange-50 dark:bg--900/20 dark:bg-orange-950/30 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                  <Icon className="w-5 h-5 text-orange-600 dark:text--400 dark:text-orange-400" />
                 </div>
                 <div>
                   <p className="font-semibold text-sm mb-0.5">{link.label}</p>
@@ -158,8 +158,8 @@ export default function HelpPage() {
                     className="w-full flex items-center justify-between p-5 text-left hover:bg-muted/30 transition-colors"
                   >
                     <div className="flex items-start gap-3 flex-1">
-                      <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/30 flex items-center justify-center shrink-0 mt-0.5">
-                        <HelpCircle className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                      <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg--900/20 dark:bg-blue-950/30 flex items-center justify-center shrink-0 mt-0.5">
+                        <HelpCircle className="w-4 h-4 text-blue-600 dark:text--400 dark:text-blue-400" />
                       </div>
                       <p className="font-semibold text-sm pr-4">{faq.question}</p>
                     </div>
@@ -194,8 +194,8 @@ export default function HelpPage() {
         <h2 className="text-xl font-bold mb-4" style={{ color: PRIMARY }}>Learning Resources</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-card rounded-2xl border border-border p-6 shadow-sm hover:shadow-md transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg-purple-950/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-              <Video className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="w-12 h-12 rounded-xl bg-purple-50 dark:bg--900/20 dark:bg-purple-950/30 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+              <Video className="w-6 h-6 text-purple-600 dark:text--400 dark:text-purple-400" />
             </div>
             <h3 className="font-bold text-base mb-2">Video Tutorials</h3>
             <p className="text-sm text-muted-foreground mb-4">
@@ -256,14 +256,14 @@ export default function HelpPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <a
             href="mailto:support@coursehive.com"
-            className="flex items-center gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/30 hover:shadow-md transition-all group"
+            className="flex items-center gap-3 p-4 rounded-xl bg-blue-50 dark:bg--900/20 dark:bg-blue-950/30 border border-blue-100 dark:border-blue-900/30 hover:shadow-md transition-all group"
           >
             <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center shrink-0">
-              <Mail className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <Mail className="w-5 h-5 text-blue-600 dark:text--400 dark:text-blue-400" />
             </div>
             <div>
               <p className="font-semibold text-sm text-blue-900 dark:text-blue-100">Email Us</p>
-              <p className="text-xs text-blue-700 dark:text-blue-300">support@coursehive.com</p>
+              <p className="text-xs text-blue-700 dark:text--400 dark:text-blue-300">support@coursehive.com</p>
             </div>
           </a>
 
@@ -282,10 +282,10 @@ export default function HelpPage() {
 
           <a
             href="tel:+1234567890"
-            className="flex items-center gap-3 p-4 rounded-xl bg-purple-50 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/30 hover:shadow-md transition-all group"
+            className="flex items-center gap-3 p-4 rounded-xl bg-purple-50 dark:bg--900/20 dark:bg-purple-950/30 border border-purple-100 dark:border-purple-900/30 hover:shadow-md transition-all group"
           >
             <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center shrink-0">
-              <Phone className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <Phone className="w-5 h-5 text-purple-600 dark:text--400 dark:text-purple-400" />
             </div>
             <div>
               <p className="font-semibold text-sm text-purple-900 dark:text-purple-100">Call Us</p>
@@ -301,7 +301,7 @@ export default function HelpPage() {
         className="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950/30 dark:to-amber-950/30 rounded-2xl border border-orange-100 dark:border-orange-900/30 p-6 shadow-sm"
       >
         <div className="flex items-start gap-4">
-          <div className="w-12 h-12 rounded-xl bg-white dark:bg-orange-900/50 flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-xl bg-card dark:bg-orange-900/50 flex items-center justify-center shrink-0">
             <Heart className="w-6 h-6" style={{ color: ACCENT }} />
           </div>
           <div className="flex-1">

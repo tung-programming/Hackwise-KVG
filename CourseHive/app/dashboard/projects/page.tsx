@@ -14,8 +14,8 @@ import {
 import Link from 'next/link'
 import { useActiveInterest, useCourses, useProjects, useProjectSubmit } from '@/hooks/use-api'
 
-const PRIMARY = '#172b44'
-const ACCENT = '#f97316'
+const PRIMARY = 'var(--primary)'
+const ACCENT = 'var(--accent)'
 
 const fade = {
   hidden: { opacity: 0, y: 12 },
@@ -94,7 +94,7 @@ export default function ProjectsPage() {
         </p>
       </motion.div>
 
-      <motion.div variants={fade} className="rounded-2xl border border-white/50 bg-white/70 p-5 shadow-sm">
+      <motion.div variants={fade} className="rounded-2xl border border-border/ bg-card/50 p-5 shadow-sm">
         <div className="flex items-center justify-between text-sm">
           <span className="font-semibold text-muted-foreground">Course completion gate</span>
           <span className="font-bold" style={{ color: PRIMARY }}>{courseProgress}%</span>
@@ -110,20 +110,20 @@ export default function ProjectsPage() {
       </motion.div>
 
       {submitMessage && (
-        <motion.div variants={fade} className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
+        <motion.div variants={fade} className="rounded-xl border border-emerald-200 bg-emerald-50 dark:bg--900/20 px-4 py-2 text-sm font-semibold text-emerald-700 dark:text--400">
           {submitMessage}
         </motion.div>
       )}
 
       {submitError && (
-        <motion.div variants={fade} className="rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+        <motion.div variants={fade} className="rounded-xl border border-red-200 bg-red-50 dark:bg--900/20 px-4 py-2 text-sm text-red-700">
           {submitError}
         </motion.div>
       )}
 
       <motion.div variants={stagger} className="grid gap-4 md:grid-cols-2">
         {sortedProjects.length === 0 && (
-          <motion.div variants={fade} className="rounded-2xl border border-slate-200 bg-white p-6 text-sm text-muted-foreground">
+          <motion.div variants={fade} className="rounded-2xl border border-slate-200 bg-card p-6 text-sm text-muted-foreground">
             No projects generated yet for this interest.
           </motion.div>
         )}
@@ -141,7 +141,7 @@ export default function ProjectsPage() {
             : 'Pending'
 
           return (
-            <motion.div key={project.id} variants={fade} className={`rounded-2xl border p-5 ${isCompleted ? 'border-emerald-200 bg-emerald-50' : 'border-slate-200 bg-white'}`}>
+            <motion.div key={project.id} variants={fade} className={`rounded-2xl border p-5 ${isCompleted ? 'border-emerald-200 bg-emerald-50 dark:bg--900/20' : 'border-slate-200 bg-card'}`}>
               <div className="mb-3 flex items-center justify-between">
                 <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
                   style={{
@@ -217,7 +217,7 @@ export default function ProjectsPage() {
               )}
 
               {isCompleted && (
-                <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-100 px-3 py-2 text-sm font-semibold text-emerald-700">
+                <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-100 px-3 py-2 text-sm font-semibold text-emerald-700 dark:text--400">
                   <CheckCircle2 className="h-4 w-4" />
                   Completed (+{project.xp_awarded || 0} XP)
                 </div>

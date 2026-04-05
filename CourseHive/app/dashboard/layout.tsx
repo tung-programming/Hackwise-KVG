@@ -58,7 +58,7 @@ export default function DashboardLayout({
         {[...Array(12)].map((_, i) => (
           <div
             key={i}
-            className="absolute rounded-full bg-white/40 animate-pulse"
+            className="absolute rounded-full bg-card/50 animate-pulse"
             style={{
               width: `${2 + (i % 3)}px`,
               height: `${2 + (i % 3)}px`,

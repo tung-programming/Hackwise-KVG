@@ -6,8 +6,8 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, CheckCircle2, Loader2, Lock, Clock, BookOpen, ArrowRight, Download } from 'lucide-react'
 import { useInterestDetail, useCourseCompletion } from '@/hooks/use-api'
 
-const PRIMARY = '#172b44'
-const ACCENT = '#f97316'
+const PRIMARY = 'var(--primary)'
+const ACCENT = 'var(--accent)'
 
 const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } } }
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } }
@@ -152,9 +152,9 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
       <motion.div
         variants={fade}
         className="rounded-2xl p-5 text-white relative overflow-hidden shadow-lg"
-        style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
+        style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, var(--primary) 100%)` }}
       >
-        <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-white/8" />
+        <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full bg-card/50 " />
         <div className="relative z-10 flex items-center justify-between gap-4">
           <div>
             <p className="text-white/70 text-xs font-medium">Overall Progress</p>
@@ -163,7 +163,7 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
           </div>
           <div className="text-right">
             <p className="text-white/50 text-xs mb-1">{roadmap.phases.length} phases</p>
-            <div className="w-32 h-2 bg-white/20 rounded-full overflow-hidden">
+            <div className="w-32 h-2 bg-card/50 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${pct}%` }}
@@ -214,11 +214,11 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
                 return (
                   <div
                     key={course.id}
-                    className={`rounded-2xl p-5 space-y-4 border transition-all backdrop-blur-sm ${cfg.dim ? 'opacity-55' : 'bg-white/70 shadow-sm hover:shadow-md'}`}
+                    className={`rounded-2xl p-5 space-y-4 border transition-all backdrop-blur-sm ${cfg.dim ? 'opacity-55' : 'bg-card/50 shadow-sm hover:shadow-md'}`}
                     style={{ background: cfg.cardBg, borderColor: cfg.cardBorder }}
                   >
                     <div className="flex items-start justify-between gap-3">
-                      <div className="w-9 h-9 bg-white/80 rounded-xl flex items-center justify-center shrink-0">
+                      <div className="w-9 h-9 bg-card/50 rounded-xl flex items-center justify-center shrink-0">
                         <BookOpen className="w-4 h-4 text-muted-foreground" />
                       </div>
                       <span
@@ -258,7 +258,7 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
                       <button
                         onClick={() => handleMarkComplete(course.id)}
                         disabled={completing}
-                        className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                        className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold bg-emerald-50 dark:bg--900/20 text-emerald-700 dark:text--400 hover:bg-emerald-100 transition-colors disabled:opacity-50"
                       >
                         {completing ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
                         Mark Complete
@@ -273,7 +273,7 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
       </motion.div>
 
       {/* CTA */}
-      <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm border border-white/50 rounded-2xl p-5 flex items-center justify-between gap-4 shadow-sm">
+      <motion.div variants={fade} className="bg-card/50 backdrop-blur-sm border border-border/ rounded-2xl p-5 flex items-center justify-between gap-4 shadow-sm">
         <div>
           <h3 className="font-bold" style={{ color: PRIMARY }}>Ready to start learning?</h3>
           <p className="text-sm text-muted-foreground mt-0.5">Enroll in the first course to begin your journey</p>

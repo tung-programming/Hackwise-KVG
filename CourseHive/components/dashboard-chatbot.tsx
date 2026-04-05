@@ -189,7 +189,7 @@ export function DashboardChatbot() {
         <span
           className={cn(
             'absolute inset-0 rounded-full border transition-colors duration-300',
-            open ? 'border-accent/70' : 'border-white/35'
+            open ? 'border-accent/70' : 'border-border/'
           )}
         />
         <span
@@ -223,7 +223,7 @@ export function DashboardChatbot() {
           {/* Header */}
           <div className="relative px-5 py-4 border-b border-border bg-linear-to-r from-primary via-primary to-[#203b59] text-primary-foreground flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-white/15 backdrop-blur-sm flex items-center justify-center border-2 border-white/20 shadow-lg">
+              <div className="w-12 h-12 rounded-full bg-card/50 backdrop-blur-sm flex items-center justify-center border-2 border-border/ shadow-lg">
                 <RobotFace className="w-10 h-10 text-white" animate={loading} />
               </div>
               <div>
@@ -232,7 +232,7 @@ export function DashboardChatbot() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <div className="px-2.5 py-1 rounded-full bg-white/15 backdrop-blur-sm border border-white/20">
+              <div className="px-2.5 py-1 rounded-full bg-card/50 backdrop-blur-sm border border-border/">
                 <p className="text-[10px] font-semibold text-primary-foreground/90">
                   {kbCount ? `${kbCount}+` : '240+'} FAQs
                 </p>

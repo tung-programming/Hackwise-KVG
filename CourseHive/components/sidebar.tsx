@@ -22,8 +22,8 @@ import { useAppStore } from '@/lib/store'
 import { BrandLogo } from '@/components/brand-logo'
 import { useState, useEffect } from 'react'
 
-const PRIMARY = '#172b44'
-const ACCENT = '#f97316'
+const PRIMARY = 'var(--primary)'
+const ACCENT = 'var(--accent)'
 
 const menuItems = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
@@ -151,7 +151,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all text-sm mt-0.5"
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-muted-foreground hover:text-red-500 dark:text-red-400 hover:bg-red-50 dark:bg-red-900/20 dark:hover:bg-red-950/30 transition-all text-sm mt-0.5"
         >
           <LogOut className="w-4.5 h-4.5 shrink-0" />
           Logout
@@ -161,14 +161,14 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       {/* Subscription Plan Card */}
       <div className="p-4 mt-auto">
         <div
-          className="rounded-2xl p-4 text-white relative overflow-hidden shadow-md border border-white/10 group"
+          className="rounded-2xl p-4 text-white relative overflow-hidden shadow-md border border-border/ group"
           style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #233f63 100%)` }}
         >
           {/* Subtle background glow */}
           <div className="absolute -top-6 -right-6 w-20 h-20 rounded-full bg-[#f97316] opacity-10 blur-xl" />
           
           <div className="flex items-center gap-3 relative z-10 mb-3">
-            <div className="w-8 h-8 rounded-lg bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20 shrink-0">
+            <div className="w-8 h-8 rounded-lg bg-card/50 backdrop-blur-sm flex items-center justify-center border border-border/ shrink-0">
               <Hexagon className="w-4 h-4 text-[#f97316] fill-[#f97316]/20" />
             </div>
             <div className="min-w-0">
@@ -178,7 +178,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </div>
           
           <div className="relative z-10">
-            <div className="h-1 bg-white/10 rounded-full overflow-hidden mb-3">
+            <div className="h-1 bg-card/50 rounded-full overflow-hidden mb-3">
               <div className="h-full w-[80%] bg-gradient-to-r from-[#f97316] to-yellow-400 rounded-full" />
             </div>
             <button

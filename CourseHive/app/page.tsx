@@ -84,7 +84,7 @@ export default function LandingPage() {
         {particles.map((p, i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full bg-white/60 pointer-events-none"
+            className="absolute rounded-full bg-card/50 pointer-events-none"
             style={{ width: p.size, height: p.size, left: `${p.x}%`, top: `${p.y}%` }}
             animate={{ opacity: [0.25, 0.75, 0.25], y: [0, -12, 0] }}
             transition={{ duration: p.dur, repeat: Infinity, delay: p.delay, ease: 'easeInOut' }}
@@ -99,9 +99,9 @@ export default function LandingPage() {
 
             {/* Desktop links */}
             <div className="hidden md:flex items-center gap-9">
-<a href="#features"  className="text-sm font-medium text-[#2c4a6a] hover:text-[#172b44] transition-colors">Features</a>
-              <a href="#learners"  className="text-sm font-medium text-[#2c4a6a] hover:text-[#172b44] transition-colors">Learners</a>
-              <Link href="/login"  className="text-sm font-medium text-[#2c4a6a] hover:text-[#172b44] transition-colors">Sign In</Link>
+<a href="#features"  className="text-sm font-medium text-[var(--primary)] hover:text-foreground transition-colors">Features</a>
+              <a href="#learners"  className="text-sm font-medium text-[var(--primary)] hover:text-foreground transition-colors">Learners</a>
+              <Link href="/login"  className="text-sm font-medium text-[var(--primary)] hover:text-foreground transition-colors">Sign In</Link>
             </div>
 
             {/* CTA */}
@@ -115,7 +115,7 @@ export default function LandingPage() {
             </div>
 
             {/* Mobile toggle */}
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-[#172b44]">
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-foreground">
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
@@ -125,11 +125,11 @@ export default function LandingPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="md:hidden mt-4 bg-white/90 backdrop-blur-md rounded-2xl p-6 shadow-xl space-y-4"
+              className="md:hidden mt-4 bg-card/50 backdrop-blur-md rounded-2xl p-6 shadow-xl space-y-4"
             >
-              <a href="#features" className="block text-sm font-medium text-[#172b44] py-1">Features</a>
-              <a href="#learners" className="block text-sm font-medium text-[#172b44] py-1">Learners</a>
-              <Link href="/login" className="block text-sm font-medium text-[#172b44] py-1">Sign In</Link>
+              <a href="#features" className="block text-sm font-medium text-foreground py-1">Features</a>
+              <a href="#learners" className="block text-sm font-medium text-foreground py-1">Learners</a>
+              <Link href="/login" className="block text-sm font-medium text-foreground py-1">Sign In</Link>
               <Link href="/onboarding/field">
                 <button className="w-full mt-2 bg-[#f97316] text-white text-sm font-semibold py-3 rounded-full">
                   Get Started
@@ -227,21 +227,21 @@ export default function LandingPage() {
                 ].map((a, i) => (
                   <div
                     key={i}
-                    className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center text-white text-[10px] font-bold shadow-sm"
+                    className="w-8 h-8 rounded-full border-2 border-border flex items-center justify-center text-white text-[10px] font-bold shadow-sm"
                     style={{ background: `linear-gradient(135deg,${a.from},${a.to})`, zIndex: 5 - i }}
                   >
                     {a.init}
                   </div>
                 ))}
               </div>
-              <span className="text-sm font-semibold text-[#172b44] bg-white/65 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-white/50 shadow-sm">
+              <span className="text-sm font-semibold text-foreground bg-card/50 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-border/ shadow-sm">
                 50k+ learners growing daily
               </span>
             </motion.div>
 
             {/* Badge */}
             <motion.div variants={fadeUp}>
-              <span className="inline-flex items-center gap-2 bg-white/65 backdrop-blur-sm text-[#172b44] text-xs font-semibold px-4 py-2 rounded-full border border-white/50 shadow-sm">
+              <span className="inline-flex items-center gap-2 bg-card/50 backdrop-blur-sm text-foreground text-xs font-semibold px-4 py-2 rounded-full border border-border/ shadow-sm">
                 <span className="w-1.5 h-1.5 bg-[#f97316] rounded-full animate-pulse" />
                 AI-Powered Learning Platform
               </span>
@@ -250,7 +250,7 @@ export default function LandingPage() {
             {/* Heading — large & dramatic */}
             <motion.h1
               variants={fadeUp}
-              className="text-5xl sm:text-6xl lg:text-[5.2rem] font-extrabold text-[#172b44] leading-[1.05] tracking-tight"
+              className="text-5xl sm:text-6xl lg:text-[5.2rem] font-extrabold text-foreground leading-[1.05] tracking-tight"
             >
               Learn What
               <br />
@@ -272,7 +272,7 @@ export default function LandingPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="flex-1 px-5 py-4 rounded-full bg-white/70 backdrop-blur-sm border border-white/60 text-[#172b44] placeholder-[#8aaac8] text-sm outline-none focus:bg-white/90 transition-all shadow-sm"
+                className="flex-1 px-5 py-4 rounded-full bg-card/50 backdrop-blur-sm border border-border/ text-foreground placeholder-[#8aaac8] text-sm outline-none focus:bg-card/50 transition-all shadow-sm"
               />
               <Link href="/onboarding/field">
                 <button className="inline-flex items-center justify-center gap-2 bg-[#f97316] hover:bg-[#ea6c0a] text-white text-sm font-semibold px-6 py-4 rounded-full shadow-lg shadow-orange-300/50 transition-all hover:-translate-y-0.5 hover:shadow-xl whitespace-nowrap w-full sm:w-auto">
@@ -282,7 +282,7 @@ export default function LandingPage() {
             </motion.div>
 
             <motion.div variants={fadeUp}>
-              <a href="#features" className="text-sm text-[#3d5f80] hover:text-[#172b44] transition-colors underline underline-offset-4">
+              <a href="#features" className="text-sm text-[#3d5f80] hover:text-foreground transition-colors underline underline-offset-4">
                 Explore all features
               </a>
             </motion.div>
@@ -291,15 +291,15 @@ export default function LandingPage() {
             <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-left">
 
               {/* Card 1: Upload Your History */}
-              <div className="bg-white/72 backdrop-blur-md rounded-3xl p-6 border border-white/60 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <h4 className="font-bold text-[#172b44] text-base mb-2">Upload Your History</h4>
+              <div className="bg-card/50 backdrop-blur-md rounded-3xl p-6 border border-border/ shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <h4 className="font-bold text-foreground text-base mb-2">Upload Your History</h4>
                 <p className="text-xs text-[#3d5f80] leading-relaxed mb-5">Share your browsing history and let AI discover your hidden interests and curiosities automatically.</p>
                 {/* Mini step chain */}
                 <div className="flex items-center gap-1.5 mb-4">
                   {['#f97316','#2563eb','#7c3aed','#059669'].map((c, i) => (
                     <div key={i} className="flex items-center gap-1.5">
-                      <div className="w-6 h-6 rounded-full border-2 border-white shadow flex items-center justify-center" style={{ background: c }}>
-                        <div className="w-2 h-2 bg-white rounded-full" />
+                      <div className="w-6 h-6 rounded-full border-2 border-border shadow flex items-center justify-center" style={{ background: c }}>
+                        <div className="w-2 h-2 bg-card rounded-full" />
                       </div>
                       {i < 3 && <div className="h-px w-4 bg-[#172b44]/20" />}
                     </div>
@@ -307,7 +307,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   {['Chrome','Firefox','Safari'].map((tag) => (
-                    <span key={tag} className="text-[10px] font-semibold bg-[#172b44]/10 text-[#172b44] px-2.5 py-1 rounded-full">{tag}</span>
+                    <span key={tag} className="text-[10px] font-semibold bg-[#172b44]/10 text-foreground px-2.5 py-1 rounded-full">{tag}</span>
                   ))}
                 </div>
               </div>
@@ -333,18 +333,18 @@ export default function LandingPage() {
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 pt-3 border-t border-white/10 flex justify-end">
+                <div className="mt-4 pt-3 border-t border-border/ flex justify-end">
                   <span className="text-[10px] text-white/50 flex items-center gap-1">View roadmap <ArrowRight className="w-3 h-3" /></span>
                 </div>
               </div>
 
               {/* Card 3: Build & Earn XP */}
-              <div className="rounded-3xl p-6 border border-white/60 shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              <div className="rounded-3xl p-6 border border-border/ shadow-md hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                 style={{ background: 'linear-gradient(135deg,#eef4ff 0%,#f3eeff 100%)' }}>
                 <div className="mb-3">
                   <span className="text-[10px] font-bold text-[#2563eb] bg-[#2563eb]/15 px-2.5 py-1 rounded-full">XP &amp; Projects</span>
                 </div>
-                <h4 className="font-bold text-[#172b44] text-base mb-2">Build &amp; Earn XP</h4>
+                <h4 className="font-bold text-foreground text-base mb-2">Build &amp; Earn XP</h4>
                 <p className="text-xs text-[#3d5f80] leading-relaxed mb-5">Complete real projects, earn XP, climb the leaderboard, and validate your skills with a portfolio.</p>
                 {/* XP gauge */}
                 <div className="flex items-center gap-4">
@@ -357,7 +357,7 @@ export default function LandingPage() {
                     <span className="absolute inset-0 flex items-center justify-center text-xs font-extrabold text-[#7c3aed]">72%</span>
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-[#172b44]">2,840 XP</div>
+                    <div className="text-sm font-bold text-foreground">2,840 XP</div>
                     <div className="text-xs text-[#3d5f80]">Level 12 · Advanced</div>
                   </div>
                 </div>
@@ -395,7 +395,7 @@ export default function LandingPage() {
         {particles.map((p, i) => (
           <motion.div
             key={i}
-            className="absolute rounded-full bg-white/50 pointer-events-none"
+            className="absolute rounded-full bg-card/50 pointer-events-none"
             style={{ width: p.size, height: p.size, left: `${p.x}%`, top: `${p.y}%` }}
             animate={{ opacity: [0.2, 0.6, 0.2], y: [0, -10, 0] }}
             transition={{ duration: p.dur, repeat: Infinity, delay: p.delay, ease: 'easeInOut' }}
@@ -423,7 +423,7 @@ export default function LandingPage() {
               <span className="text-[11px] font-bold tracking-[0.22em] uppercase text-[#f97316]">Why CourseHive</span>
               <div className="h-px w-10 bg-[#172b44]/20" />
             </div>
-            <h2 className="text-5xl sm:text-6xl lg:text-[4.6rem] font-extrabold text-[#172b44] leading-[1.04] tracking-tight mb-5">
+            <h2 className="text-5xl sm:text-6xl lg:text-[4.6rem] font-extrabold text-foreground leading-[1.04] tracking-tight mb-5">
               Learn smarter,{' '}
               <span className="text-[#f97316]">not harder.</span>
             </h2>
@@ -589,7 +589,7 @@ export default function LandingPage() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -18, scale: 0.96 }}
                   transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
-                  className="relative h-full rounded-3xl overflow-hidden border border-white/70 shadow-2xl shadow-[#172b44]/10"
+                  className="relative h-full rounded-3xl overflow-hidden border border-border/ shadow-2xl shadow-[#172b44]/10"
                   style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(24px)' }}
                 >
                   {/* Coloured top strip */}
@@ -608,7 +608,7 @@ export default function LandingPage() {
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#7c3aed]/70">AI Analysis Complete</span>
-                            <h3 className="text-xl font-bold text-[#172b44] mt-0.5 tracking-tight">Your Interest Profile</h3>
+                            <h3 className="text-xl font-bold text-foreground mt-0.5 tracking-tight">Your Interest Profile</h3>
                           </div>
                           <span className="text-[10px] font-bold text-[#7c3aed] bg-[#7c3aed]/10 px-3 py-1.5 rounded-full shrink-0 border border-[#7c3aed]/15">
                             3 months · 4,200 sites
@@ -624,7 +624,7 @@ export default function LandingPage() {
                           ].map((item, idx) => (
                             <div key={item.topic}>
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-semibold text-[#172b44]">{item.topic}</span>
+                                <span className="text-sm font-semibold text-foreground">{item.topic}</span>
                                 <span className="text-xs font-bold tabular-nums" style={{ color: item.color }}>{item.pct}%</span>
                               </div>
                               <div className="h-2 rounded-full overflow-hidden mb-1.5" style={{ background: 'rgba(23,43,68,0.07)' }}>
@@ -652,7 +652,7 @@ export default function LandingPage() {
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#f97316]/70">Your Path</span>
-                            <h3 className="text-xl font-bold text-[#172b44] mt-0.5 tracking-tight">ML Roadmap</h3>
+                            <h3 className="text-xl font-bold text-foreground mt-0.5 tracking-tight">ML Roadmap</h3>
                           </div>
                           <div className="text-right shrink-0">
                             <div className="text-3xl font-black text-[#f97316] leading-none tabular-nums">68%</div>
@@ -704,7 +704,7 @@ export default function LandingPage() {
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#059669]/70">Portfolio</span>
-                            <h3 className="text-xl font-bold text-[#172b44] mt-0.5 tracking-tight">Validated Projects</h3>
+                            <h3 className="text-xl font-bold text-foreground mt-0.5 tracking-tight">Validated Projects</h3>
                           </div>
                           <span className="text-[10px] font-bold text-[#059669] bg-[#059669]/10 px-3 py-1.5 rounded-full shrink-0 border border-[#059669]/15">
                             2 of 4 Verified ✓
@@ -730,7 +730,7 @@ export default function LandingPage() {
                                 {p.status === 'verified' ? '✓' : '⏳'}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-[#172b44] truncate">{p.name}</p>
+                                <p className="text-sm font-semibold text-foreground truncate">{p.name}</p>
                                 <div className="flex gap-1 mt-1.5 flex-wrap">
                                   {p.stack.map(t => (
                                     <span key={t} className="text-[9px] font-semibold px-2 py-0.5 rounded-full"
@@ -759,7 +759,7 @@ export default function LandingPage() {
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-[#d97706]/70">This Week</span>
-                            <h3 className="text-xl font-bold text-[#172b44] mt-0.5 tracking-tight">Global Leaderboard</h3>
+                            <h3 className="text-xl font-bold text-foreground mt-0.5 tracking-tight">Global Leaderboard</h3>
                           </div>
                           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full shrink-0 border border-[#f97316]/20"
                             style={{ background: 'rgba(249,115,22,0.08)' }}>
@@ -847,9 +847,9 @@ export default function LandingPage() {
           >
             {/* Eyebrow */}
             <div className="flex items-center justify-center gap-4">
-              <div className="h-px w-10 bg-white/20" />
+              <div className="h-px w-10 bg-card/50 " />
               <span className="text-[11px] font-bold tracking-[0.22em] uppercase text-[#f97316]">Learner Stories</span>
-              <div className="h-px w-10 bg-white/20" />
+              <div className="h-px w-10 bg-card/50 " />
             </div>
 
             {/* Headline — mixed weight */}
@@ -873,9 +873,9 @@ export default function LandingPage() {
                 <span className="text-white font-bold text-sm">4.9</span>
                 <span className="text-white/40 text-sm">/5</span>
               </div>
-              <div className="w-px h-4 bg-white/15 hidden sm:block" />
+              <div className="w-px h-4 bg-card/50 hidden sm:block" />
               <span className="text-white/50 text-sm">from 12,400+ reviews</span>
-              <div className="w-px h-4 bg-white/15 hidden sm:block" />
+              <div className="w-px h-4 bg-card/50 hidden sm:block" />
               <span className="text-white/50 text-sm">95% would recommend</span>
             </div>
           </motion.div>
@@ -947,7 +947,7 @@ export default function LandingPage() {
                 <p className="text-white/75 text-sm leading-[1.75] mb-7 font-light">"{t.quote}"</p>
 
                 {/* Divider */}
-                <div className="h-px bg-white/8 mb-5" />
+                <div className="h-px bg-card/50 mb-5" />
 
                 {/* Author */}
                 <div className="flex items-center gap-3">
@@ -1005,7 +1005,7 @@ export default function LandingPage() {
               </div>
 
               {/* CTA side */}
-              <div className="shrink-0 flex flex-col items-center sm:items-end gap-4 sm:pl-8 sm:border-l sm:border-white/8">
+              <div className="shrink-0 flex flex-col items-center sm:items-end gap-4 sm:pl-8 sm:border-l sm:border-border/">
                 <p className="text-white/50 text-sm text-center sm:text-right max-w-40 leading-relaxed">
                   Join learners who turned curiosity into real skills
                 </p>
@@ -1163,7 +1163,7 @@ export default function LandingPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: s.delay, duration: 0.7, ease: 'easeOut' }}
-                className={`bg-white/80 backdrop-blur-md rounded-3xl p-10 shadow-2xl ${s.offset}`}
+                className={`bg-card/50 backdrop-blur-md rounded-3xl p-10 shadow-2xl ${s.offset}`}
               >
                 <span className="inline-block text-[#ea6c0a] text-[11px] font-bold tracking-wider uppercase bg-orange-100 px-3 py-1 rounded-full mb-7">
                   {s.label}
@@ -1218,9 +1218,9 @@ export default function LandingPage() {
           >
             {/* Eyebrow */}
             <div className="flex items-center justify-center gap-4">
-              <div className="h-px w-10 bg-white/15" />
+              <div className="h-px w-10 bg-card/50 " />
               <span className="text-[11px] font-bold tracking-[0.22em] uppercase text-[#f97316]">Get Started Today</span>
-              <div className="h-px w-10 bg-white/15" />
+              <div className="h-px w-10 bg-card/50 " />
             </div>
 
             {/* Headline */}
@@ -1261,7 +1261,7 @@ export default function LandingPage() {
                   <span className="text-xs text-white/50">4.9 · 12,400+ reviews</span>
                 </div>
               </div>
-              <div className="w-px h-8 bg-white/10 hidden sm:block" />
+              <div className="w-px h-8 bg-card/50 hidden sm:block" />
               <span className="text-xs text-white/40">No credit card required</span>
             </div>
           </motion.div>
@@ -1279,7 +1279,7 @@ export default function LandingPage() {
               </button>
             </Link>
             <Link href="/login">
-              <button className="inline-flex items-center gap-2 bg-white/8 hover:bg-white/14 text-white text-base font-semibold px-10 py-4 rounded-full border border-white/15 transition-all hover:-translate-y-0.5 backdrop-blur-sm">
+              <button className="inline-flex items-center gap-2 bg-card/50 hover:bg-card/50 text-white text-base font-semibold px-10 py-4 rounded-full border border-border/ transition-all hover:-translate-y-0.5 backdrop-blur-sm">
                 Sign In
               </button>
             </Link>
@@ -1306,7 +1306,7 @@ export default function LandingPage() {
             {/* Brand */}
             <div className="md:col-span-1">
               <div className="mb-5">
-                <BrandLogo href="/" width={172} height={50} className="rounded-lg border border-white/10" />
+                <BrandLogo href="/" width={172} height={50} className="rounded-lg border border-border/" />
               </div>
               <p className="text-sm text-white/40 leading-relaxed mb-6">
                 Stop scrolling. Start learning. CourseHive turns your curiosity into a personalized roadmap — powered by AI, driven by you.
@@ -1315,7 +1315,7 @@ export default function LandingPage() {
               <div className="flex gap-3">
                 {['𝕏', 'in', 'gh'].map((s) => (
                   <a key={s} href="#"
-                    className="w-8 h-8 rounded-lg bg-white/6 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/12 transition-all text-[11px] font-bold">
+                    className="w-8 h-8 rounded-lg bg-card/50 border border-border/ flex items-center justify-center text-white/50 hover:text-white hover:bg-card/50 transition-all text-[11px] font-bold">
                     {s}
                   </a>
                 ))}
@@ -1342,7 +1342,7 @@ export default function LandingPage() {
           </div>
 
           {/* Bottom bar */}
-          <div className="pt-8 border-t border-white/[0.07] flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div className="pt-8 border-t border-border/[0.07] flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-xs text-white/25">© 2025 CourseHive · Built by Team Hacktivists</p>
             <div className="flex gap-6">
               {['Terms','Privacy','Cookies'].map((item) => (

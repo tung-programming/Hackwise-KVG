@@ -32,8 +32,8 @@ import {
   Tooltip,
 } from 'recharts'
 
-const PRIMARY = '#172b44'
-const ACCENT = '#f97316'
+const PRIMARY = 'var(--primary)'
+const ACCENT = 'var(--accent)'
 
 // Fallback week activity data when API doesn't have weekly stats yet
 const defaultWeekActivity = [
@@ -47,8 +47,8 @@ const defaultWeekActivity = [
 ]
 
 const statusBadge: Record<string, string> = {
-  Completed: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  'In Progress': 'bg-orange-50 text-orange-700 border border-orange-200',
+  Completed: 'bg-emerald-50 dark:bg--900/20 text-emerald-700 dark:text--400 border border-emerald-200',
+  'In Progress': 'bg-orange-50 dark:bg--900/20 text-orange-700 border border-orange-200',
   Pending: 'bg-slate-100 text-slate-500 border border-slate-200',
 }
 
@@ -225,7 +225,7 @@ export default function DashboardPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h1 className="text-3xl font-extrabold tracking-tight" style={{ color: PRIMARY }}>Dashboard</h1>
-            <span className="flex items-center gap-1 bg-orange-100 text-orange-600 text-[10px] font-bold px-2 py-1 rounded-full">
+            <span className="flex items-center gap-1 bg-orange-100 text-orange-600 dark:text--400 text-[10px] font-bold px-2 py-1 rounded-full">
               <Sparkles className="w-3 h-3" /> AI Powered
             </span>
           </div>
@@ -249,10 +249,10 @@ export default function DashboardPage() {
         <motion.div
           variants={fade}
           className="rounded-2xl p-5 relative overflow-hidden col-span-1 shadow-lg"
-          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
+          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, var(--primary) 100%)` }}
         >
-          <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-white/10" />
-          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
+          <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-card/50 " />
+          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-card/50 flex items-center justify-center">
             <Sparkles className="w-3.5 h-3.5 text-white" />
           </div>
           <p className="text-white/70 text-xs font-medium mt-1">Total XP</p>
@@ -260,48 +260,48 @@ export default function DashboardPage() {
             {dashboardLoading ? '...' : (dashboardData?.stats?.xp || 0)}
           </p>
           <div className="flex items-center gap-1.5 mt-3">
-            <span className="flex items-center gap-1 bg-white/15 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+            <span className="flex items-center gap-1 bg-card/50 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
               <TrendingUp className="w-2.5 h-2.5" /> Keep learning!
             </span>
           </div>
         </motion.div>
 
         {/* Card 2 — Streak */}
-        <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
+        <motion.div variants={fade} className="bg-card/50 backdrop-blur-sm rounded-2xl p-5 border border-border/ relative shadow-sm hover:shadow-md transition-shadow">
           <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center">
-            <Flame className="w-3.5 h-3.5 text-orange-600" />
+            <Flame className="w-3.5 h-3.5 text-orange-600 dark:text--400" />
           </div>
           <p className="text-muted-foreground text-xs font-medium mt-1">Day Streak</p>
           <p className="text-3xl font-black mt-1" style={{ color: ACCENT }}>
             {dashboardLoading ? '...' : (dashboardData?.stats?.streak || 0)}
           </p>
           <div className="flex items-center gap-1.5 mt-3">
-            <span className="flex items-center gap-1 text-orange-600 text-[10px] font-semibold">
+            <span className="flex items-center gap-1 text-orange-600 dark:text--400 text-[10px] font-semibold">
               <Flame className="w-2.5 h-2.5" /> Keep it going!
             </span>
           </div>
         </motion.div>
 
         {/* Card 3 — Completed Courses */}
-        <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
-          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center">
-            <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+        <motion.div variants={fade} className="bg-card/50 backdrop-blur-sm rounded-2xl p-5 border border-border/ relative shadow-sm hover:shadow-md transition-shadow">
+          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-50 dark:bg--900/20 flex items-center justify-center">
+            <BookOpen className="w-3.5 h-3.5 text-emerald-600 dark:text--400" />
           </div>
           <p className="text-muted-foreground text-xs font-medium mt-1">Courses Done</p>
           <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>
             {dashboardLoading ? '...' : (dashboardData?.stats?.completedCourses || 0)}
           </p>
           <div className="flex items-center gap-1.5 mt-3">
-            <span className="flex items-center gap-1 text-emerald-600 text-[10px] font-semibold">
+            <span className="flex items-center gap-1 text-emerald-600 dark:text--400 text-[10px] font-semibold">
               <TrendingUp className="w-2.5 h-2.5" /> Great progress!
             </span>
           </div>
         </motion.div>
 
         {/* Card 4 — Active Interests */}
-        <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
-          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center">
-            <Brain className="w-3.5 h-3.5 text-blue-600" />
+        <motion.div variants={fade} className="bg-card/50 backdrop-blur-sm rounded-2xl p-5 border border-border/ relative shadow-sm hover:shadow-md transition-shadow">
+          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-blue-50 dark:bg--900/20 flex items-center justify-center">
+            <Brain className="w-3.5 h-3.5 text-blue-600 dark:text--400" />
           </div>
           <p className="text-muted-foreground text-xs font-medium mt-1">Active Interests</p>
           <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>
@@ -317,14 +317,14 @@ export default function DashboardPage() {
         {/* Learning Analytics — bar chart */}
         <motion.div
           variants={fade}
-          className="lg:col-span-8 bg-white/70 backdrop-blur-sm rounded-3xl p-6 border border-white/60 shadow-md flex flex-col justify-between hover:shadow-lg transition-shadow"
+          className="lg:col-span-8 bg-card/50 backdrop-blur-sm rounded-3xl p-6 border border-border/ shadow-md flex flex-col justify-between hover:shadow-lg transition-shadow"
         >
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="font-extrabold text-xl tracking-tight text-[#172b44]">Learning Analytics</h2>
+              <h2 className="font-extrabold text-xl tracking-tight text-foreground">Learning Analytics</h2>
               <p className="text-muted-foreground text-sm font-medium mt-1">Hours spent studying this week</p>
             </div>
-            <div className="bg-orange-50 text-orange-600 px-4 py-1.5 rounded-full text-xs font-bold border border-orange-100 hidden sm:flex items-center shadow-sm">
+            <div className="bg-orange-50 dark:bg--900/20 text-orange-600 dark:text--400 px-4 py-1.5 rounded-full text-xs font-bold border border-orange-100 hidden sm:flex items-center shadow-sm">
               <TrendingUp className="w-3.5 h-3.5 mr-1" /> +15% vs Last Week
             </div>
           </div>
@@ -388,13 +388,13 @@ export default function DashboardPage() {
         {/* Active Courses list */}
         <motion.div
           variants={fade}
-          className="lg:col-span-4 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm"
+          className="lg:col-span-4 bg-card/50 backdrop-blur-sm rounded-2xl p-5 border border-border/ shadow-sm"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-base text-[#172b44]">Courses</h2>
+            <h2 className="font-bold text-base text-foreground">Courses</h2>
             <Link
               href={dashboardData?.activeInterest ? `/dashboard/courses/${dashboardData.activeInterest.id}` : '/dashboard/interests'}
-              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:bg-orange-50 bg-white"
+              className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:bg-orange-50 dark:bg--900/20 bg-card"
               style={{ border: `1px solid ${ACCENT}`, color: ACCENT }}
             >
               See All
@@ -418,7 +418,7 @@ export default function DashboardPage() {
                       <Icon className="w-5 h-5" style={{ color: c.color }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold truncate text-[#172b44]">{c.title}</p>
+                      <p className="text-sm font-bold truncate text-foreground">{c.title}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">{c.due}</p>
                     </div>
                   </div>
@@ -439,29 +439,29 @@ export default function DashboardPage() {
         {/* Team / Learning Activity */}
         <motion.div
           variants={fade}
-          className="lg:col-span-8 bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm"
+          className="lg:col-span-8 bg-card/50 backdrop-blur-sm rounded-2xl p-5 border border-border/ shadow-sm"
         >
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-base text-[#172b44]">Learning Activity</h2>
+            <h2 className="font-bold text-base text-foreground">Learning Activity</h2>
             <button
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-white border border-border/50 hover:bg-slate-50 transition-colors text-[#172b44]"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-card border border-border/50 hover:bg-slate-50 transition-colors text-foreground"
             >
               <Users className="w-3 h-3" /> Friends Activity
             </button>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             {recentActivity.map((a) => (
-              <div key={`${a.name}-${a.task}`} className="flex items-center gap-3 group cursor-pointer p-3 rounded-xl hover:bg-white/90 border border-transparent hover:border-slate-100 transition-all">
+              <div key={`${a.name}-${a.task}`} className="flex items-center gap-3 group cursor-pointer p-3 rounded-xl hover:bg-card/50 border border-transparent hover:border-slate-100 transition-all">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm transition-transform group-hover:scale-105"
-                  style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
+                  style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, var(--primary) 100%)` }}
                 >
                   {a.avatar}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-bold text-[#172b44]">{a.name}</p>
+                  <p className="text-sm font-bold text-foreground">{a.name}</p>
                   <p className="text-xs text-muted-foreground truncate mt-0.5">
-                    Working on <span className="font-bold text-[#172b44]">{a.task}</span>
+                    Working on <span className="font-bold text-foreground">{a.task}</span>
                   </p>
                 </div>
                 <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 ${statusBadge[a.status]}`}>
@@ -476,17 +476,17 @@ export default function DashboardPage() {
         <motion.div
           variants={fade}
           className="lg:col-span-4 rounded-2xl p-6 flex flex-col justify-between shadow-lg relative overflow-hidden group"
-          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
+          style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, var(--primary) 100%)` }}
         >
           <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-[#f97316]/20 blur-2xl group-hover:bg-[#f97316]/30 transition-colors" />
-          <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-white/5" />
+          <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full bg-card/50 " />
           
           <div className="relative z-10 flex items-center justify-between">
             <h2 className="font-bold text-white/90 text-base uppercase tracking-widest flex items-center gap-2">
               <Sparkles className={`w-4 h-4 ${timerState.isRunning ? 'text-[#f97316] animate-pulse' : 'text-white/50'}`} /> Study Timer
             </h2>
             {timerState.isRunning && (
-              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/20 text-red-100 text-[10px] font-bold border border-red-500/30">
+              <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-50 dark:bg--900/200/20 text-red-100 text-[10px] font-bold border border-red-500/30">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-ping" /> REC
               </span>
             )}
@@ -513,8 +513,8 @@ export default function DashboardPage() {
               disabled={displayTime === 0}
               className={`w-14 h-14 flex items-center justify-center rounded-2xl transition-all border ${
                 displayTime === 0 
-                  ? 'bg-white/5 border-white/5 text-white/20 cursor-not-allowed' 
-                  : 'bg-white/10 hover:bg-white/20 border-white/10 hover:border-white/20 text-white'
+                  ? 'bg-card/50 border-border/ text-white/20 cursor-not-allowed' 
+                  : 'bg-card/50 hover:bg-card/50 border-border/ hover:border-border/ text-white'
               }`}
             >
               <RotateCcw className="w-5 h-5" />

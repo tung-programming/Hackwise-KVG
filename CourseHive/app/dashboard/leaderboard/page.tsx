@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Trophy, Flame, Download, ArrowUpRight, Crown, TrendingUp, Sparkles, Medal, Zap, Loader2 } from 'lucide-react'
 import { useLeaderboard, useMyRank, useUser } from '@/hooks/use-api'
 
-const PRIMARY = '#172b44'
-const ACCENT = '#f97316'
+const PRIMARY = 'var(--primary)'
+const ACCENT = 'var(--accent)'
 
 const fade = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] } } }
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }
@@ -100,12 +100,12 @@ export default function LeaderboardPage() {
         {/* ── HEADER ── */}
         <motion.div variants={fade} className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-[#172b44]">Leaderboard</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Leaderboard</h1>
             <p className="text-muted-foreground text-sm mt-1">See how you stack up against other learners</p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <div className="bg-white/80 backdrop-blur-md p-1 rounded-xl flex shadow-sm border border-border">
+            <div className="bg-card/50 backdrop-blur-md p-1 rounded-xl flex shadow-sm border border-border">
               {(['This Week', 'This Month', 'All Time'] as TimePeriod[]).map((tab) => (
                 <button
                   key={tab}
@@ -126,7 +126,7 @@ export default function LeaderboardPage() {
               ))}
             </div>
             
-            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors text-[#172b44] bg-white">
+            <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold border border-border hover:bg-secondary transition-colors text-foreground bg-card">
               <Download className="w-4 h-4" /> Export
             </button>
           </div>
@@ -144,17 +144,17 @@ export default function LeaderboardPage() {
                 <div className="absolute -top-10 left-1/2 -translate-x-1/2">
                   <div className="relative">
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 p-[3px] shadow-xl">
-                      <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-2xl font-black text-slate-700">
+                      <div className="w-full h-full rounded-full bg-card flex items-center justify-center text-2xl font-black text-slate-700">
                         {getInitials(podium[1].name)}
                       </div>
                     </div>
-                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-slate-400 text-white text-xs font-black px-3 py-1 rounded-full shadow-md border-2 border-white">
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-slate-400 text-white text-xs font-black px-3 py-1 rounded-full shadow-md border-2 border-border">
                       2ND
                     </div>
                   </div>
                 </div>
                 
-                <h3 className="text-lg font-bold text-[#172b44] mt-2 truncate">{podium[1].name}</h3>
+                <h3 className="text-lg font-bold text-foreground mt-2 truncate">{podium[1].name}</h3>
                 <div className="flex justify-center mt-2">
                   <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style={toBadgeStyle(podium[1].field)}>
                     {podium[1].field}
@@ -193,7 +193,7 @@ export default function LeaderboardPage() {
                           {getInitials(podium[0].name)}
                         </div>
                       </div>
-                      <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#172b44] text-sm font-black px-4 py-1.5 rounded-full shadow-lg border-2 border-[#172b44]">
+                      <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-foreground text-sm font-black px-4 py-1.5 rounded-full shadow-lg border-2 border-[#172b44]">
                         1ST
                       </div>
                     </div>
@@ -201,7 +201,7 @@ export default function LeaderboardPage() {
                   
                   <h3 className="text-2xl font-black text-white mt-4 truncate relative z-10">{podium[0].name}</h3>
                   <div className="flex justify-center mt-3 relative z-10">
-                    <span className="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider bg-white/10 text-yellow-300 border border-white/10 backdrop-blur-md">
+                    <span className="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider bg-card/50 text-yellow-300 border border-border/ backdrop-blur-md">
                       {podium[0].field}
                     </span>
                   </div>
@@ -216,7 +216,7 @@ export default function LeaderboardPage() {
                     <span className="text-xs font-bold text-white/50 uppercase tracking-widest mt-2">Total XP Points</span>
                   </div>
                   
-                  <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-center gap-2 relative z-10">
+                  <div className="mt-6 pt-5 border-t border-border/ flex items-center justify-center gap-2 relative z-10">
                     <Flame className="w-5 h-5 text-orange-400 fill-orange-400/30" />
                     <span className="text-sm font-bold text-white/90">{podium[0].streak} Day Streak!</span>
                   </div>
@@ -233,17 +233,17 @@ export default function LeaderboardPage() {
                 <div className="absolute -top-10 left-1/2 -translate-x-1/2">
                   <div className="relative">
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 p-[3px] shadow-xl">
-                      <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-2xl font-black text-orange-800">
+                      <div className="w-full h-full rounded-full bg-card flex items-center justify-center text-2xl font-black text-orange-800">
                         {getInitials(podium[2].name)}
                       </div>
                     </div>
-                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md border-2 border-white">
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md border-2 border-border">
                       3RD
                     </div>
                   </div>
                 </div>
                 
-                <h3 className="text-lg font-bold text-[#172b44] mt-2 truncate">{podium[2].name}</h3>
+                <h3 className="text-lg font-bold text-foreground mt-2 truncate">{podium[2].name}</h3>
                 <div className="flex justify-center mt-2">
                   <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style={toBadgeStyle(podium[2].field)}>
                     {podium[2].field}
@@ -265,7 +265,7 @@ export default function LeaderboardPage() {
         </motion.div>
 
         {/* ── THE LIST ── */}
-        <motion.div variants={stagger} className="bg-white/60 backdrop-blur-xl border border-slate-200/60 rounded-[32px] p-2 md:p-6 shadow-xl shadow-slate-200/40">
+        <motion.div variants={stagger} className="bg-card/50 backdrop-blur-xl border border-slate-200/60 rounded-[32px] p-2 md:p-6 shadow-xl shadow-slate-200/40">
           
           <div className="hidden md:grid grid-cols-12 gap-4 px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-wider">
             <div className="col-span-1 text-center">Rank</div>
@@ -288,7 +288,7 @@ export default function LeaderboardPage() {
                   className={`relative grid grid-cols-1 md:grid-cols-12 items-center gap-4 p-4 rounded-2xl transition-all duration-300 ${
                     isYou 
                       ? 'bg-gradient-to-r from-[#f97316]/10 to-transparent border-2 border-[#f97316] shadow-md z-10' 
-                      : 'bg-white border border-slate-100 hover:shadow-md'
+                      : 'bg-card border border-slate-100 hover:shadow-md'
                   }`}
                 >
                   {/* Rank */}
@@ -314,7 +314,7 @@ export default function LeaderboardPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h3 className={`font-bold text-base ${isYou ? 'text-[#172b44]' : 'text-slate-700'}`}>
+                        <h3 className={`font-bold text-base ${isYou ? 'text-foreground' : 'text-slate-700'}`}>
                           {entry.name}
                         </h3>
                         {isYou && (
@@ -341,13 +341,13 @@ export default function LeaderboardPage() {
                   {/* Streak */}
                   <div className="col-span-1 flex items-center md:justify-center gap-1.5 order-5 md:order-none mt-2 md:mt-0">
                     <Flame className={`w-4 h-4 ${isYou ? 'text-orange-500 fill-orange-500/30' : 'text-orange-400'}`} />
-                    <span className={`text-sm font-bold ${isYou ? 'text-orange-600' : 'text-slate-500'}`}>{entry.streak}</span>
+                    <span className={`text-sm font-bold ${isYou ? 'text-orange-600 dark:text--400' : 'text-slate-500'}`}>{entry.streak}</span>
                     <span className="text-xs text-slate-400 md:hidden ml-1 uppercase tracking-wider font-semibold">Day Streak</span>
                   </div>
 
                   {/* Points */}
                   <div className="col-span-2 text-left md:text-right order-6 md:order-none mt-2 md:mt-0 flex md:block items-baseline gap-1">
-                    <span className={`text-xl font-black ${isYou ? 'text-[#f97316]' : 'text-[#172b44]'}`}>
+                    <span className={`text-xl font-black ${isYou ? 'text-[#f97316]' : 'text-foreground'}`}>
                       {entry.points.toLocaleString()}
                     </span>
                     <span className="text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">XP</span>
@@ -365,7 +365,7 @@ export default function LeaderboardPage() {
           
           <div className="relative p-8 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 z-10 text-center md:text-left">
             <div>
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full text-white text-xs font-bold uppercase tracking-wider mb-3">
+              <div className="inline-flex items-center gap-2 bg-card/50 backdrop-blur-md border border-border/ px-3 py-1 rounded-full text-white text-xs font-bold uppercase tracking-wider mb-3">
                 <Medal className="w-3.5 h-3.5 text-yellow-400" />
                 Level Up Fast
               </div>

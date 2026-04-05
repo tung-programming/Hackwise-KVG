@@ -98,7 +98,7 @@ function CallbackContent() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        className="bg-white/70 backdrop-blur-xl rounded-3xl p-8 sm:p-12 shadow-xl shadow-black/5 border border-white/60 text-center max-w-md w-full mx-4"
+        className="bg-card/50 backdrop-blur-xl rounded-3xl p-8 sm:p-12 shadow-xl shadow-black/5 border border-border/ text-center max-w-md w-full mx-4"
       >
         {/* Logo */}
         <div className="flex justify-center mb-6">
@@ -130,13 +130,13 @@ function CallbackContent() {
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 200 }}
             >
-              <XCircle className="w-12 h-12 text-red-500 mx-auto" />
+              <XCircle className="w-12 h-12 text-red-500 dark:text-red-400 mx-auto" />
             </motion.div>
           )}
         </div>
 
         {/* Status Text */}
-        <h1 className="text-2xl font-bold text-[#172b44] mb-2">
+        <h1 className="text-2xl font-bold text-foreground mb-2">
           {status === 'loading' && 'Signing you in...'}
           {status === 'success' && 'Welcome!'}
           {status === 'error' && 'Authentication Failed'}
@@ -173,7 +173,7 @@ export default function AuthCallbackPage() {
           background: 'linear-gradient(180deg,#a8c8e8 0%,#c0d9f0 14%,#d8edf8 30%,#edf5fb 48%,#f3e9da 72%,#ecdcc8 100%)'
         }}
       >
-        <div className="bg-white/70 backdrop-blur-xl rounded-3xl p-8 sm:p-12 shadow-xl shadow-black/5 border border-white/60 text-center max-w-md w-full mx-4">
+        <div className="bg-card/50 backdrop-blur-xl rounded-3xl p-8 sm:p-12 shadow-xl shadow-black/5 border border-border/ text-center max-w-md w-full mx-4">
           <div className="flex justify-center mb-6">
             <BrandLogo href="/" width={188} height={56} className="rounded-lg" />
           </div>

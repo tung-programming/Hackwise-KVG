@@ -17,8 +17,8 @@ import {
   ChevronRight,
 } from 'lucide-react'
 
-const PRIMARY = '#172b44'
-const ACCENT = '#f97316'
+const PRIMARY = 'var(--primary)'
+const ACCENT = 'var(--accent)'
 
 const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } } }
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.06 } } }
@@ -46,8 +46,8 @@ export default function SettingsPage() {
       {/* Notifications */}
       <motion.div variants={fade} className="bg-card rounded-2xl border border-border p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg-purple-950/30 flex items-center justify-center">
-            <Bell className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+          <div className="w-10 h-10 rounded-xl bg-purple-50 dark:bg--900/20 dark:bg-purple-950/30 flex items-center justify-center">
+            <Bell className="w-5 h-5 text-purple-600 dark:text--400 dark:text-purple-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold" style={{ color: PRIMARY }}>Notifications</h2>
@@ -71,7 +71,7 @@ export default function SettingsPage() {
               }`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card transition-transform ${
                   emailNotifications ? 'translate-x-6' : 'translate-x-0'
                 }`}
               />
@@ -93,7 +93,7 @@ export default function SettingsPage() {
               }`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card transition-transform ${
                   pushNotifications ? 'translate-x-6' : 'translate-x-0'
                 }`}
               />
@@ -115,7 +115,7 @@ export default function SettingsPage() {
               }`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-card transition-transform ${
                   weeklyDigest ? 'translate-x-6' : 'translate-x-0'
                 }`}
               />
@@ -127,8 +127,8 @@ export default function SettingsPage() {
       {/* Appearance */}
       <motion.div variants={fade} className="bg-card rounded-2xl border border-border p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg-orange-950/30 flex items-center justify-center">
-            <Palette className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+          <div className="w-10 h-10 rounded-xl bg-orange-50 dark:bg--900/20 dark:bg-orange-950/30 flex items-center justify-center">
+            <Palette className="w-5 h-5 text-orange-600 dark:text--400 dark:text-orange-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold" style={{ color: PRIMARY }}>Appearance</h2>
@@ -140,7 +140,7 @@ export default function SettingsPage() {
           <div>
             <label className="block text-sm font-semibold mb-3 text-foreground">Theme</label>
             <div className="grid grid-cols-3 gap-3">
-              <button className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-orange-500 bg-orange-50 dark:bg-orange-950/20">
+              <button className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-orange-500 bg-orange-50 dark:bg--900/20 dark:bg-orange-950/20">
                 <Sun className="w-6 h-6" style={{ color: ACCENT }} />
                 <span className="text-xs font-semibold" style={{ color: ACCENT }}>Light</span>
               </button>
@@ -207,8 +207,8 @@ export default function SettingsPage() {
       {/* Security */}
       <motion.div variants={fade} className="bg-card rounded-2xl border border-border p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
-            <Lock className="w-5 h-5 text-red-600 dark:text-red-400" />
+          <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg--900/20 dark:bg-red-950/30 flex items-center justify-center">
+            <Lock className="w-5 h-5 text-red-600 dark:text--400 dark:text-red-400" />
           </div>
           <div>
             <h2 className="text-lg font-bold" style={{ color: PRIMARY }}>Security</h2>
@@ -255,17 +255,17 @@ export default function SettingsPage() {
       {/* Danger Zone */}
       <motion.div variants={fade} className="bg-card rounded-2xl border border-red-200 dark:border-red-900/30 p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-5">
-          <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/30 flex items-center justify-center">
-            <Shield className="w-5 h-5 text-red-600 dark:text-red-400" />
+          <div className="w-10 h-10 rounded-xl bg-red-50 dark:bg--900/20 dark:bg-red-950/30 flex items-center justify-center">
+            <Shield className="w-5 h-5 text-red-600 dark:text--400 dark:text-red-400" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-red-600 dark:text-red-400">Danger Zone</h2>
+            <h2 className="text-lg font-bold text-red-600 dark:text--400 dark:text-red-400">Danger Zone</h2>
             <p className="text-xs text-muted-foreground">Irreversible actions</p>
           </div>
         </div>
 
         <div className="space-y-3">
-          <button className="w-full px-6 py-3 rounded-xl border-2 border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 font-semibold text-sm hover:bg-red-50 dark:hover:bg-red-950/20 transition-all">
+          <button className="w-full px-6 py-3 rounded-xl border-2 border-red-200 dark:border-red-900/30 text-red-600 dark:text--400 dark:text-red-400 font-semibold text-sm hover:bg-red-50 dark:bg--900/20 dark:hover:bg-red-950/20 transition-all">
             Delete Account
           </button>
         </div>
