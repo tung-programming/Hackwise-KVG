@@ -2,6 +2,23 @@
 import { supabase } from "../../config/database";
 import { NotFoundError } from "../../utils/errors";
 
+const USER_CHILD_TABLES = [
+  "user_activity_log",
+  "resume_analyses",
+  "projects",
+  "courses",
+  "interests",
+  "browsing_history",
+  "leaderboard",
+] as const;
+
+const deleteRowsByUserId = async (table: string, userId: string) => {
+  const { error } = await supabase.from(table).delete().eq("user_id", userId);
+  if (error) {
+    throw new Error(`Failed deleting from ${table}: ${error.message}`);
+  }
+};
+
 export const usersService = {
   getProfile: async (userId: string) => {
     const { data: user, error } = await supabase
@@ -118,10 +135,22 @@ export const usersService = {
   },
 
   deleteAccount: async (userId: string) => {
-    const { error } = await supabase.from("users").delete().eq("id", userId);
+    // Best-effort explicit cleanup across all user-linked tables.
+    // Even if DB cascades exist, this prevents orphan data when constraints differ across environments.
+    for (const table of USER_CHILD_TABLES) {
+      await deleteRowsByUserId(table, userId);
+    }
 
-    if (error) {
-      throw error;
+    const { error: userDeleteError } = await supabase.from("users").delete().eq("id", userId);
+    if (userDeleteError) {
+      throw userDeleteError;
+    }
+
+    // Also delete auth user so it disappears from Supabase Auth "Users".
+    // If already deleted from Auth, continue without failing.
+    const { error: authDeleteError } = await supabase.auth.admin.deleteUser(userId);
+    if (authDeleteError && !/user.*not found/i.test(authDeleteError.message || "")) {
+      throw authDeleteError;
     }
   },
 };
