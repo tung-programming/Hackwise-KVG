@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Trophy, Flame, Download, ArrowUpRight, Crown, TrendingUp, Sparkles, Medal, Zap } from 'lucide-react'
-import { mockLeaderboard } from '@/lib/mock-data'
+import { Trophy, Flame, Download, ArrowUpRight, Crown, TrendingUp, Sparkles, Medal, Zap, Loader2 } from 'lucide-react'
+import { useLeaderboard, useMyRank, useUser } from '@/hooks/use-api'
 
 const PRIMARY = '#172b44'
 const ACCENT = '#f97316'
@@ -12,6 +12,12 @@ const fade = { hidden: { opacity: 0, y: 30 }, show: { opacity: 1, y: 0, transiti
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1 } } }
 
 type TimePeriod = 'All Time' | 'This Month' | 'This Week'
+
+const periodMap: Record<TimePeriod, 'all' | 'month' | 'week'> = {
+  'All Time': 'all',
+  'This Month': 'month',
+  'This Week': 'week',
+}
 
 const fieldStyle: Record<string, { bg: string; text: string }> = {
   Engineering: { bg: '#eff6ff', text: '#1d4ed8' },
@@ -25,13 +31,52 @@ const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').su
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<TimePeriod>('All Time')
   
-  const userRank = 8
-  const topThree = mockLeaderboard.slice(0, 3)
-  const rest = mockLeaderboard.slice(3)
+  const { data: leaderboard, loading } = useLeaderboard(periodMap[activeTab])
+  const { data: myRankData } = useMyRank()
+  const { data: currentUser } = useUser()
   
-  // Create a combined list and sort it
-  const allRankings = [...rest, { rank: userRank, name: 'Jordan Smith', field: 'Engineering', points: 2100, streak: 14 }]
-    .sort((a, b) => a.rank - b.rank)
+  const userRank = myRankData?.rank || 0
+  
+  // Transform leaderboard data
+  const entries = useMemo(() => {
+    if (!leaderboard) return []
+    return leaderboard.map((entry, index) => ({
+      rank: entry.rank || index + 1,
+      name: entry.username || 'Anonymous',
+      field: entry.field || 'Engineering',
+      points: entry.xp || 0,
+      streak: entry.streak || 0,
+      user_id: entry.user_id,
+    }))
+  }, [leaderboard])
+  
+  const topThree = entries.slice(0, 3)
+  const rest = entries.slice(3)
+  
+  // Add current user to list if not in top rankings
+  const allRankings = useMemo(() => {
+    if (!currentUser || userRank <= 0 || userRank <= 10) return rest
+    
+    const userInList = entries.find(e => e.user_id === currentUser.id)
+    if (userInList) return rest
+    
+    return [...rest, {
+      rank: userRank,
+      name: currentUser.username || 'You',
+      field: currentUser.field || 'Engineering',
+      points: currentUser.xp || 0,
+      streak: currentUser.streak || 0,
+      user_id: currentUser.id,
+    }].sort((a, b) => a.rank - b.rank)
+  }, [rest, currentUser, userRank, entries])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#f97316]" />
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-[calc(100vh-6rem)] pb-24 relative selection:bg-[#f97316]/20">
@@ -223,7 +268,7 @@ export default function LeaderboardPage() {
 
           <div className="space-y-3 relative">
             {allRankings.map((entry, idx) => {
-              const isYou = entry.rank === userRank
+              const isYou = currentUser && entry.user_id === currentUser.id
               
               return (
                 <motion.div
@@ -248,19 +293,19 @@ export default function LeaderboardPage() {
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm ${
                       isYou ? 'bg-[#f97316] text-white' : 'bg-slate-100 text-slate-600'
                     }`}>
-                      {getInitials(isYou ? 'Jordan Smith' : entry.name)}
+                      {getInitials(entry.name)}
                     </div>
                   </div>
 
                   {/* Name & Badge Mobile */}
                   <div className="col-span-4 flex items-center gap-3 order-3 md:order-none">
                     <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-sm bg-slate-100 text-slate-600 md:hidden">
-                      {getInitials(isYou ? 'Jordan Smith' : entry.name)}
+                      {getInitials(entry.name)}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <h3 className={`font-bold text-base ${isYou ? 'text-[#172b44]' : 'text-slate-700'}`}>
-                          {isYou ? 'Jordan Smith' : entry.name}
+                          {entry.name}
                         </h3>
                         {isYou && (
                           <span className="bg-[#172b44] text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-sm">

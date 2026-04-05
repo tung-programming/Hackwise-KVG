@@ -2,20 +2,22 @@
 import { supabase } from "../../config/database";
 import { storage } from "../../config/storage";
 import { parseHistoryFile } from "./history.parser";
-import { NotFoundError } from "../../utils/errors";
+import { generateInterestsFromHistory } from "../interests/recommender"; // ✅ STATIC import - dynamic import was silently failing
+import { NotFoundError, BadRequestError } from "../../utils/errors";
 import { v4 as uuidv4 } from "uuid";
 
 export const historyService = {
-  // Upload and process browsing history file
   uploadHistory: async (userId: string, file: Express.Multer.File) => {
     const fileId = uuidv4();
     const fileExt = file.originalname.split(".").pop()?.toLowerCase() || "json";
-    const filePath = `history/${userId}/${fileId}.${fileExt}`;
 
-    // Upload file to Supabase Storage
+    if (fileExt !== "json") {
+      throw new BadRequestError("Only JSON history files are supported for interest analysis.");
+    }
+
+    const filePath = `history/${userId}/${fileId}.${fileExt}`;
     const fileUrl = await storage.uploadFile(filePath, file.buffer, file.mimetype);
 
-    // Create browsing_history record with pending status
     const { data: historyRecord, error } = await supabase
       .from("browsing_history")
       .insert({
@@ -30,11 +32,9 @@ export const historyService = {
 
     if (error) throw error;
 
-    // Return 202 and process in background
-    // Fire-and-forget async processing
+    // Fire-and-forget
     processHistoryAsync(historyRecord.id, userId, file).catch((err) => {
       console.error("History processing failed:", err);
-      // Update status to failed
       supabase
         .from("browsing_history")
         .update({ status: "failed" })
@@ -50,7 +50,6 @@ export const historyService = {
 
   getHistory: async (userId: string, page: number = 1, limit: number = 20) => {
     const offset = (page - 1) * limit;
-
     const { data: entries, error, count } = await supabase
       .from("browsing_history")
       .select("*", { count: "exact" })
@@ -59,7 +58,6 @@ export const historyService = {
       .range(offset, offset + limit - 1);
 
     if (error) throw error;
-
     return {
       entries: entries || [],
       pagination: {
@@ -79,11 +77,8 @@ export const historyService = {
       .eq("user_id", userId)
       .single();
 
-    if (error || !record) {
-      throw new NotFoundError("History record not found");
-    }
+    if (error || !record) throw new NotFoundError("History record not found");
 
-    // If completed, also return the interests generated
     let interests = null;
     if (record.status === "completed") {
       const { data } = await supabase
@@ -92,14 +87,10 @@ export const historyService = {
         .eq("user_id", userId)
         .eq("history_id", historyId)
         .order("rank", { ascending: true });
-
       interests = data;
     }
 
-    return {
-      ...record,
-      interests,
-    };
+    return { ...record, interests };
   },
 
   deleteHistory: async (userId: string, historyId: string) => {
@@ -110,11 +101,8 @@ export const historyService = {
       .eq("user_id", userId)
       .single();
 
-    if (fetchError || !record) {
-      throw new NotFoundError("History record not found");
-    }
+    if (fetchError || !record) throw new NotFoundError("History record not found");
 
-    // Delete from storage
     if (record.file_url) {
       try {
         const path = record.file_url.split("/").slice(-3).join("/");
@@ -124,7 +112,6 @@ export const historyService = {
       }
     }
 
-    // Delete database record (cascade deletes related interests)
     const { error } = await supabase
       .from("browsing_history")
       .delete()
@@ -132,73 +119,139 @@ export const historyService = {
       .eq("user_id", userId);
 
     if (error) throw error;
-
     return { message: "History deleted successfully" };
   },
 };
 
-// Background processing function
 async function processHistoryAsync(
   historyId: string,
   userId: string,
   file: Express.Multer.File
 ) {
   try {
-    // Update status to processing
+    // Mark as processing
     await supabase
       .from("browsing_history")
       .update({ status: "processing" })
       .eq("id", historyId);
 
-    // Parse the file
+    // Parse file
     const parsedData = await parseHistoryFile(file);
+    console.log(`📋 Parsed ${parsedData.length} history entries for user ${userId}`);
 
-    // Store raw data
+    // ✅ Store raw_data BEFORE generating interests so recommender
+    //    can also read it from DB if needed (and it's available on retry)
     await supabase
       .from("browsing_history")
       .update({ raw_data: parsedData })
       .eq("id", historyId);
 
-    // Import the recommender to generate interests
-    const { generateInterestsFromHistory } = await import(
-      "../interests/recommender"
-    );
-
-    // Get user's field and type for context
+    // Get user context
     const { data: user } = await supabase
       .from("users")
       .select("field, type")
       .eq("id", userId)
       .single();
 
-    // Generate top 4 interests
-    const interests = await generateInterestsFromHistory(
-      parsedData,
-      user?.field || "engineering",
-      user?.type || "cse"
-    );
-
-    // Insert interests
-    for (let i = 0; i < interests.length && i < 4; i++) {
-      await supabase.from("interests").insert({
-        user_id: userId,
-        history_id: historyId,
-        name: interests[i].name,
-        description: interests[i].description,
-        status: "pending",
-        rank: i + 1,
-      });
+    if (!user?.field || !user?.type) {
+      throw new Error("User field/type not found. Complete onboarding before uploading history.");
     }
 
-    // Award XP for uploading history
-    await supabase.rpc("increment_xp", { user_id: userId, xp_amount: 25 });
+    const field = user.field;
+    const type = user.type;
 
-    // Update status to completed
+    console.log(`🔍 Generating interests for field=${field} type=${type} entries=${parsedData.length}`);
+
+    // ✅ Static import used - no more silent dynamic import failure
+    const interests = await generateInterestsFromHistory(parsedData, field, type);
+
+    console.log(`💡 Gemini returned ${interests.length} interests: ${interests.map(i => i.name).join(", ")}`);
+
+    if (interests.length === 0) {
+      throw new Error("Gemini returned no interests from uploaded history.");
+    }
+
+    let storedCount = 0;
+    for (let i = 0; i < interests.length && i < 4; i++) {
+      const interest = interests[i];
+      const cleanName = String(interest.name || "").trim();
+      if (!cleanName) continue;
+
+      const { data: existing, error: existingError } = await supabase
+        .from("interests")
+        .select("id, status, is_completed")
+        .eq("user_id", userId)
+        .eq("name", cleanName)
+        .maybeSingle();
+
+      if (existingError) {
+        console.error("Interest lookup failed:", existingError.message, { name: cleanName });
+        continue;
+      }
+
+      if (existing?.id) {
+        const nextStatus =
+          existing.status === "accepted" || existing.is_completed
+            ? existing.status
+            : "pending";
+
+        const { error: updateError } = await supabase
+          .from("interests")
+          .update({
+            history_id: historyId,
+            description: interest.description,
+            rank: i + 1,
+            status: nextStatus,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", existing.id)
+          .eq("user_id", userId);
+
+        if (updateError) {
+          console.error("Interest update failed:", updateError.message, { name: cleanName });
+          continue;
+        }
+      } else {
+        const { error: insertError } = await supabase.from("interests").insert({
+          user_id: userId,
+          history_id: historyId,
+          name: cleanName,
+          description: interest.description,
+          status: "pending",
+          rank: i + 1,
+        });
+
+        if (insertError) {
+          console.error("Interest insert failed:", insertError.message, { name: cleanName });
+          continue;
+        }
+      }
+
+      storedCount++;
+    }
+
+    console.log(`✅ Stored ${storedCount} interests for user ${userId}`);
+
+    // XP reward
+    const { error: xpError } = await supabase.rpc("increment_xp", {
+      user_id: userId,
+      xp_amount: 25,
+    });
+    if (xpError) console.warn("XP increment skipped:", xpError.message);
+
+    // Final status update
     await supabase
       .from("browsing_history")
       .update({
         status: "completed",
         processed_at: new Date().toISOString(),
+        raw_data: {
+          entries: parsedData,
+          meta: {
+            interests_requested: Math.min(interests.length, 4),
+            interests_stored: storedCount,
+          },
+        },
       })
       .eq("id", historyId);
   } catch (error) {

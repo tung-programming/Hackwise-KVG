@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import {
-  ArrowUpRight,
   Download,
   Users,
   TrendingUp,
@@ -16,9 +16,11 @@ import {
   Smartphone,
   Cloud,
   Sparkles,
+  Flame,
+  Loader2,
 } from 'lucide-react'
-import { mockAnalytics } from '@/lib/mock-data'
 import { useAppStore } from '@/lib/store'
+import { useCourses, useDashboardData, useWeeklyActivity } from '@/hooks/use-api'
 import {
   BarChart,
   Bar,
@@ -32,32 +34,16 @@ import {
 
 const PRIMARY = '#172b44'
 const ACCENT = '#f97316'
-const PRIMARY_LIGHT = '#e8f1f8'
 
-/* ─── mock data ─── */
-const weekActivity = [
-  { day: 'S', hours: 1.5, solid: false },
-  { day: 'M', hours: 5.0, solid: true },
-  { day: 'T', hours: 6.5, solid: true, highlight: true, pct: '74%' },
-  { day: 'W', hours: 8.0, solid: true },
-  { day: 'T', hours: 2.5, solid: false },
-  { day: 'F', hours: 4.0, solid: false },
-  { day: 'S', hours: 1.0, solid: false },
-]
-
-const recentActivity = [
-  { name: 'Alex Rodriguez', task: 'Advanced TypeScript', status: 'Completed', avatar: 'AR' },
-  { name: 'Sarah Chen', task: 'React Patterns', status: 'In Progress', avatar: 'SC' },
-  { name: 'Mike Johnson', task: 'System Design', status: 'Pending', avatar: 'MJ' },
-  { name: 'Emma Wilson', task: 'Algorithms & DS', status: 'In Progress', avatar: 'EW' },
-]
-
-const activeCourses = [
-  { title: 'Advanced TypeScript', due: 'Due: Dec 10, 2024', icon: Code2, color: '#4f46e5' },
-  { title: 'React Patterns', due: 'Due: Dec 15, 2024', icon: Brain, color: '#0891b2' },
-  { title: 'System Design', due: 'Due: Dec 20, 2024', icon: BookOpen, color: ACCENT },
-  { title: 'Mobile Development', due: 'Due: Jan 5, 2025', icon: Smartphone, color: '#be185d' },
-  { title: 'DevOps & Cloud', due: 'Due: Jan 12, 2025', icon: Cloud, color: '#0d9488' },
+// Fallback week activity data when API doesn't have weekly stats yet
+const defaultWeekActivity = [
+  { day: 'S', hours: 0, solid: false, highlight: false },
+  { day: 'M', hours: 0, solid: false, highlight: false },
+  { day: 'T', hours: 0, solid: false, highlight: false },
+  { day: 'W', hours: 0, solid: false, highlight: false },
+  { day: 'T', hours: 0, solid: false, highlight: false },
+  { day: 'F', hours: 0, solid: false, highlight: false },
+  { day: 'S', hours: 0, solid: false, highlight: false },
 ]
 
 const statusBadge: Record<string, string> = {
@@ -65,6 +51,10 @@ const statusBadge: Record<string, string> = {
   'In Progress': 'bg-orange-50 text-orange-700 border border-orange-200',
   Pending: 'bg-slate-100 text-slate-500 border border-slate-200',
 }
+
+// Icon colors for interests
+const interestColors = ['#4f46e5', '#0891b2', '#ea580c', '#be185d', '#0d9488', '#7c3aed']
+const courseIcons = [Code2, Smartphone, Cloud, BookOpen]
 
 /* ─── custom rounded bar ─── */
 const RoundedBar = (props: {
@@ -90,6 +80,86 @@ const stagger = {
 
 export default function DashboardPage() {
   const { setModalOpen } = useAppStore()
+  
+  // ─── Fetch real dashboard data ───
+  const { data: dashboardData, loading: dashboardLoading } = useDashboardData()
+  const { data: apiWeekActivity } = useWeeklyActivity()
+  const activeInterestId = dashboardData?.activeInterest?.id || null
+  const { data: courseData, loading: coursesLoading } = useCourses(activeInterestId)
+  
+  // Transform API weekly activity or use fallback
+  const weekActivity = useMemo(() => {
+    if (apiWeekActivity && apiWeekActivity.length > 0) {
+      const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+      return apiWeekActivity.map((item, index) => ({
+        day: item.day || dayLabels[index % 7],
+        hours: item.hours || 0,
+        solid: item.hours > 2,
+        highlight: index === new Date().getDay(),
+      }))
+    }
+    return defaultWeekActivity
+  }, [apiWeekActivity])
+
+  const activeCourses = useMemo(() => {
+    if (!courseData || courseData.length === 0) return []
+
+    return courseData
+      .filter((course) => !course.is_completed)
+      .slice(0, 4)
+      .map((course, index) => ({
+        title: course.name,
+        due: course.roadmap_data?.duration || course.roadmap_data?.difficulty || 'Ready to continue',
+        icon: courseIcons[index % courseIcons.length],
+        color: interestColors[index % interestColors.length],
+      }))
+  }, [courseData])
+
+  const recentActivity = useMemo(() => {
+    const items: Array<{
+      name: string
+      task: string
+      avatar: string
+      status: 'Completed' | 'In Progress' | 'Pending'
+    }> = []
+
+    const username = dashboardData?.user?.username || 'You'
+    const userAvatar = username.slice(0, 2).toUpperCase()
+
+    activeCourses.slice(0, 2).forEach((course) => {
+      items.push({
+        name: username,
+        task: course.title,
+        avatar: userAvatar,
+        status: 'In Progress',
+      })
+    })
+
+    dashboardData?.interests
+      ?.filter((interest) => interest.is_completed)
+      .slice(0, 2)
+      .forEach((interest) => {
+        items.push({
+          name: interest.name,
+          task: 'Learning path completed',
+          avatar: interest.name.slice(0, 2).toUpperCase(),
+          status: 'Completed',
+        })
+      })
+
+    if (items.length === 0) {
+      items.push({
+        name: username,
+        task: dashboardData?.activeInterest
+          ? `Start ${dashboardData.activeInterest.name}`
+          : 'Import your history to build a roadmap',
+        avatar: userAvatar,
+        status: 'Pending',
+      })
+    }
+
+    return items.slice(0, 4)
+  }, [activeCourses, dashboardData])
   
   // ─── Global Stopwatch Implementation ───
   const [timerState, setTimerState] = useState<{ isRunning: boolean; elapsed: number; lastStarted: number | null }>({
@@ -175,63 +245,69 @@ export default function DashboardPage() {
 
       {/* ── Stat cards ── */}
       <motion.div variants={stagger} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1 — accent gradient */}
+        {/* Card 1 — XP (accent gradient) */}
         <motion.div
           variants={fade}
           className="rounded-2xl p-5 relative overflow-hidden col-span-1 shadow-lg"
           style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}
         >
           <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-white/10" />
-          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/15 flex items-center justify-center hover:bg-white/25 transition-colors">
-            <ArrowUpRight className="w-3.5 h-3.5 text-white" />
-          </button>
-          <p className="text-white/70 text-xs font-medium mt-1">Total Courses</p>
+          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
+          </div>
+          <p className="text-white/70 text-xs font-medium mt-1">Total XP</p>
           <p className="text-white text-4xl font-black mt-1">
-            {mockAnalytics.completedCourses + mockAnalytics.ongoingInterests + 2}
+            {dashboardLoading ? '...' : (dashboardData?.stats?.xp || 0)}
           </p>
           <div className="flex items-center gap-1.5 mt-3">
             <span className="flex items-center gap-1 bg-white/15 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
-              <TrendingUp className="w-2.5 h-2.5" /> Increased from last month
+              <TrendingUp className="w-2.5 h-2.5" /> Keep learning!
             </span>
           </div>
         </motion.div>
 
-        {/* Card 2 */}
+        {/* Card 2 — Streak */}
         <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
-          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors">
-            <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
-          </button>
-          <p className="text-muted-foreground text-xs font-medium mt-1">Completed</p>
-          <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>{mockAnalytics.completedCourses}</p>
-          <div className="flex items-center gap-1.5 mt-3">
-            <span className="flex items-center gap-1 text-emerald-600 text-[10px] font-semibold">
-              <TrendingUp className="w-2.5 h-2.5" /> Increased from last month
-            </span>
+          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-orange-100 flex items-center justify-center">
+            <Flame className="w-3.5 h-3.5 text-orange-600" />
           </div>
-        </motion.div>
-
-        {/* Card 3 */}
-        <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
-          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors">
-            <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
-          </button>
-          <p className="text-muted-foreground text-xs font-medium mt-1">In Progress</p>
-          <p className="text-3xl font-black mt-1" style={{ color: ACCENT }}>{mockAnalytics.ongoingInterests}</p>
+          <p className="text-muted-foreground text-xs font-medium mt-1">Day Streak</p>
+          <p className="text-3xl font-black mt-1" style={{ color: ACCENT }}>
+            {dashboardLoading ? '...' : (dashboardData?.stats?.streak || 0)}
+          </p>
           <div className="flex items-center gap-1.5 mt-3">
             <span className="flex items-center gap-1 text-orange-600 text-[10px] font-semibold">
-              <TrendingUp className="w-2.5 h-2.5" /> Active learning
+              <Flame className="w-2.5 h-2.5" /> Keep it going!
             </span>
           </div>
         </motion.div>
 
-        {/* Card 4 */}
+        {/* Card 3 — Completed Courses */}
         <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
-          <button className="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/80 flex items-center justify-center hover:bg-white transition-colors">
-            <ArrowUpRight className="w-3.5 h-3.5 text-muted-foreground" />
-          </button>
-          <p className="text-muted-foreground text-xs font-medium mt-1">Upcoming</p>
-          <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>2</p>
-          <p className="text-muted-foreground text-[10px] font-medium mt-3">On Schedule</p>
+          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center">
+            <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+          </div>
+          <p className="text-muted-foreground text-xs font-medium mt-1">Courses Done</p>
+          <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>
+            {dashboardLoading ? '...' : (dashboardData?.stats?.completedCourses || 0)}
+          </p>
+          <div className="flex items-center gap-1.5 mt-3">
+            <span className="flex items-center gap-1 text-emerald-600 text-[10px] font-semibold">
+              <TrendingUp className="w-2.5 h-2.5" /> Great progress!
+            </span>
+          </div>
+        </motion.div>
+
+        {/* Card 4 — Active Interests */}
+        <motion.div variants={fade} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 relative shadow-sm hover:shadow-md transition-shadow">
+          <div className="absolute top-4 right-4 w-7 h-7 rounded-full bg-blue-50 flex items-center justify-center">
+            <Brain className="w-3.5 h-3.5 text-blue-600" />
+          </div>
+          <p className="text-muted-foreground text-xs font-medium mt-1">Active Interests</p>
+          <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>
+            {dashboardLoading ? '...' : (dashboardData?.stats?.activeInterests || 0)}
+          </p>
+          <p className="text-muted-foreground text-[10px] font-medium mt-3">Learning paths</p>
         </motion.div>
       </motion.div>
 
@@ -316,31 +392,43 @@ export default function DashboardPage() {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-base text-[#172b44]">Courses</h2>
-            <button
+            <Link
+              href={dashboardData?.activeInterest ? `/dashboard/courses/${dashboardData.activeInterest.id}` : '/dashboard/interests'}
               className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full transition-all hover:bg-orange-50 bg-white"
               style={{ border: `1px solid ${ACCENT}`, color: ACCENT }}
             >
               See All
-            </button>
+            </Link>
           </div>
           <div className="space-y-4">
-            {activeCourses.map((c) => {
-              const Icon = c.icon
-              return (
-                <div key={c.title} className="flex items-center gap-3 group cursor-pointer border border-transparent hover:border-slate-100 p-2 -mx-2 rounded-xl transition-colors">
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
-                    style={{ background: c.color + '15' }}
-                  >
-                    <Icon className="w-5 h-5" style={{ color: c.color }} />
+            {coursesLoading ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground py-3">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Loading courses...</span>
+              </div>
+            ) : activeCourses.length > 0 ? (
+              activeCourses.map((c) => {
+                const Icon = c.icon
+                return (
+                  <div key={c.title} className="flex items-center gap-3 group cursor-pointer border border-transparent hover:border-slate-100 p-2 -mx-2 rounded-xl transition-colors">
+                    <div
+                      className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105"
+                      style={{ background: c.color + '15' }}
+                    >
+                      <Icon className="w-5 h-5" style={{ color: c.color }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold truncate text-[#172b44]">{c.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{c.due}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold truncate text-[#172b44]">{c.title}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{c.due}</p>
-                  </div>
-                </div>
-              )
-            })}
+                )
+              })
+            ) : (
+              <p className="text-sm text-muted-foreground py-3">
+                {dashboardData?.activeInterest ? 'No active courses right now.' : 'Choose an interest to see your course roadmap.'}
+              </p>
+            )}
           </div>
         </motion.div>
       </motion.div>
@@ -363,7 +451,7 @@ export default function DashboardPage() {
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             {recentActivity.map((a) => (
-              <div key={a.name} className="flex items-center gap-3 group cursor-pointer p-3 rounded-xl hover:bg-white/90 border border-transparent hover:border-slate-100 transition-all">
+              <div key={`${a.name}-${a.task}`} className="flex items-center gap-3 group cursor-pointer p-3 rounded-xl hover:bg-white/90 border border-transparent hover:border-slate-100 transition-all">
                 <div
                   className="w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm transition-transform group-hover:scale-105"
                   style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}

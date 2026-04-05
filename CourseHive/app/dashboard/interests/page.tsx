@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle2, XCircle, ArrowRight, Plus, Download, TrendingUp, BookOpen, Target, Flame, Sparkles, Heart, Zap, Lock, Loader2 } from 'lucide-react'
-import { mockInterests } from '@/lib/mock-data'
+import { CheckCircle2, XCircle, ArrowRight, Plus, Download, TrendingUp, BookOpen, Target, Flame, Sparkles, Heart, Zap, Lock, Loader2, AlertCircle } from 'lucide-react'
 import { useAppStore } from '@/lib/store'
+import { useInterests, useActiveInterest, useInterestActions } from '@/hooks/use-api'
+import type { Interest as ApiInterest } from '@/lib/api'
 
 const PRIMARY = '#172b44'
 const ACCENT = '#f97316'
@@ -25,23 +26,72 @@ const interestColors = [
   '#7c3aed', // Violet
 ]
 
+// Icon mapping for interests based on common keywords
+const getInterestIcon = (name: string) => {
+  const nameLower = name.toLowerCase()
+  if (nameLower.includes('web') || nameLower.includes('frontend') || nameLower.includes('react')) return 'Code2'
+  if (nameLower.includes('data') || nameLower.includes('analytics')) return 'BarChart3'
+  if (nameLower.includes('mobile') || nameLower.includes('app')) return 'Smartphone'
+  if (nameLower.includes('ai') || nameLower.includes('machine') || nameLower.includes('learning')) return 'Brain'
+  if (nameLower.includes('cloud') || nameLower.includes('devops')) return 'Cloud'
+  if (nameLower.includes('design') || nameLower.includes('ux')) return 'Palette'
+  if (nameLower.includes('security') || nameLower.includes('cyber')) return 'Shield'
+  if (nameLower.includes('blockchain') || nameLower.includes('crypto')) return 'Link'
+  return 'Heart'
+}
+
 export default function InterestsPage() {
   const router = useRouter()
-  const { interests, addInterest, updateInterest, uploadedHistory } = useAppStore()
+  const { uploadedHistory } = useAppStore()
   const [mounted, setMounted] = useState(false)
   const [redirectingInterest, setRedirectingInterest] = useState<string | null>(null)
+  const [actionError, setActionError] = useState<string | null>(null)
+  
+  // Fetch interests from API
+  const { data: apiInterests, loading, error, refetch } = useInterests()
+  const { hasActive } = useActiveInterest()
+  const { accept, reject, loading: actionLoading, error: interestActionError } = useInterestActions(refetch)
 
   useEffect(() => {
     setMounted(true)
-    if (interests.length === 0) {
-      mockInterests.forEach((i) => addInterest({ id: i.id, name: i.name, status: 'pending' }))
-    }
   }, [])
 
   if (!mounted) return null
 
+  // Transform API interests to display format
+  const interests = apiInterests || []
   const accepted = interests.filter((i) => i.status === 'accepted')
   const pending = interests.filter((i) => i.status === 'pending')
+  const completed = interests.filter((i) => i.is_completed)
+
+  const handleAccept = async (interest: ApiInterest) => {
+    if (hasActive) {
+      setActionError('You already have an active interest. Complete it first before starting a new one.')
+      return
+    }
+    
+    setRedirectingInterest(interest.name)
+    setActionError(null)
+    
+    const success = await accept(interest.id)
+    if (success) {
+      // Wait a bit for roadmap generation to start, then redirect
+      setTimeout(() => {
+        router.push(`/dashboard/courses/${interest.id}`)
+      }, 1500)
+    } else {
+      setRedirectingInterest(null)
+      setActionError(interestActionError || 'Failed to accept interest')
+    }
+  }
+
+  const handleReject = async (interestId: string) => {
+    setActionError(null)
+    const success = await reject(interestId)
+    if (!success) {
+      setActionError(interestActionError || 'Failed to reject interest')
+    }
+  }
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
@@ -120,15 +170,112 @@ export default function InterestsPage() {
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
           </div>
           <p className="text-muted-foreground text-xs font-medium mt-1">Completed</p>
-          <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>0</p>
+          <p className="text-3xl font-black mt-1" style={{ color: PRIMARY }}>{completed.length}</p>
           <p className="text-muted-foreground text-[10px] font-medium mt-3">Keep it up!</p>
         </motion.div>
       </motion.div>
 
-      {/* ── Active Learning Paths Removed ── */}
+      {/* ── Loading State ── */}
+      {loading && (
+        <motion.div variants={fade} className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 text-[#f97316] animate-spin" />
+          <span className="ml-3 text-muted-foreground">Loading interests...</span>
+        </motion.div>
+      )}
+
+      {/* ── Error State ── */}
+      {error && (
+        <motion.div variants={fade} className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+          <div>
+            <p className="font-semibold text-red-700">Failed to load interests</p>
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        </motion.div>
+      )}
+
+      {/* ── Action Error ── */}
+      {actionError && (
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3"
+        >
+          <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
+          <p className="text-sm text-amber-700">{actionError}</p>
+          <button 
+            onClick={() => setActionError(null)}
+            className="ml-auto text-amber-500 hover:text-amber-700"
+          >
+            <XCircle className="w-4 h-4" />
+          </button>
+        </motion.div>
+      )}
+
+      {/* ── Active Learning Paths ── */}
+      {accepted.length > 0 && (
+        <motion.div variants={stagger} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="font-bold text-base" style={{ color: PRIMARY }}>Active Learning Paths</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Continue where you left off</p>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {accepted.map((interest, idx) => {
+              const color = interestColors[idx % interestColors.length]
+              const iconName = getInterestIcon(interest.name)
+              const Icon = (() => {
+                try { return require('lucide-react')[iconName] || Heart } catch { return Heart }
+              })()
+
+              return (
+                <Link key={interest.id} href={`/dashboard/courses/${interest.id}`}>
+                  <motion.div
+                    variants={fade}
+                    className="group relative rounded-xl border border-emerald-200 bg-emerald-50/50 shadow-sm p-4 flex flex-col transition-all hover:shadow-md cursor-pointer"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div 
+                        className="w-9 h-9 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105"
+                        style={{ background: color + '15' }}
+                      >
+                        <Icon className="w-4 h-4" style={{ color }} />
+                      </div>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                        <Flame className="w-3 h-3" /> Active
+                      </span>
+                    </div>
+                    
+                    <div className="mb-3 flex-1">
+                      <h3 className="font-bold text-sm text-[#172b44] mb-1">{interest.name}</h3>
+                      <p className="text-xs text-muted-foreground line-clamp-2">{interest.description}</p>
+                    </div>
+                    
+                    {/* Progress */}
+                    <div className="mt-auto">
+                      <div className="flex items-center justify-between text-xs mb-1">
+                        <span className="text-muted-foreground">Progress</span>
+                        <span className="font-bold" style={{ color: PRIMARY }}>{interest.progress_pct}%</span>
+                      </div>
+                      <div className="w-full h-2 bg-emerald-100 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-emerald-500 transition-all"
+                          style={{ width: `${interest.progress_pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                </Link>
+              )
+            })}
+          </div>
+        </motion.div>
+      )}
 
       {/* ── Curated for You ── */}
-      {pending.length > 0 && (
+      {!loading && pending.length > 0 && (
         <motion.div variants={stagger} className="bg-white/70 backdrop-blur-sm rounded-2xl p-5 border border-white/50 shadow-sm">
           <div className="flex items-center justify-between mb-5">
             <div>
@@ -142,13 +289,14 @@ export default function InterestsPage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {pending.slice(0, 4).map((interest, idx) => {
-              const details = mockInterests.find((m) => m.id === interest.id)
               const gIdx = (idx + accepted.length) % interestColors.length
               const color = interestColors[gIdx]
+              const iconName = getInterestIcon(interest.name)
               const Icon = (() => {
-                try { return require('lucide-react')[details?.icon || 'Heart'] || Heart } catch { return Heart }
+                try { return require('lucide-react')[iconName] || Heart } catch { return Heart }
               })()
-              const isUnlocked = idx === 0
+              // Only first pending is unlocked if no active interest
+              const isUnlocked = idx === 0 && !hasActive
               
               return (
                 <motion.div
@@ -177,7 +325,7 @@ export default function InterestsPage() {
                   
                   <div className="mb-4 flex-1">
                     <h3 className={`font-bold text-sm mb-1 ${isUnlocked ? 'text-[#172b44]' : 'text-slate-500'}`}>{interest.name}</h3>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{details?.description}</p>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{interest.description}</p>
                   </div>
                   
                   {/* Action Area */}
@@ -187,18 +335,16 @@ export default function InterestsPage() {
                         <p className="text-[11px] font-extrabold text-center text-[#172b44] mb-0.5">Is this your correct interest?</p>
                         <div className="grid grid-cols-2 gap-2">
                           <button
-                            onClick={() => {
-                              setRedirectingInterest(interest.name)
-                              updateInterest(interest.id, 'accepted')
-                              setTimeout(() => router.push('/dashboard/courses/1'), 1500)
-                            }}
-                            className="py-1.5 flex items-center justify-center rounded-lg text-xs font-black text-emerald-700 bg-emerald-50 border border-emerald-200 transition-all hover:bg-emerald-500 hover:text-white shadow-sm"
+                            onClick={() => handleAccept(interest)}
+                            disabled={actionLoading}
+                            className="py-1.5 flex items-center justify-center rounded-lg text-xs font-black text-emerald-700 bg-emerald-50 border border-emerald-200 transition-all hover:bg-emerald-500 hover:text-white shadow-sm disabled:opacity-50"
                           >
-                            YES
+                            {actionLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : 'YES'}
                           </button>
                           <button
-                            onClick={() => updateInterest(interest.id, 'rejected')}
-                            className="py-1.5 flex items-center justify-center rounded-lg text-xs font-black text-rose-700 bg-rose-50 border border-rose-200 transition-all hover:bg-rose-500 hover:text-white shadow-sm"
+                            onClick={() => handleReject(interest.id)}
+                            disabled={actionLoading}
+                            className="py-1.5 flex items-center justify-center rounded-lg text-xs font-black text-rose-700 bg-rose-50 border border-rose-200 transition-all hover:bg-rose-500 hover:text-white shadow-sm disabled:opacity-50"
                           >
                             NO
                           </button>
@@ -206,7 +352,7 @@ export default function InterestsPage() {
                       </div>
                     ) : (
                       <div className="py-2 text-center text-[10px] font-bold text-slate-400 bg-slate-50 rounded-lg flex items-center justify-center gap-1.5 uppercase tracking-wider">
-                        <Lock className="w-3 h-3" /> Complete previous to unlock
+                        <Lock className="w-3 h-3" /> {hasActive ? 'Complete active first' : 'Complete previous to unlock'}
                       </div>
                     )}
                   </div>
@@ -217,8 +363,8 @@ export default function InterestsPage() {
         </motion.div>
       )}
       
-      {/* ── Empty state & Add Interest (Shown when curated topics are done) ── */}
-      {interests.length === 0 || pending.length === 0 ? (
+      {/* ── Empty state & Add Interest (Shown when no interests or all done) ── */}
+      {!loading && (interests.length === 0 || pending.length === 0) && (
         <motion.div 
           variants={fade}
           className="text-center py-12 px-5 bg-white/70 backdrop-blur-sm rounded-2xl border border-white/50 shadow-sm mt-8"
@@ -226,18 +372,24 @@ export default function InterestsPage() {
           <div className="w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center" style={{ background: ACCENT + '15' }}>
             <Sparkles className="w-8 h-8" style={{ color: ACCENT }} />
           </div>
-          <h3 className="text-xl font-extrabold mb-1" style={{ color: PRIMARY }}>All caught up!</h3>
+          <h3 className="text-xl font-extrabold mb-1" style={{ color: PRIMARY }}>
+            {interests.length === 0 ? 'No interests yet!' : 'All caught up!'}
+          </h3>
           <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-            You've gone through all curated recommendations. Add a completely customized interest to build a new personalized learning path.
+            {interests.length === 0 
+              ? 'Upload your browsing history to get personalized learning recommendations based on your interests.'
+              : 'You\'ve gone through all curated recommendations. Upload more history for new suggestions.'}
           </p>
-          <button
-            className="flex items-center gap-2 mx-auto px-6 py-3 rounded-xl text-sm font-bold text-white transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
-            style={{ background: ACCENT, boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)' }}
-          >
-            <Plus className="w-5 h-5" /> Add New Interest
-          </button>
+          <Link href="/dashboard">
+            <button
+              className="flex items-center gap-2 mx-auto px-6 py-3 rounded-xl text-sm font-bold text-white transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+              style={{ background: ACCENT, boxShadow: '0 4px 14px rgba(249, 115, 22, 0.35)' }}
+            >
+              <Download className="w-5 h-5" /> Import History
+            </button>
+          </Link>
         </motion.div>
-      ) : null}
+      )}
 
       {/* ── Redirecting Popup ── */}
       <AnimatePresence>

@@ -1,78 +1,77 @@
-// Gemini roadmap generation
+// Gemini roadmap generation - optimized for minimal token usage
 import geminiPool from '../../config/gemini';
 
-interface RoadmapModule {
-  title: string;
+interface RoadmapCourse {
+  name: string;
   description: string;
-  resources: string[];
+  resource_url: string;
+  duration: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
 }
 
-interface Roadmap {
-  title: string;
+interface RoadmapProject {
+  name: string;
   description: string;
-  modules: RoadmapModule[];
+  difficulty: 'easy' | 'medium' | 'hard';
+}
+
+interface RoadmapResult {
+  courses: RoadmapCourse[];
+  projects: RoadmapProject[];
 }
 
 export const generateCourseRoadmap = async (
-  topic: string,
-  level: string
-): Promise<Roadmap> => {
-  const prompt = `Create a learning roadmap for "${topic}" at ${level} level.
+  interestName: string,
+  field: string,
+  type: string
+): Promise<RoadmapResult> => {
+  // Minimal prompt for token efficiency
+  const prompt = `Create roadmap for "${interestName}" (${field}/${type}).
 
-Return a JSON object with this structure:
+Return JSON:
 {
-  "title": "Course title",
-  "description": "Brief course description",
-  "modules": [
-    {
-      "title": "Module title",
-      "description": "What you'll learn",
-      "resources": ["Resource 1 URL/name", "Resource 2"]
-    }
-  ]
+  "courses":[{"name":"","description":"","resource_url":"","duration":"e.g. 2h","difficulty":"beginner|intermediate|advanced"}],
+  "projects":[{"name":"","description":"","difficulty":"easy|medium|hard"}]
 }
 
-Include 5-8 modules with progressive difficulty. Each module should have 2-4 resources (mix of documentation, tutorials, and practice exercises).
-
-Return ONLY valid JSON, no markdown or explanation.`;
+5-7 courses (progressive), 2-3 projects. Real URLs preferred.`;
 
   try {
-    const response = await geminiPool.generateContent(prompt);
-    const cleaned = response.replace(/```json\n?|\n?```/g, '').trim();
-    const roadmap = JSON.parse(cleaned);
-    return roadmap;
+    const result = await geminiPool.generateJSON<RoadmapResult>(prompt, 800);
+    
+    // Validate and normalize
+    if (result.courses && Array.isArray(result.courses)) {
+      return {
+        courses: result.courses.slice(0, 7).map((c, i) => ({
+          name: c.name || `Module ${i + 1}`,
+          description: c.description || '',
+          resource_url: c.resource_url || '',
+          duration: c.duration || '1-2 hours',
+          difficulty: c.difficulty || 'beginner',
+        })),
+        projects: (result.projects || []).slice(0, 3).map((p, i) => ({
+          name: p.name || `Project ${i + 1}`,
+          description: p.description || '',
+          difficulty: p.difficulty || 'medium',
+        })),
+      };
+    }
   } catch (error) {
     console.error('Roadmap generation error:', error);
-    return {
-      title: `Learn ${topic}`,
-      description: `A comprehensive guide to ${topic} for ${level} learners.`,
-      modules: [
-        {
-          title: 'Introduction',
-          description: `Getting started with ${topic}`,
-          resources: ['Official documentation', 'Getting started guide'],
-        },
-        {
-          title: 'Core Concepts',
-          description: 'Understanding the fundamentals',
-          resources: ['Tutorial series', 'Practice exercises'],
-        },
-        {
-          title: 'Hands-on Practice',
-          description: 'Building real projects',
-          resources: ['Project-based learning', 'Code challenges'],
-        },
-        {
-          title: 'Advanced Topics',
-          description: 'Deepening your knowledge',
-          resources: ['Advanced guides', 'Best practices'],
-        },
-        {
-          title: 'Final Project',
-          description: 'Apply everything you learned',
-          resources: ['Project ideas', 'Portfolio building'],
-        },
-      ],
-    };
   }
+
+  // Fallback roadmap
+  return {
+    courses: [
+      { name: `${interestName} Fundamentals`, description: 'Core concepts and basics', resource_url: '', duration: '2 hours', difficulty: 'beginner' },
+      { name: 'Hands-on Practice', description: 'Practical exercises', resource_url: '', duration: '3 hours', difficulty: 'beginner' },
+      { name: 'Intermediate Concepts', description: 'Deeper understanding', resource_url: '', duration: '4 hours', difficulty: 'intermediate' },
+      { name: 'Real-world Applications', description: 'Building projects', resource_url: '', duration: '5 hours', difficulty: 'intermediate' },
+      { name: 'Advanced Techniques', description: 'Professional skills', resource_url: '', duration: '4 hours', difficulty: 'advanced' },
+    ],
+    projects: [
+      { name: 'Starter Project', description: `Build a basic ${interestName} project`, difficulty: 'easy' },
+      { name: 'Capstone Project', description: `Complete ${interestName} application`, difficulty: 'medium' },
+    ],
+  };
 };

@@ -1,0 +1,58 @@
+import { z } from "zod";
+declare const envSchema: z.ZodObject<{
+    NODE_ENV: z.ZodDefault<z.ZodEnum<["development", "production", "test"]>>;
+    PORT: z.ZodDefault<z.ZodString>;
+    SUPABASE_URL: z.ZodString;
+    SUPABASE_SERVICE_KEY: z.ZodString;
+    SUPABASE_ANON_KEY: z.ZodString;
+    STORAGE_BUCKET: z.ZodDefault<z.ZodString>;
+    JWT_SECRET: z.ZodString;
+    JWT_ACCESS_EXPIRY: z.ZodDefault<z.ZodString>;
+    JWT_REFRESH_EXPIRY: z.ZodDefault<z.ZodString>;
+    GEMINI_KEYS: z.ZodString;
+    FRONTEND_URL: z.ZodDefault<z.ZodString>;
+    BACKEND_URL: z.ZodDefault<z.ZodString>;
+}, "strip", z.ZodTypeAny, {
+    NODE_ENV: "production" | "development" | "test";
+    PORT: string;
+    SUPABASE_URL: string;
+    SUPABASE_SERVICE_KEY: string;
+    SUPABASE_ANON_KEY: string;
+    STORAGE_BUCKET: string;
+    JWT_SECRET: string;
+    JWT_ACCESS_EXPIRY: string;
+    JWT_REFRESH_EXPIRY: string;
+    GEMINI_KEYS: string;
+    FRONTEND_URL: string;
+    BACKEND_URL: string;
+}, {
+    SUPABASE_URL: string;
+    SUPABASE_SERVICE_KEY: string;
+    SUPABASE_ANON_KEY: string;
+    JWT_SECRET: string;
+    GEMINI_KEYS: string;
+    NODE_ENV?: "production" | "development" | "test" | undefined;
+    PORT?: string | undefined;
+    STORAGE_BUCKET?: string | undefined;
+    JWT_ACCESS_EXPIRY?: string | undefined;
+    JWT_REFRESH_EXPIRY?: string | undefined;
+    FRONTEND_URL?: string | undefined;
+    BACKEND_URL?: string | undefined;
+}>;
+export declare const env: {
+    NODE_ENV: "production" | "development" | "test";
+    PORT: string;
+    SUPABASE_URL: string;
+    SUPABASE_SERVICE_KEY: string;
+    SUPABASE_ANON_KEY: string;
+    STORAGE_BUCKET: string;
+    JWT_SECRET: string;
+    JWT_ACCESS_EXPIRY: string;
+    JWT_REFRESH_EXPIRY: string;
+    GEMINI_KEYS: string;
+    FRONTEND_URL: string;
+    BACKEND_URL: string;
+};
+export type Env = z.infer<typeof envSchema>;
+export {};
+//# sourceMappingURL=env.d.ts.map

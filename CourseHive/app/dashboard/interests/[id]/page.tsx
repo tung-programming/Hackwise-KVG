@@ -1,9 +1,10 @@
 'use client'
 
+import { useMemo } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowLeft, CheckCircle2, Loader2, Lock, Clock, BookOpen, ArrowRight, Download } from 'lucide-react'
-import { mockRoadmap } from '@/lib/mock-data'
+import { useInterestDetail, useCourseCompletion } from '@/hooks/use-api'
 
 const PRIMARY = '#172b44'
 const ACCENT = '#f97316'
@@ -13,7 +14,19 @@ const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { stag
 
 const phaseColors = ['#4f46e5', '#0891b2', '#0d9488']
 
-const statusConfig = {
+interface StatusConfig {
+  Icon: React.ElementType
+  label: string
+  cardBorder: string
+  cardBg: string
+  badgeBg: string
+  badgeText: string
+  iconColor: string
+  spin?: boolean
+  dim?: boolean
+}
+
+const statusConfig: Record<string, StatusConfig> = {
   completed: {
     Icon: CheckCircle2,
     label: 'Completed',
@@ -46,10 +59,69 @@ const statusConfig = {
 }
 
 export default function RoadmapPage({ params }: { params: { id: string } }) {
-  const roadmap = mockRoadmap
+  const { data: interestData, loading, refetch } = useInterestDetail(params.id)
+  const { complete, loading: completing } = useCourseCompletion(refetch)
+
+  const roadmap = useMemo(() => {
+    if (!interestData) return null
+
+    const { interest, courses } = interestData
+    const sortedCourses = [...courses].sort((a, b) => a.node_order - b.node_order)
+
+    const coursesPerPhase = 3
+    const phases: Array<{
+      phase: number
+      title: string
+      courses: Array<{
+        id: string
+        title: string
+        duration: string
+        status: 'completed' | 'in-progress' | 'todo'
+        resource_url: string
+      }>
+    }> = []
+
+    for (let i = 0; i < sortedCourses.length; i += coursesPerPhase) {
+      const phaseCourses = sortedCourses.slice(i, i + coursesPerPhase)
+      const phaseNum = Math.floor(i / coursesPerPhase) + 1
+
+      phases.push({
+        phase: phaseNum,
+        title: phaseNum === 1 ? 'Fundamentals' : phaseNum === 2 ? 'Intermediate' : 'Advanced',
+        courses: phaseCourses.map(c => ({
+          id: c.id,
+          title: c.name,
+          duration: c.roadmap_data?.duration || '2 hours',
+          status: c.is_completed ? 'completed' : c.is_locked ? 'todo' : 'in-progress',
+          resource_url: c.resource_url,
+        })),
+      })
+    }
+
+    return { title: interest.name, phases }
+  }, [interestData])
+
+  if (loading || !roadmap) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#f97316]" />
+      </div>
+    )
+  }
+
   const totalCourses = roadmap.phases.reduce((s, p) => s + p.courses.length, 0)
   const doneCourses = roadmap.phases.reduce((s, p) => s + p.courses.filter(c => c.status === 'completed').length, 0)
-  const pct = Math.round((doneCourses / totalCourses) * 100)
+  const pct = totalCourses > 0 ? Math.round((doneCourses / totalCourses) * 100) : 0
+
+  const handleCourseClick = (course: { id: string; status: string; resource_url: string }) => {
+    if (course.status === 'in-progress' && course.resource_url) {
+      window.open(course.resource_url, '_blank')
+    }
+  }
+
+  const handleMarkComplete = async (courseId: string) => {
+    await complete(courseId)
+  }
 
   return (
     <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6">
@@ -108,6 +180,7 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
       <motion.div variants={stagger} className="space-y-8">
         {roadmap.phases.map((phase, pi) => (
           <motion.div key={phase.phase} variants={fade} className="space-y-4">
+
             {/* Phase header */}
             <div className="flex items-center gap-3">
               <div
@@ -120,7 +193,6 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
                 <h2 className="font-bold text-base">{phase.title}</h2>
                 <p className="text-xs text-muted-foreground">{phase.courses.length} courses</p>
               </div>
-              {/* Dot progress */}
               <div className="hidden sm:flex gap-1.5">
                 {phase.courses.map((c, i) => (
                   <div
@@ -137,7 +209,7 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
             {/* Courses grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:ml-13">
               {phase.courses.map((course) => {
-                const cfg = statusConfig[course.status as keyof typeof statusConfig] || statusConfig.todo
+                const cfg = statusConfig[course.status] ?? statusConfig.todo
                 const StatusIcon = cfg.Icon
                 return (
                   <div
@@ -166,8 +238,9 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
                     </div>
 
                     <button
-                      disabled={course.status === 'todo'}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5"
+                      disabled={course.status === 'todo' || completing}
+                      onClick={() => handleCourseClick(course)}
+                      className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
                       style={
                         course.status === 'completed'
                           ? { background: '#dcfce7', color: '#15803d' }
@@ -180,6 +253,17 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
                       {course.status === 'in-progress' && <>Continue <ArrowRight className="w-4 h-4" /></>}
                       {course.status === 'todo' && <><Lock className="w-4 h-4" /> Locked</>}
                     </button>
+
+                    {course.status === 'in-progress' && (
+                      <button
+                        onClick={() => handleMarkComplete(course.id)}
+                        disabled={completing}
+                        className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-colors disabled:opacity-50"
+                      >
+                        {completing ? <Loader2 className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3 h-3" />}
+                        Mark Complete
+                      </button>
+                    )}
                   </div>
                 )
               })}
@@ -203,6 +287,7 @@ export default function RoadmapPage({ params }: { params: { id: string } }) {
           </button>
         </Link>
       </motion.div>
+
     </motion.div>
   )
 }

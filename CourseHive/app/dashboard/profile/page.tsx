@@ -1,8 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Mail, BookOpen, Award, Calendar, Trophy, Edit3, Download, Shield, TrendingUp, ArrowUpRight, CheckCircle2, User, Sparkles, MapPin, Briefcase } from 'lucide-react'
-import { mockUserProfile } from '@/lib/mock-data'
+import { Mail, BookOpen, Award, Calendar, Trophy, Edit3, Download, Shield, TrendingUp, ArrowUpRight, CheckCircle2, User, Sparkles, MapPin, Briefcase, Loader2 } from 'lucide-react'
+import { useUser, useUserStats } from '@/hooks/use-api'
 
 const PRIMARY = '#172b44'
 const ACCENT = '#f97316'
@@ -10,13 +10,32 @@ const ACCENT = '#f97316'
 const fade = { hidden: { opacity: 0, y: 14 }, show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } } }
 const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.07 } } }
 
-const statCards = [
-  { icon: Trophy, label: 'Total XP Points', value: mockUserProfile.totalPoints.toLocaleString() },
-  { icon: BookOpen, label: 'Courses Completed', value: mockUserProfile.completedCourses },
-  { icon: Award, label: 'Certificates Earned', value: mockUserProfile.certificatesEarned },
-]
-
 export default function ProfilePage() {
+  const { data: user, loading: userLoading } = useUser()
+  const { data: stats, loading: statsLoading } = useUserStats()
+  
+  const loading = userLoading || statsLoading
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[50vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-[#f97316]" />
+      </div>
+    )
+  }
+  
+  const statCards = [
+    { icon: Trophy, label: 'Total XP Points', value: (stats?.xp || 0).toLocaleString() },
+    { icon: BookOpen, label: 'Courses Completed', value: stats?.completedCourses || 0 },
+    { icon: Award, label: 'Projects Completed', value: stats?.completedProjects || 0 },
+  ]
+  
+  const userName = user?.username || 'User'
+  const userField = user?.field || 'Engineering'
+  const userType = user?.type || 'Student'
+  const userEmail = user?.email || 'user@example.com'
+  const userJoinDate = user?.created_at || new Date().toISOString()
+  
   return (
     <motion.div initial="hidden" animate="show" variants={stagger} className="space-y-6 max-w-6xl mx-auto pb-10">
 
@@ -72,27 +91,27 @@ export default function ProfilePage() {
             <div className="px-6 pb-6 pt-0 relative flex flex-col items-center">
               {/* Avatar */}
               <div className="w-24 h-24 rounded-full border-4 border-white flex items-center justify-center text-3xl font-black text-white shadow-xl -mt-12 bg-gradient-to-br from-[#f97316] to-[#ea6c0a] relative z-10 group-hover:scale-105 transition-transform duration-300">
-                {mockUserProfile.name.split(' ').map(n => n[0]).join('')}
+                {userName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                 <div className="absolute bottom-0 right-0 w-6 h-6 bg-emerald-500 border-2 border-white rounded-full" title="Online" />
               </div>
               
-              <h2 className="text-xl font-bold text-[#172b44] mt-4">{mockUserProfile.name}</h2>
+              <h2 className="text-xl font-bold text-[#172b44] mt-4">{userName}</h2>
               <p className="text-muted-foreground text-sm font-medium mt-1 flex items-center gap-1.5">
-                <Briefcase className="w-3.5 h-3.5" /> {mockUserProfile.field} Student
+                <Briefcase className="w-3.5 h-3.5" /> {userField} {userType}
               </p>
               
               <div className="w-full mt-6 space-y-3">
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 text-sm">
                   <Mail className="w-4 h-4 text-slate-400" />
-                  <span className="font-semibold text-[#172b44]">{mockUserProfile.email}</span>
+                  <span className="font-semibold text-[#172b44]">{userEmail}</span>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 text-sm">
                   <Calendar className="w-4 h-4 text-slate-400" />
-                  <span className="font-semibold text-[#172b44]">Joined {new Date(mockUserProfile.joinDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
+                  <span className="font-semibold text-[#172b44]">Joined {new Date(userJoinDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</span>
                 </div>
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100 text-sm">
                   <MapPin className="w-4 h-4 text-slate-400" />
-                  <span className="font-semibold text-[#172b44]">San Francisco, CA</span>
+                  <span className="font-semibold text-[#172b44]">Learning Online</span>
                 </div>
               </div>
             </div>
@@ -114,13 +133,13 @@ export default function ProfilePage() {
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Primary Field</label>
                 <div className="px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-semibold text-[#172b44]">
-                  {mockUserProfile.field}
+                  {userField}
                 </div>
               </div>
               <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Specialization Tracking</label>
                 <div className="px-4 py-3.5 bg-slate-50 border border-slate-100 rounded-xl text-sm font-semibold text-[#172b44]">
-                  {mockUserProfile.type}
+                  {userType}
                 </div>
               </div>
               <div className="space-y-2">

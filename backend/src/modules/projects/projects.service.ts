@@ -93,13 +93,32 @@ export const projectsService = {
       throw new NotFoundError("Project not found");
     }
 
+    const status = !project.is_validated
+      ? "pending"
+      : project.is_completed
+      ? "validated"
+      : "failed";
+
     return {
-      project_id: project.id,
-      name: project.name,
-      is_validated: project.is_validated,
-      is_completed: project.is_completed,
-      feedback: project.validation_feedback,
-      xp_awarded: project.xp_awarded,
+      status,
+      result:
+        project.is_validated && project.validation_feedback
+          ? {
+              isValid: project.is_completed,
+              score: project.is_completed ? 80 : 40,
+              feedback: project.validation_feedback
+                .split("\n")
+                .map((line: string) => line.trim())
+                .filter(Boolean)
+                .slice(0, 8),
+              suggestions: [],
+            }
+          : undefined,
+      xpAwarded: project.xp_awarded,
+      project: {
+        id: project.id,
+        name: project.name,
+      },
     };
   },
 };
@@ -151,6 +170,24 @@ async function validateProjectAsync(userId: string, projectId: string, project: 
 
       // Refresh leaderboard
       await supabase.rpc("refresh_leaderboard");
+
+      // If all projects for this interest are completed, close the interest.
+      const { data: allProjects } = await supabase
+        .from("projects")
+        .select("is_completed")
+        .eq("interest_id", project.interest_id);
+
+      const allProjectsCompleted = allProjects?.every((p) => p.is_completed) || false;
+      if (allProjectsCompleted) {
+        await supabase
+          .from("interests")
+          .update({
+            is_completed: true,
+            progress_pct: 100,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", project.interest_id);
+      }
     }
 
     console.log(`✅ Project ${projectId} validated. Valid: ${isValid}, XP: ${xpAwarded}`);
