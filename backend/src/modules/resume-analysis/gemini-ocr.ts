@@ -1,5 +1,5 @@
 // Gemini OCR extraction with fallback
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenAI } from "@google/genai";
 import { env } from "../../config/env";
 
 // Resume-analysis OCR must use only GEMINI_OCR_KEYS from env
@@ -7,7 +7,7 @@ const ocrKeys = (env.GEMINI_OCR_KEYS || "")
   .split(",")
   .map((k) => k.trim())
   .filter((k) => k.length > 0);
-const ocrClients = ocrKeys.map((key) => new GoogleGenerativeAI(key));
+const ocrClients = ocrKeys.map((key) => new GoogleGenAI({ apiKey: key }));
 
 console.log(
   `✅ Gemini OCR initialized with ${ocrClients.length} key(s) from GEMINI_OCR_KEYS`
@@ -215,9 +215,15 @@ Return ONLY the extracted text content, no additional commentary.`;
     for (const modelName of models) {
       try {
         console.log(`🔄 Trying OCR key ${i + 1}/${ocrClients.length} with model ${modelName}...`);
-        const model = client.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent([prompt, imagePart]);
-        const text = result.response.text();
+        const result = await client.models.generateContent({
+          model: modelName,
+          contents: [{ text: prompt }, imagePart],
+          config: {
+            maxOutputTokens: 8192,
+            temperature: 0.1,
+          },
+        });
+        const text = result.text ?? "";
 
         if (text && text.length > 50) {
           console.log(`✅ OCR extraction successful with key ${i + 1} and model ${modelName}`);
