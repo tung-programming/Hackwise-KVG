@@ -137,11 +137,6 @@ export default function ResumePage() {
           <h1 className="text-3xl font-extrabold tracking-tight text-[#172b44]">Resume Analysis</h1>
           <p className="text-muted-foreground text-sm mt-1">Upload your resume to get AI-powered career insights</p>
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold bg-white border border-border hover:bg-secondary transition-colors text-[#172b44]">
-            <Download className="w-4 h-4" /> Download Template
-          </button>
-        </div>
       </motion.div>
 
       {/* Stat strip (consistent with other pages) */}
