@@ -1,18 +1,18 @@
 'use client'
 
-import { use, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
-  ArrowLeft,
-  ExternalLink,
-  Clock,
-  CheckCircle2,
-  Lock,
-  Loader2,
   AlertCircle,
-  FolderOpen,
+  ArrowLeft,
   ArrowRight,
+  CheckCircle2,
+  Clock,
+  ExternalLink,
+  FolderOpen,
+  Loader2,
+  Lock,
 } from 'lucide-react'
 import { useCourseCompletion, useInterestDetail } from '@/hooks/use-api'
 
@@ -29,9 +29,8 @@ const stagger = {
   show: { opacity: 1, transition: { staggerChildren: 0.07 } },
 }
 
-export default function CourseRoadmapPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
-  const { data, loading, error, refetch } = useInterestDetail(id)
+export default function CourseRoadmapPage({ params }: { params: { id: string } }) {
+  const { data, loading, error, refetch } = useInterestDetail(params.id)
   const { complete, loading: completing } = useCourseCompletion(refetch)
   const [feedback, setFeedback] = useState<string | null>(null)
 
@@ -47,7 +46,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
 
   const handleComplete = async (courseId: string) => {
     const result = await complete(courseId)
-    if (result.success) {
+    if (result.success && 'xpAwarded' in result) {
       setFeedback(`Course completed. +${result.xpAwarded || 0} XP`)
       setTimeout(() => setFeedback(null), 2500)
     }
@@ -86,7 +85,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
 
       <motion.div variants={fade} className="rounded-3xl border border-white/10 p-6 text-white shadow-xl" style={{ background: `linear-gradient(135deg, ${PRIMARY} 0%, #2c4a6a 100%)` }}>
         <h1 className="text-3xl font-black tracking-tight">{data.interest.name}</h1>
-        <p className="mt-2 text-sm text-white/70 max-w-2xl">{data.interest.description}</p>
+        <p className="mt-2 max-w-2xl text-sm text-white/70">{data.interest.description}</p>
         <div className="mt-5 flex items-center gap-6 text-sm text-white/80">
           <span>{completedCourses} / {totalCourses} courses completed</span>
           <span>{data.projects.length} projects</span>
@@ -138,7 +137,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
                 <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                   <Clock className="h-3.5 w-3.5" />
                   <span>{course.roadmap_data?.duration || '1-2 hours'}</span>
-                  <span>·</span>
+                  <span>-</span>
                   <span>{course.roadmap_data?.difficulty || 'beginner'}</span>
                 </div>
 
@@ -177,7 +176,7 @@ export default function CourseRoadmapPage({ params }: { params: Promise<{ id: st
         <div className="flex items-center justify-between">
           <div>
             <h3 className="text-base font-bold" style={{ color: PRIMARY }}>Projects</h3>
-            <p className="text-sm text-muted-foreground mt-0.5">
+            <p className="mt-0.5 text-sm text-muted-foreground">
               {projectsUnlocked ? 'Projects unlocked. Submit them from the Projects page.' : 'Projects unlock after all courses are completed.'}
             </p>
           </div>

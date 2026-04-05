@@ -14,7 +14,10 @@ interface TopBarProps {
 export function TopBar({ onMenuClick }: TopBarProps) {
   const { theme, setTheme } = useTheme()
   const { currentUser } = useAppStore()
-  const name = currentUser?.username || 'Jordan Smith'
+  const name =
+    (currentUser && 'username' in currentUser
+      ? (currentUser as { username?: string }).username
+      : currentUser?.name) || 'Jordan Smith'
   const email = 'jordan@example.com'
   const initials = name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
 
