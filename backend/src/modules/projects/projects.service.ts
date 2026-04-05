@@ -1,4 +1,5 @@
 // Projects service
+import { randomUUID } from "crypto";
 import { supabase } from "../../config/database";
 import { NotFoundError } from "../../utils/errors";
 import { validateProjectWithAI } from "./project.validator";
@@ -126,6 +127,20 @@ export const projectsService = {
 // Background validation function
 async function validateProjectAsync(userId: string, projectId: string, project: any) {
   try {
+    const { data: existingProject, error: existingProjectError } = await supabase
+      .from("projects")
+      .select("is_completed, xp_awarded, completed_at")
+      .eq("id", projectId)
+      .eq("user_id", userId)
+      .single();
+
+    if (existingProjectError || !existingProject) {
+      throw existingProjectError || new Error("Project not found during validation");
+    }
+
+    const alreadyRewarded =
+      !!existingProject.is_completed && (existingProject.xp_awarded || 0) > 0;
+
     const validation = await validateProjectWithAI({
       title: project.name,
       description: project.description,
@@ -135,41 +150,48 @@ async function validateProjectAsync(userId: string, projectId: string, project: 
     });
 
     const isValid = validation.isValid && validation.score >= 60;
-    const xpAwarded = isValid ? XP_BY_DIFFICULTY[project.difficulty] || 250 : 0;
+    const calculatedXp = XP_BY_DIFFICULTY[project.difficulty] || 250;
+    const xpAwarded = isValid
+      ? alreadyRewarded
+        ? existingProject.xp_awarded || calculatedXp
+        : calculatedXp
+      : 0;
+    const now = new Date().toISOString();
 
     // Update project with validation result
     await supabase
       .from("projects")
       .update({
         is_validated: true,
-        is_completed: isValid,
-        completed_at: isValid ? new Date().toISOString() : null,
+        is_completed: isValid || !!existingProject.is_completed,
+        completed_at: isValid ? existingProject.completed_at || now : null,
         validation_feedback: validation.feedback.join("\n") + "\n\nSuggestions:\n" + validation.suggestions.join("\n"),
         xp_awarded: xpAwarded,
-        updated_at: new Date().toISOString(),
+        updated_at: now,
       })
       .eq("id", projectId);
 
     if (isValid) {
-      // Award XP
-      await supabase.rpc("increment_xp", { user_id: userId, xp_amount: xpAwarded });
+      if (!alreadyRewarded) {
+        await awardProjectXPAndRefreshLeaderboard(userId, xpAwarded);
 
-      // Log activity
-      await supabase.from("user_activity_log").upsert(
-        {
-          user_id: userId,
-          activity_type: "project_submitted",
-          activity_date: new Date().toISOString().split("T")[0],
-          metadata: { project_id: projectId, xp_awarded: xpAwarded },
-        },
-        { onConflict: "user_id,activity_type,activity_date" }
-      );
+        // Log activity
+        await supabase.from("user_activity_log").upsert(
+          {
+            user_id: userId,
+            activity_type: "project_submitted",
+            activity_date: new Date().toISOString().split("T")[0],
+            metadata: { project_id: projectId, xp_awarded: xpAwarded },
+          },
+          { onConflict: "user_id,activity_type,activity_date" }
+        );
 
-      // Update streak
-      await supabase.rpc("update_user_streak", { p_user_id: userId });
+        // Update streak
+        await supabase.rpc("update_user_streak", { p_user_id: userId });
+      }
 
-      // Refresh leaderboard
-      await supabase.rpc("refresh_leaderboard");
+      // Ensure leaderboard table is always synced with current user XP.
+      await syncLeaderboardFromUsersTable(userId);
 
       // If all projects for this interest are completed, close the interest.
       const { data: allProjects } = await supabase
@@ -195,4 +217,134 @@ async function validateProjectAsync(userId: string, projectId: string, project: 
     console.error("Error validating project:", error);
     throw error;
   }
+}
+
+async function awardProjectXPAndRefreshLeaderboard(userId: string, xpAwarded: number) {
+  const now = new Date().toISOString();
+
+  const { data: user, error: userError } = await supabase
+    .from("users")
+    .select("id, username, field, type, xp")
+    .eq("id", userId)
+    .single();
+
+  if (userError || !user) {
+    throw userError || new Error("User not found while awarding XP");
+  }
+
+  const updatedXp = (user.xp || 0) + xpAwarded;
+
+  const { error: updateUserError } = await supabase
+    .from("users")
+    .update({ xp: updatedXp, updated_at: now })
+    .eq("id", userId);
+
+  if (updateUserError) throw updateUserError;
+
+  await upsertLeaderboardRow({
+    userId,
+    username: user.username || "Anonymous",
+    field: user.field || "unspecified",
+    type: user.type || "unspecified",
+    totalXp: updatedXp,
+  });
+
+  await recalculateLeaderboardRanks();
+}
+
+async function syncLeaderboardFromUsersTable(userId: string) {
+  const { data: user, error } = await supabase
+    .from("users")
+    .select("id, username, field, type, xp")
+    .eq("id", userId)
+    .single();
+
+  if (error || !user) {
+    throw error || new Error("User not found while syncing leaderboard");
+  }
+
+  await upsertLeaderboardRow({
+    userId: user.id,
+    username: user.username || "Anonymous",
+    field: user.field || "unspecified",
+    type: user.type || "unspecified",
+    totalXp: user.xp || 0,
+  });
+
+  await recalculateLeaderboardRanks();
+}
+
+async function upsertLeaderboardRow(input: {
+  userId: string;
+  username: string;
+  field: string;
+  type: string;
+  totalXp: number;
+}) {
+  const now = new Date().toISOString();
+
+  const { data: existingRow } = await supabase
+    .from("leaderboard")
+    .select("id")
+    .eq("user_id", input.userId)
+    .maybeSingle();
+
+  if (existingRow?.id) {
+    const { error: updateLeaderboardError } = await supabase
+      .from("leaderboard")
+      .update({
+        username: input.username,
+        total_xp: input.totalXp,
+        field: input.field,
+        type: input.type,
+        updated_at: now,
+      })
+      .eq("id", existingRow.id);
+
+    if (updateLeaderboardError) throw updateLeaderboardError;
+    return;
+  }
+
+  const { error: insertLeaderboardError } = await supabase.from("leaderboard").insert({
+    id: randomUUID(),
+    user_id: input.userId,
+    username: input.username,
+    total_xp: input.totalXp,
+    rank: 0,
+    field: input.field,
+    type: input.type,
+    updated_at: now,
+  });
+
+  if (insertLeaderboardError) throw insertLeaderboardError;
+}
+
+async function recalculateLeaderboardRanks() {
+  const { data: leaderboardEntries, error: leaderboardError } = await supabase
+    .from("leaderboard")
+    .select("id, user_id, total_xp, updated_at")
+    .order("total_xp", { ascending: false })
+    .order("updated_at", { ascending: true });
+
+  if (leaderboardError) throw leaderboardError;
+
+  const entries = leaderboardEntries || [];
+
+  await Promise.all(
+    entries.map((entry, index) =>
+      supabase
+        .from("leaderboard")
+        .update({ rank: index + 1, updated_at: new Date().toISOString() })
+        .eq("id", entry.id)
+    )
+  );
+
+  await Promise.all(
+    entries.map((entry, index) =>
+      supabase
+        .from("users")
+        .update({ leaderboard_pos: index + 1 })
+        .eq("id", entry.user_id)
+    )
+  );
 }

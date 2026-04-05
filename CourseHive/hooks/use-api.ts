@@ -471,7 +471,7 @@ export function useLeaderboard(period: 'all' | 'month' | 'week' = 'all') {
 
 export function useMyRank() {
   const [state, setState] = useState<
-    HookState<{ rank: number; totalUsers: number } | null>
+    HookState<{ rank: number; xp?: number; streak?: number } | null>
   >({
     data: null,
     loading: true,

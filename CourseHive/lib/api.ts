@@ -23,6 +23,7 @@ export interface User {
 export interface UserStats {
   xp: number;
   streak: number;
+  leaderboardPos?: number;
   completedCourses: number;
   completedProjects: number;
   activeInterests: number;
@@ -154,7 +155,16 @@ export const userApi = {
   // Get user stats (XP, streak, completed courses, etc.)
   async getStats(): Promise<UserStats> {
     const response = await authFetch('/api/users/stats');
-    return handleResponse<UserStats>(response);
+    const raw = await handleResponse<any>(response);
+
+    return {
+      xp: raw.xp || 0,
+      streak: raw.streak || 0,
+      leaderboardPos: raw.leaderboard_pos,
+      completedCourses: raw.completedCourses ?? raw.courses_completed ?? 0,
+      completedProjects: raw.completedProjects ?? raw.projects_completed ?? 0,
+      activeInterests: raw.activeInterests ?? raw.interests_accepted ?? 0,
+    };
   },
 
   // Get public profile by user ID
@@ -361,28 +371,56 @@ export interface LeaderboardEntry {
   streak: number;
 }
 
+type LeaderboardResponse =
+  | LeaderboardEntry[]
+  | {
+      entries?: Array<LeaderboardEntry & { total_xp?: number }>;
+      pagination?: {
+        page: number;
+        limit: number;
+        total: number;
+        pages: number;
+      };
+    };
+
+function normalizeLeaderboardEntries(payload: LeaderboardResponse): LeaderboardEntry[] {
+  const rows = Array.isArray(payload) ? payload : payload.entries || [];
+  return rows.map((entry) => ({
+    rank: entry.rank,
+    user_id: entry.user_id,
+    username: entry.username,
+    avatar_url: entry.avatar_url ?? null,
+    field: entry.field,
+    xp: entry.xp ?? entry.total_xp ?? 0,
+    streak: entry.streak ?? 0,
+  }));
+}
+
 export const leaderboardApi = {
   // Get global leaderboard
   async getAll(period?: 'all' | 'month' | 'week'): Promise<LeaderboardEntry[]> {
     const query = period && period !== 'all' ? `?period=${period}` : '';
     const response = await fetch(`${API_URL}/api/leaderboard${query}`);
-    return handleResponse<LeaderboardEntry[]>(response);
+    const data = await handleResponse<LeaderboardResponse>(response);
+    return normalizeLeaderboardEntries(data);
   },
 
   // Get top users
   async getTop(limit = 10): Promise<LeaderboardEntry[]> {
     const response = await fetch(`${API_URL}/api/leaderboard/top?limit=${limit}`);
-    return handleResponse<LeaderboardEntry[]>(response);
+    const data = await handleResponse<LeaderboardResponse>(response);
+    return normalizeLeaderboardEntries(data);
   },
 
   // Get streak leaderboard
   async getStreaks(): Promise<LeaderboardEntry[]> {
     const response = await fetch(`${API_URL}/api/leaderboard/streaks`);
-    return handleResponse<LeaderboardEntry[]>(response);
+    const data = await handleResponse<LeaderboardResponse>(response);
+    return normalizeLeaderboardEntries(data);
   },
 
   // Get current user rank (requires auth)
-  async getMyRank(): Promise<{ rank: number; totalUsers: number }> {
+  async getMyRank(): Promise<{ rank: number; xp?: number; streak?: number }> {
     const response = await authFetch('/api/leaderboard/me');
     return handleResponse(response);
   },
