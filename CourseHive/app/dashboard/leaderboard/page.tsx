@@ -28,6 +28,11 @@ const fieldStyle: Record<string, { bg: string; text: string }> = {
 
 const getInitials = (name: string) => name.split(' ').map(n => n[0]).join('').substring(0, 2)
 
+const toBadgeStyle = (field: string) => {
+  const style = fieldStyle[field] || fieldStyle.Engineering
+  return { background: style.bg, color: style.text }
+}
+
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<TimePeriod>('All Time')
   
@@ -52,6 +57,11 @@ export default function LeaderboardPage() {
   
   const topThree = entries.slice(0, 3)
   const rest = entries.slice(3)
+  const podium = [
+    topThree[0] || { rank: 1, name: 'N/A', field: 'Engineering', points: 0, streak: 0, user_id: 'podium-1' },
+    topThree[1] || { rank: 2, name: 'N/A', field: 'Engineering', points: 0, streak: 0, user_id: 'podium-2' },
+    topThree[2] || { rank: 3, name: 'N/A', field: 'Engineering', points: 0, streak: 0, user_id: 'podium-3' },
+  ]
   
   // Add current user to list if not in top rankings
   const allRankings = useMemo(() => {
@@ -135,7 +145,7 @@ export default function LeaderboardPage() {
                   <div className="relative">
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 p-[3px] shadow-xl">
                       <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-2xl font-black text-slate-700">
-                        {getInitials(topThree[1].name)}
+                        {getInitials(podium[1].name)}
                       </div>
                     </div>
                     <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-slate-400 text-white text-xs font-black px-3 py-1 rounded-full shadow-md border-2 border-white">
@@ -144,21 +154,21 @@ export default function LeaderboardPage() {
                   </div>
                 </div>
                 
-                <h3 className="text-lg font-bold text-[#172b44] mt-2 truncate">{topThree[1].name}</h3>
+                <h3 className="text-lg font-bold text-[#172b44] mt-2 truncate">{podium[1].name}</h3>
                 <div className="flex justify-center mt-2">
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style={fieldStyle[topThree[1].field]}>
-                    {topThree[1].field}
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style={toBadgeStyle(podium[1].field)}>
+                    {podium[1].field}
                   </span>
                 </div>
                 
                 <div className="mt-6 flex flex-col items-center">
-                  <span className="text-3xl font-black text-slate-700">{topThree[1].points.toLocaleString()}</span>
+                  <span className="text-3xl font-black text-slate-700">{podium[1].points.toLocaleString()}</span>
                   <span className="text-xs font-semibold text-slate-400 uppercase tracking-widest mt-1">XP Points</span>
                 </div>
                 
                 <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-center gap-2">
                   <Flame className="w-4 h-4 text-orange-500 fill-orange-500/20" />
-                  <span className="text-sm font-bold text-slate-600">{topThree[1].streak} Day Streak</span>
+                  <span className="text-sm font-bold text-slate-600">{podium[1].streak} Day Streak</span>
                 </div>
               </div>
             </motion.div>
@@ -180,7 +190,7 @@ export default function LeaderboardPage() {
                       <Crown className="w-10 h-10 text-yellow-400 absolute -top-8 left-1/2 -translate-x-1/2 drop-shadow-md" />
                       <div className="w-24 h-24 rounded-full bg-gradient-to-br from-yellow-300 via-yellow-400 to-yellow-600 p-[4px] shadow-2xl">
                         <div className="w-full h-full rounded-full bg-[#172b44] flex items-center justify-center text-3xl font-black text-white">
-                          {getInitials(topThree[0].name)}
+                          {getInitials(podium[0].name)}
                         </div>
                       </div>
                       <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-[#172b44] text-sm font-black px-4 py-1.5 rounded-full shadow-lg border-2 border-[#172b44]">
@@ -189,10 +199,10 @@ export default function LeaderboardPage() {
                     </div>
                   </div>
                   
-                  <h3 className="text-2xl font-black text-white mt-4 truncate relative z-10">{topThree[0].name}</h3>
+                  <h3 className="text-2xl font-black text-white mt-4 truncate relative z-10">{podium[0].name}</h3>
                   <div className="flex justify-center mt-3 relative z-10">
                     <span className="text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider bg-white/10 text-yellow-300 border border-white/10 backdrop-blur-md">
-                      {topThree[0].field}
+                      {podium[0].field}
                     </span>
                   </div>
                   
@@ -200,7 +210,7 @@ export default function LeaderboardPage() {
                     <div className="flex items-center gap-1">
                       <Sparkles className="w-5 h-5 text-yellow-400" />
                       <span className="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-500 drop-shadow-sm">
-                        {topThree[0].points.toLocaleString()}
+                        {podium[0].points.toLocaleString()}
                       </span>
                     </div>
                     <span className="text-xs font-bold text-white/50 uppercase tracking-widest mt-2">Total XP Points</span>
@@ -208,7 +218,7 @@ export default function LeaderboardPage() {
                   
                   <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-center gap-2 relative z-10">
                     <Flame className="w-5 h-5 text-orange-400 fill-orange-400/30" />
-                    <span className="text-sm font-bold text-white/90">{topThree[0].streak} Day Streak!</span>
+                    <span className="text-sm font-bold text-white/90">{podium[0].streak} Day Streak!</span>
                   </div>
                 </div>
               </div>
@@ -224,7 +234,7 @@ export default function LeaderboardPage() {
                   <div className="relative">
                     <div className="w-20 h-20 rounded-full bg-gradient-to-br from-orange-300 to-orange-500 p-[3px] shadow-xl">
                       <div className="w-full h-full rounded-full bg-white flex items-center justify-center text-2xl font-black text-orange-800">
-                        {getInitials(topThree[2].name)}
+                        {getInitials(podium[2].name)}
                       </div>
                     </div>
                     <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-md border-2 border-white">
@@ -233,21 +243,21 @@ export default function LeaderboardPage() {
                   </div>
                 </div>
                 
-                <h3 className="text-lg font-bold text-[#172b44] mt-2 truncate">{topThree[2].name}</h3>
+                <h3 className="text-lg font-bold text-[#172b44] mt-2 truncate">{podium[2].name}</h3>
                 <div className="flex justify-center mt-2">
-                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style={fieldStyle[topThree[2].field]}>
-                    {topThree[2].field}
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider" style={toBadgeStyle(podium[2].field)}>
+                    {podium[2].field}
                   </span>
                 </div>
                 
                 <div className="mt-6 flex flex-col items-center">
-                  <span className="text-3xl font-black text-orange-900">{topThree[2].points.toLocaleString()}</span>
+                  <span className="text-3xl font-black text-orange-900">{podium[2].points.toLocaleString()}</span>
                   <span className="text-xs font-semibold text-orange-400/80 uppercase tracking-widest mt-1">XP Points</span>
                 </div>
                 
                 <div className="mt-4 pt-4 border-t border-orange-100/50 flex items-center justify-center gap-2">
                   <Flame className="w-4 h-4 text-orange-500 fill-orange-500/20" />
-                  <span className="text-sm font-bold text-orange-800/80">{topThree[2].streak} Day Streak</span>
+                  <span className="text-sm font-bold text-orange-800/80">{podium[2].streak} Day Streak</span>
                 </div>
               </div>
             </motion.div>
@@ -314,7 +324,7 @@ export default function LeaderboardPage() {
                         )}
                       </div>
                       <div className="md:hidden mt-1">
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase" style={fieldStyle[entry.field] || fieldStyle.Engineering}>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full uppercase" style={toBadgeStyle(entry.field)}>
                           {entry.field}
                         </span>
                       </div>
@@ -323,7 +333,7 @@ export default function LeaderboardPage() {
 
                   {/* Field Desktop */}
                   <div className="col-span-3 hidden md:block order-4 md:order-none">
-                    <span className="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block" style={fieldStyle[entry.field] || fieldStyle.Engineering}>
+                    <span className="text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider inline-block" style={toBadgeStyle(entry.field)}>
                       {entry.field}
                     </span>
                   </div>
